@@ -1,4 +1,4 @@
-package org.example;
+package fr.epsi.mspr2;
 
 public class Main {
     public static void main(String[] args) {
