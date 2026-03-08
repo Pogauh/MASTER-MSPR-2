@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # 1. Broker MQTT (Mosquitto) - Le centre nerveux pour l'IoT
+  # Recommandé par la webographie [cite: 358, 361]
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: futurekawa-mqtt-local
+    ports:
+      - "1883:1883" # Port standard MQTT
+      - "9001:9001" # Port pour WebSockets (optionnel)
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: always
+
+  # 2. Base de données SQL (PostgreSQL) - Pour la traçabilité des lots
+  # Alternative suggérée : MariaDB [cite: 398, 400]
+  db-sql:
+    image: postgres:15-alpine
+    container_name: futurekawa-db-local
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: futurekawa_country
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # 3. Outil de gestion de base de données (Adminer)
+  # Pour visualiser tes tables sans installer de client lourd
+  db-admin:
+    image: adminer
+    container_name: futurekawa-adminer
+    ports:
+      - "8080:8080"
+    restart: always
+
+volumes:
+  postgres_data:
