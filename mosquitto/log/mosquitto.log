@@ -20,3 +20,15 @@
 1773007674: Opening ipv4 listen socket on port 1883.
 1773007674: Opening ipv6 listen socket on port 1883.
 1773007674: mosquitto version 2.1.2 running
+1773009408: mosquitto version 2.1.2 starting
+1773009408: Config loaded from /mosquitto/config/mosquitto.conf.
+1773009408: Bridge support available.
+1773009408: Persistence support available.
+1773009408: TLS support available.
+1773009408: TLS-PSK support available.
+1773009408: Websockets support available.
+1773009408: Opening ipv4 listen socket on port 1883.
+1773009408: Opening ipv6 listen socket on port 1883.
+1773009408: mosquitto version 2.1.2 running
+1773009531: mosquitto version 2.1.2 terminating
+1773009531: Saving in-memory database to /mosquitto/data//mosquitto.db.
