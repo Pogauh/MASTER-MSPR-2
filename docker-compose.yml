@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # 1. Broker MQTT
   mqtt-broker:
     image: eclipse-mosquitto:latest
     container_name: futurekawa-mqtt-local
@@ -14,7 +13,6 @@ services:
       - ./mosquitto/log:/mosquitto/log
     restart: always
 
-  # 2. Base de données SQL avec Initialisation automatique
   db-sql:
     image: postgres:15-alpine
     container_name: futurekawa-db-local
@@ -23,14 +21,12 @@ services:
       POSTGRES_PASSWORD: password123
       POSTGRES_DB: futurekawa_country
     ports:
-      - "5433:5432" # Note : Ton app Java devra utiliser le port 5433 !
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # AJOUT ICI : Charge ton script SQL au démarrage
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
 
-  # 3. Adminer
   db-admin:
     image: adminer
     container_name: futurekawa-adminer

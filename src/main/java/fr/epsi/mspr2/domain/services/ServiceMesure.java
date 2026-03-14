@@ -10,7 +10,6 @@ import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.domain.ports.MesurePort;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
