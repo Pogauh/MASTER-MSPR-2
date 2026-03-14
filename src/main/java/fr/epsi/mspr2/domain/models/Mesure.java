@@ -1,18 +1,37 @@
+
 package fr.epsi.mspr2.domain.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Table(name = "mesure")
 @Data
+@NoArgsConstructor
 public class Mesure {
-    private String id_mesure;
-    private double temperature;
-    private double humidite;
-    private long date_mesure;
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id_mesure", updatable = false, nullable = false)
+    private UUID idMesure;
 
-    public Mesure(String id_mesure, double temperature, double humidite, long date_mesure) {
-        this.id_mesure = id_mesure;
-        this.temperature = temperature;
-        this.humidite = humidite;
-        this.date_mesure = date_mesure;
-    }
+    @Column(name = "temperature")
+    private Integer temperature;
+
+    @Column(name = "humidite")
+    private Integer humidite;
+
+    @Column(name = "date_mesure")
+    private LocalDateTime dateMesure;
+
+    @ManyToOne
+    @JoinColumn(name = "id_entrepot", nullable = false)
+    @JsonIgnore
+    private Entrepot entrepot;
 }

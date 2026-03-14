@@ -1,22 +1,20 @@
 version: '3.8'
 
 services:
-  # 1. Broker MQTT (Mosquitto) - Le centre nerveux pour l'IoT
-  # Recommandé par la webographie [cite: 358, 361]
+  # 1. Broker MQTT
   mqtt-broker:
     image: eclipse-mosquitto:latest
     container_name: futurekawa-mqtt-local
     ports:
-      - "1883:1883" # Port standard MQTT
-      - "9001:9001" # Port pour WebSockets (optionnel)
+      - "1883:1883"
+      - "9001:9001"
     volumes:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
     restart: always
 
-  # 2. Base de données SQL (PostgreSQL) - Pour la traçabilité des lots
-  # Alternative suggérée : MariaDB [cite: 398, 400]
+  # 2. Base de données SQL avec Initialisation automatique
   db-sql:
     image: postgres:15-alpine
     container_name: futurekawa-db-local
@@ -25,18 +23,19 @@ services:
       POSTGRES_PASSWORD: password123
       POSTGRES_DB: futurekawa_country
     ports:
-      - "5432:5432"
+      - "5433:5432" # Note : Ton app Java devra utiliser le port 5433 !
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # AJOUT ICI : Charge ton script SQL au démarrage
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
 
-  # 3. Outil de gestion de base de données (Adminer)
-  # Pour visualiser tes tables sans installer de client lourd
+  # 3. Adminer
   db-admin:
     image: adminer
     container_name: futurekawa-adminer
     ports:
-      - "8080:8080"
+      - "8081:8080"
     restart: always
 
 volumes:
