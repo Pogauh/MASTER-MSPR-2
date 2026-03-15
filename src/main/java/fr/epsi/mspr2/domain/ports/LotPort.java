@@ -10,4 +10,5 @@ public interface LotPort {
         Lot findById(UUID id_lot);
         void delete(UUID id_lot);
         List<Lot> findAllByEntrepotOwner();
+        List<Lot> findAllWithAlerteAndDateSortieNullForEntrepotOwner();
 }

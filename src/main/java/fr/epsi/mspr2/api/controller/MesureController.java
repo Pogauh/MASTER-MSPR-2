@@ -1,9 +1,9 @@
 package fr.epsi.mspr2.api.controller;
 
-import fr.epsi.mspr2.adapters.dto.MesureRequestDTO;
-import fr.epsi.mspr2.adapters.dto.MesureResponseDTO;
-import fr.epsi.mspr2.adapters.dto.MesureStatusResponseDTO;
-import fr.epsi.mspr2.domain.services.ServiceMesure;
+import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
+import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
+import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
+import fr.epsi.mspr2.domain.services.MesureService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequestMapping("/api/mesures")
 public class MesureController {
 
-    private final ServiceMesure serviceMesure;
+    private final MesureService serviceMesure;
 
     @PostMapping
     public ResponseEntity<MesureStatusResponseDTO> createMesure(@RequestBody MesureRequestDTO dto) {

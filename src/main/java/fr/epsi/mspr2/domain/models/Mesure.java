@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -21,17 +22,24 @@ public class Mesure {
     @Column(name = "id_mesure", updatable = false, nullable = false)
     private UUID idMesure;
 
-    @Column(name = "temperature")
-    private Integer temperature;
+    @Column(name = "temperature", precision = 5, scale = 2)
+    private BigDecimal temperature;
 
-    @Column(name = "humidite")
-    private Integer humidite;
+    @Column(name = "humidite", precision = 5, scale = 2)
+    private BigDecimal humidite;
 
     @Column(name = "date_mesure")
     private LocalDateTime dateMesure;
 
     @ManyToOne
-    @JoinColumn(name = "id_entrepot", nullable = false)
+    @JoinColumn(name = "id_capteur", nullable = false)
     @JsonIgnore
-    private Entrepot entrepot;
+    private Capteur capteur;
+
+    @PrePersist
+    public void applyDefaults() {
+        if (dateMesure == null) {
+            dateMesure = LocalDateTime.now();
+        }
+    }
 }

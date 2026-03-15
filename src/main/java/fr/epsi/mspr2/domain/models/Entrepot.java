@@ -18,7 +18,7 @@ public class Entrepot {
     @Column(name = "id_entrepot")
     private UUID idEntrepot;
 
-    @Column(name = "localisation", length = 70)
+    @Column(name = "localisation", length = 150)
     private String localisation;
 
     @Column(name = "nom", length = 50)

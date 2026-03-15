@@ -1,11 +1,12 @@
 package fr.epsi.mspr2.dto;
 
-import fr.epsi.mspr2.adapters.dto.MesureResponseDTO;
-import fr.epsi.mspr2.adapters.mapper.MesureMapper;
+import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
+import fr.epsi.mspr2.domain.models.Capteur;
 import fr.epsi.mspr2.domain.models.Mesure;
-import fr.epsi.mspr2.domain.models.Entrepot;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,18 +18,18 @@ class MesureMapperTest {
         Mesure mesure = new Mesure();
         UUID id = UUID.randomUUID();
         mesure.setIdMesure(id);
-        mesure.setTemperature(23);
-        mesure.setHumidite(70);
+        mesure.setTemperature(new BigDecimal("23.00"));
+        mesure.setHumidite(new BigDecimal("70.00"));
         mesure.setDateMesure(LocalDateTime.now());
-        Entrepot entrepot = new Entrepot();
-        UUID entrepotId = UUID.randomUUID();
-        entrepot.setIdEntrepot(entrepotId);
-        mesure.setEntrepot(entrepot);
+        Capteur capteur = new Capteur();
+        UUID capteurId = UUID.randomUUID();
+        capteur.setIdCapteur(capteurId);
+        mesure.setCapteur(capteur);
         MesureResponseDTO dto = MesureMapper.toResponse(mesure);
         assertEquals(id, dto.idMesure);
-        assertEquals(23, dto.temperature);
-        assertEquals(70, dto.humidite);
-        assertEquals(entrepotId, dto.idEntrepot);
+        assertEquals(new BigDecimal("23.00"), dto.temperature);
+        assertEquals(new BigDecimal("70.00"), dto.humidite);
+        assertEquals(capteurId, dto.idCapteur);
     }
 }
 
