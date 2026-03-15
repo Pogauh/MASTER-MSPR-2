@@ -1,10 +1,10 @@
 package fr.epsi.mspr2.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.epsi.mspr2.adapters.dto.MesureRequestDTO;
-import fr.epsi.mspr2.adapters.dto.MesureResponseDTO;
-import fr.epsi.mspr2.adapters.dto.MesureStatusResponseDTO;
-import fr.epsi.mspr2.domain.services.ServiceMesure;
+import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
+import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
+import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
+import fr.epsi.mspr2.domain.services.MesureService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -24,12 +25,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class MesureControllerTest {
     private MockMvc mockMvc;
-    private ServiceMesure serviceMesure;
+    private MesureService serviceMesure;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @BeforeEach
     void setUp() {
-        serviceMesure = mock(ServiceMesure.class);
+        serviceMesure = mock(MesureService.class);
         MesureController controller = new MesureController(serviceMesure);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -37,10 +38,10 @@ class MesureControllerTest {
     @Test
     void createMesure_shouldReturn201WithId() throws Exception {
         MesureRequestDTO dto = new MesureRequestDTO();
-        dto.temperature = 25;
-        dto.humidite = 60;
+        dto.temperature = new BigDecimal("25.00");
+        dto.humidite = new BigDecimal("60.00");
         dto.dateMesure = LocalDateTime.now();
-        dto.idEntrepot = UUID.randomUUID();
+        dto.idCapteur = UUID.randomUUID();
         UUID createdId = UUID.randomUUID();
         MesureStatusResponseDTO response = new MesureStatusResponseDTO();
         response.idMesure = createdId;
@@ -59,16 +60,16 @@ class MesureControllerTest {
     @Test
     void getAllMesures_shouldReturnList() throws Exception {
         MesureResponseDTO dto = new MesureResponseDTO();
-        dto.temperature = 22;
+        dto.temperature = new BigDecimal("22.00");
         MesureResponseDTO dto2 = new MesureResponseDTO();
-        dto2.temperature = 18;
+        dto2.temperature = new BigDecimal("18.00");
         List<MesureResponseDTO> mesures = List.of(dto, dto2);
         when(serviceMesure.getAllMesuresForEntrepot()).thenReturn(mesures);
 
         mockMvc.perform(get("/api/mesures/getAllMesures"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].temperature").value(22))
-                .andExpect(jsonPath("$[1].temperature").value(18));
+                .andExpect(jsonPath("$[0].temperature").value(22.00))
+                .andExpect(jsonPath("$[1].temperature").value(18.00));
 
         verify(serviceMesure).getAllMesuresForEntrepot();
     }

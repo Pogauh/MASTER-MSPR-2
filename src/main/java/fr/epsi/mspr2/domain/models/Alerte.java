@@ -18,11 +18,19 @@ public class Alerte {
     private UUID idAlerte;
 
     @Column(name = "type_alerte", length = 50)
-    private String typeAlerte;
+    @Enumerated(EnumType.STRING)
+    private TypeAlerteEnum typeAlerte;
 
-    @Column(name = "description", length = 50)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "date_emission")
     private LocalDateTime dateEmission;
+
+    @PrePersist
+    public void applyDefaults() {
+        if (dateEmission == null) {
+            dateEmission = LocalDateTime.now();
+        }
+    }
 }

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +38,9 @@ public class Lot {
     @Column(name = "date_stockage")
     private LocalDateTime dateStockage;
 
+    @Column(name = "emplacement", length = 150)
+    private String emplacement;
+
     @ManyToOne
     @JoinColumn(name = "id_exploitation", nullable = false)
     private Exploitation exploitation;
@@ -44,4 +49,18 @@ public class Lot {
     @JoinColumn(name = "id_entrepot", nullable = false)
     @JsonIgnore
     private Entrepot entrepot;
+
+    @OneToMany(mappedBy = "lot", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<GenereAlerte> genereAlertes = new ArrayList<>();
+
+    @PrePersist
+    public void applyDefaults() {
+        if (status == null || status.isBlank()) {
+            status = "CONFORME";
+        }
+        if (dateStockage == null) {
+            dateStockage = LocalDateTime.now();
+        }
+    }
 }

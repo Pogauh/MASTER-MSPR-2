@@ -1,9 +1,9 @@
 package fr.epsi.mspr2.api.controller;
 
-import fr.epsi.mspr2.adapters.dto.LotResponseDTO;
-import fr.epsi.mspr2.adapters.dto.LotStatusResponseDTO;
-import fr.epsi.mspr2.domain.models.Lot;
-import fr.epsi.mspr2.domain.services.ServiceLot;
+import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
+import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
+import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
+import fr.epsi.mspr2.domain.services.LotService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +17,11 @@ import java.util.UUID;
 @RequestMapping("/api/lots")
 public class LotControlleur {
 
-    private final ServiceLot service;
+    private final LotService service;
 
     @PostMapping
-    public ResponseEntity<LotStatusResponseDTO> createLot(@RequestBody Lot lot) {
-        LotStatusResponseDTO response = service.createLot(lot);
+    public ResponseEntity<LotStatusResponseDTO> createLot(@RequestBody LotRequestDTO request) {
+        LotStatusResponseDTO response = service.createLot(request);
         response.status = HttpStatus.CREATED.name();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -45,5 +45,10 @@ public class LotControlleur {
     @GetMapping("/all")
     public List<LotResponseDTO> getAllLots() {
         return service.getAllLotsForEntrepot();
+    }
+
+    @GetMapping("/with-alert-and-no-date-sortie")
+    public List<LotResponseDTO> getLotsWithAlerteAndNoDateSortie() {
+        return service.getLotsWithAlerteAndNoDateSortieForEntrepot();
     }
 }

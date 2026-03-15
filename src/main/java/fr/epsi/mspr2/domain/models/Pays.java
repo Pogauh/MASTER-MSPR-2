@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -20,18 +21,18 @@ public class Pays {
     @Column(name = "nom", length = 50)
     private String nom;
 
-    @Column(name = "temp_ideale")
-    private Double tempIdeale;
+    @Column(name = "temp_ideale", precision = 5, scale = 2)
+    private BigDecimal tempIdeale;
 
-    @Column(name = "tolerance_temp")
-    private Double toleranceTemp;
+    @Column(name = "tolerance_temp", precision = 3, scale = 2)
+    private BigDecimal toleranceTemp;
 
-    @Column(name = "tolerance_humi")
-    private Double toleranceHumi;
+    @Column(name = "tolerance_humi", precision = 3, scale = 2)
+    private BigDecimal toleranceHumi;
 
-    @Column(name = "humi_ideale")
-    private Double humiIdeale;
+    @Column(name = "humi_ideale", precision = 5, scale = 2)
+    private BigDecimal humiIdeale;
 
-    @Column(name = "email_responsable", length = 50)
+    @Column(name = "email_responsable", length = 100)
     private String emailResponsable;
 }

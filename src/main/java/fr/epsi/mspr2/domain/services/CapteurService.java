@@ -1,0 +1,86 @@
+package fr.epsi.mspr2.domain.services;
+
+import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
+import fr.epsi.mspr2.domain.ports.CapteurPort;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.UUID;
+
+@AllArgsConstructor
+@Service
+public class CapteurService {
+
+    private final CapteurPort capteurPort;
+
+    public List<MesureResponseDTO> getAllMesuresByDayRange(LocalDate startDate, LocalDate endDate) {
+        validateDayRange(startDate, endDate);
+        return capteurPort.findAllMesuresByDayRange(startDate, endDate)
+            .stream()
+            .map(MesureMapper::toResponse)
+            .toList();
+    }
+
+    public List<MesureResponseDTO> getAllMesuresByHourRange(LocalTime startTime, LocalTime endTime) {
+        validateHourRange(startTime, endTime);
+        return capteurPort.findAllMesuresByHourRange(startTime, endTime)
+            .stream()
+            .map(MesureMapper::toResponse)
+            .toList();
+    }
+
+    public List<MesureResponseDTO> getMesuresByCapteurId(UUID capteurId) {
+        if (capteurId == null) {
+            throw new IllegalArgumentException("capteurId est obligatoire");
+        }
+        return capteurPort.findMesuresByCapteurId(capteurId)
+            .stream()
+            .map(MesureMapper::toResponse)
+            .toList();
+    }
+
+    public List<MesureResponseDTO> getMesuresByCapteurIdAndDayRange(UUID capteurId, LocalDate startDate, LocalDate endDate) {
+        if (capteurId == null) {
+            throw new IllegalArgumentException("capteurId est obligatoire");
+        }
+        validateDayRange(startDate, endDate);
+        return capteurPort.findMesuresByCapteurIdAndDayRange(capteurId, startDate, endDate)
+            .stream()
+            .map(MesureMapper::toResponse)
+            .toList();
+    }
+
+    public List<MesureResponseDTO> getMesuresByCapteurIdAndHourRange(UUID capteurId, LocalTime startTime, LocalTime endTime) {
+        if (capteurId == null) {
+            throw new IllegalArgumentException("capteurId est obligatoire");
+        }
+        validateHourRange(startTime, endTime);
+        return capteurPort.findMesuresByCapteurIdAndHourRange(capteurId, startTime, endTime)
+            .stream()
+            .map(MesureMapper::toResponse)
+            .toList();
+    }
+
+    private void validateDayRange(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("startDate et endDate sont obligatoires");
+        }
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("endDate doit être supérieur ou égal à startDate");
+        }
+    }
+
+    private void validateHourRange(LocalTime startTime, LocalTime endTime) {
+        if (startTime == null || endTime == null) {
+            throw new IllegalArgumentException("startTime et endTime sont obligatoires");
+        }
+        if (endTime.isBefore(startTime)) {
+            throw new IllegalArgumentException("endTime doit être supérieur ou égal à startTime");
+        }
+    }
+}
+
