@@ -23,3 +23,8 @@ springdoc:
   openapi:
     title: FutureKawa API - Backend
     description: API documentation for FutureKawa Backend
+
+mqtt:
+  broker-uri: ${MQTT_BROKER_URI:tcp://localhost:1883}
+  topic: ${MQTT_TOPIC:futurekawa/bresil/entrepot1/data}
+  outbound-default-topic: ${MQTT_OUTBOUND_DEFAULT_TOPIC:futurekawa/default}

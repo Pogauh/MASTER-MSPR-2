@@ -8,6 +8,7 @@ import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
 import fr.epsi.mspr2.domain.models.Capteur;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,9 +29,12 @@ public class SensorSimulator {
     private final EntrepotOwnerProperties entrepotOwnerProperties;
     private final ObjectMapper objectMapper;
 
+    @Value("${mqtt.topic}")
+    private String mqttTopic;
+
     // 900 000 ms = 15 minutes
-    // Pour tests, mettre 10000 (10 secondes)
-    @Scheduled(fixedRate = 10000)
+    // Pour tests, mettre 30000 (30 secondes)
+    @Scheduled(fixedRate = 30000)
     public void simulateSensorData() {
         UUID capteurId = resolveCapteurId();
         if (capteurId == null) {
@@ -46,7 +50,7 @@ public class SensorSimulator {
 
         try {
             String payload = objectMapper.writeValueAsString(payloadMap);
-            mqttGateway.sendToMqtt(payload, "futurekawa/bresil/entrepot1/data");
+            mqttGateway.sendToMqtt(payload, mqttTopic);
             log.info("Donnée simulée envoyée au broker: {}", payload);
         } catch (JsonProcessingException e) {
             log.error("Impossible de sérialiser la donnée simulée MQTT", e);

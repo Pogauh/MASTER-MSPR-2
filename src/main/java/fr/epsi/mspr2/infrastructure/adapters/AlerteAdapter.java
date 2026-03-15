@@ -28,9 +28,6 @@ public class AlerteAdapter implements AlertePort {
     @Override
     @Transactional
     public void sendAlerte(Mesure mesure) {
-        if (!isCompatible(mesure)) {
-            return;
-        }
 
         Capteur capteur = resolveCapteurWithPays(mesure);
         Pays pays = capteur.getEntrepot().getPays();
@@ -61,6 +58,11 @@ public class AlerteAdapter implements AlertePort {
             alerte.setTypeAlerte(TypeAlerteEnum.BASSEHUMIDITE);
             alerte.setDescription("Humidite trop basse: " + humi + " (ideal=" + humiIdeal + ", tolerance=" + humiTolerance + ")");
         }
+
+        if (alerte.getTypeAlerte() == null) {
+            return;
+        }
+
         alerte.setDateEmission(LocalDateTime.now());
         Alerte savedAlerte = jpaAlerteRepository.save(alerte);
         createLinksWithLots(savedAlerte, capteur);

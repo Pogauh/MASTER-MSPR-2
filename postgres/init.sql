@@ -41,7 +41,7 @@ CREATE TABLE capteur (
                          code_serie VARCHAR(50) UNIQUE NOT NULL,
                          nom VARCHAR(50),
                          emplacement_precis VARCHAR(150),
-                         id_entrepot UUID REFERENCES entrepot(id_entrepot) ON DELETE CASCADE
+                         id_entrepot UUID NOT NULL REFERENCES entrepot(id_entrepot) ON DELETE CASCADE
 );
 
 CREATE TABLE mesure (
@@ -49,8 +49,7 @@ CREATE TABLE mesure (
                         temperature DECIMAL(5,2),
                         humidite DECIMAL(5,2),
                         date_mesure TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        id_capteur UUID REFERENCES capteur(id_capteur) ON DELETE CASCADE
-);
+                        id_capteur UUID NOT NULL REFERENCES capteur(id_capteur) ON DELETE CASCADE);
 
 CREATE TABLE alerte (
                         id_alerte UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

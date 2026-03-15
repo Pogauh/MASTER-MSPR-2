@@ -1,6 +1,7 @@
 package fr.epsi.mspr2.infrastructure.config;
 
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.IntegrationComponentScan;
@@ -18,13 +19,21 @@ import org.springframework.messaging.MessageHandler;
 @Configuration
 @IntegrationComponentScan
 public class MqttConfig {
+    @Value("${mqtt.topic}")
+    private String mqttTopic;
+
+    @Value("${mqtt.broker-uri}")
+    private String mqttBrokerUri;
+
+    @Value("${mqtt.outbound-default-topic}")
+    private String mqttOutboundDefaultTopic;
 
     // 1. La connexion physique au Broker Mosquitto
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
-        options.setServerURIs(new String[] { "tcp://localhost:1883" });
+        options.setServerURIs(new String[] { mqttBrokerUri });
         options.setCleanSession(true);
         factory.setConnectionOptions(options);
         return factory;
@@ -41,7 +50,7 @@ public class MqttConfig {
     public MessageProducer inbound() {
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter("java-backend-client",
-                        mqttClientFactory(), "futurekawa/+/+/data");
+                        mqttClientFactory(), mqttTopic);
 
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
@@ -63,7 +72,7 @@ public class MqttConfig {
         MqttPahoMessageHandler messageHandler =
                 new MqttPahoMessageHandler("java-backend-sender", mqttClientFactory());
         messageHandler.setAsync(true);
-        messageHandler.setDefaultTopic("futurekawa/default");
+        messageHandler.setDefaultTopic(mqttOutboundDefaultTopic);
         return messageHandler;
     }
 
