@@ -1,140 +1,266 @@
 # FutureKawa Backend - MSPR2
 
-Backend Java/Spring Boot du projet FutureKawa.
+Backend IoT Spring Boot pour la supervision d'un entrepot de cafe.
 
-Ce service expose des API REST pour gerer des **mesures** et des **lots**, avec une architecture orientee hexagonale (ports/adapters) pour separer la logique metier de l'infrastructure.
+Le service expose des APIs REST pour:
+- gerer les lots,
+- gerer les mesures capteurs (temperature/humidite),
+- produire des alertes metier,
+- lier automatiquement alertes <-> lots via la table `genere_alerte`.
 
-## 1) Objectif backend
+Le projet suit une architecture hexagonale (ports/adapters) et integre MQTT pour l'ingestion et la simulation de donnees capteurs.
 
-L'objectif est de centraliser la gestion de donnees metier autour des entrepots (mesures entrepots, gestion des lots) et de fournir une base evolutive pour :
+## 1) Objectif metier
 
-- exposition d'API REST,
-- persistance PostgreSQL,
-- integration MQTT (en cours),
-- integration avec un service siege (en cours).
+Ce backend represente un entrepot "owner" (backend deploye par entrepot). Il permet:
+- d'enregistrer des mesures de capteurs rattaches a cet entrepot,
+- de comparer les mesures aux seuils pays (`temp_ideale`, `humi_ideale`, tolerances),
+- de creer des alertes quand les mesures sont hors plage,
+- de rattacher ces alertes aux lots sur le meme emplacement,
+- d'interroger les donnees via API REST.
 
 ## 2) Stack technique
 
-- **Java 21**
-- **Spring Boot 3.2.3**
-- **Spring Web** (API REST)
-- **Spring Data JPA / Hibernate**
-- **PostgreSQL**
-- **Maven**
-- **Lombok**
-- **springdoc-openapi** (Swagger UI)
-- **Docker Compose** (Postgres, Mosquitto, Adminer)
+- Java 21
+- Spring Boot 3.2.3
+- Spring Web
+- Spring Data JPA / Hibernate
+- PostgreSQL
+- Spring Integration MQTT + Eclipse Paho
+- Lombok
+- springdoc-openapi
+- Maven
+- Docker / Docker Compose
 
-Fichiers de reference :
+Fichiers clefs:
 - `pom.xml`
 - `docker-compose.yml`
+- `postgres/init.sql`
 - `src/main/resources/application.yml`
 
-## 3) Architecture
+## 3) Architecture du projet
 
-Le projet suit une architecture hexagonale simplifiee :
+### Couches
 
-- `domain/models` : entites et objets metier (`Lot`, `Mesure`, `Entrepot`, ...)
-- `domain/ports` : interfaces metier pour acces aux donnees (`LotPort`, `MesurePort`)
-- `domain/services` : logique applicative (`ServiceLot`, `ServiceMesure`)
-- `adapters` : implementations techniques des ports (`AdapterLot`, `AdapterMesure`, repositories JPA)
-- `api/controller` : points d'entree HTTP (`LotControlleur`, `MesureController`)
-- `adapters/dto` + `adapters/mapper` : contrats API et transformations modele <-> DTO
-- `config` : configuration applicative (`EntrepotOwnerProperties`)
+- `src/main/java/fr/epsi/mspr2/api/controller`
+  - endpoints REST (`LotControlleur`, `MesureController`, `CapteurController`)
+- `src/main/java/fr/epsi/mspr2/domain/services`
+  - logique applicative (`LotService`, `MesureService`, `CapteurService`, `AlerteService`)
+- `src/main/java/fr/epsi/mspr2/domain/ports`
+  - contrats metier (`LotPort`, `MesurePort`, `CapteurPort`, `AlertePort`)
+- `src/main/java/fr/epsi/mspr2/infrastructure/adapters`
+  - implementations techniques des ports (JPA, MQTT)
+- `src/main/java/fr/epsi/mspr2/infrastructure/jpa`
+  - repositories Spring Data
+- `src/main/java/fr/epsi/mspr2/infrastructure/dto`
+  - DTO request/response API
+- `src/main/java/fr/epsi/mspr2/infrastructure/mapper`
+  - mapping Domain <-> DTO
+- `src/main/java/fr/epsi/mspr2/domain/models`
+  - entites JPA
 
-### Flux de traitement (exemple REST)
+### Flux principal mesure -> alerte
 
-1. Le controller recoit la requete HTTP.
-2. Le controller appelle le service de domaine.
-3. Le service utilise un port (`LotPort` / `MesurePort`).
-4. L'adapter implemente ce port via Spring Data JPA.
-5. La reponse est mappee en DTO puis renvoyee au front.
+1. Une mesure arrive via REST (`POST /api/mesures`) ou MQTT (`mqttInputChannel`).
+2. `MesureService` persiste la mesure.
+3. `AlerteService` delegue a `AlertePort` (`AlerteAdapter`).
+4. `AlerteAdapter` charge `Capteur -> Entrepot -> Pays` puis evalue la compatibilite.
+5. Si hors plage, une `Alerte` est creee.
+6. Les lots du meme entrepot et du meme emplacement (`lot.emplacement == capteur.emplacement_precis`) sont lies via `GenereAlerte`.
 
-## 4) Organisation du code (resume)
+## 4) Modele de donnees (etat actuel)
 
-- Point d'entree Spring Boot : `src/main/java/fr/epsi/mspr2/Main.java`
-- API Lot : `src/main/java/fr/epsi/mspr2/api/controller/LotControlleur.java`
-- API Mesure : `src/main/java/fr/epsi/mspr2/api/controller/MesureController.java`
-- Service Lot : `src/main/java/fr/epsi/mspr2/domain/services/ServiceLot.java`
-- Service Mesure : `src/main/java/fr/epsi/mspr2/domain/services/ServiceMesure.java`
+Le schema SQL est defini dans `postgres/init.sql`.
 
-## 5) Contrat API actuel (important)
+Tables principales:
+- `pays`, `exploitation`, `entrepot`
+- `capteur`, `mesure`
+- `lot`, `alerte`, `genere_alerte`
 
-Pour les routes de **creation** et **suppression** de `Lot` et `Mesure` :
+Points importants:
+- IDs en UUID (DB + JPA)
+- cle composite `genere_alerte(id_lot, id_alerte)` mappee via `@EmbeddedId` (`GenereAlerteId`)
+- seed automatique d'environ 30 capteurs (`A` a `AD`) sur l'entrepot:
+  - `770e8400-e29b-41d4-a716-446655440011`
 
-- la reponse contient l'`id` de l'item concerne,
-- et un champ `status` (valeur du statut HTTP, ex: `CREATED`, `OK`, `NOT_FOUND`).
+## 5) Configuration et variables d'environnement
 
-Exemples de DTO :
-- `LotStatusResponseDTO` (`idLot`, `status`)
-- `MesureStatusResponseDTO` (`idMesure`, `status`)
+### Proprietes application
 
-## 6) Prerequis
+Dans `src/main/resources/application.yml`:
+- `spring.datasource.*` (PostgreSQL local)
+- `app.entrepot.id` (UUID entrepot owner)
+- `mqtt.broker-uri`
+- `mqtt.topic`
+- `mqtt.outbound-default-topic`
 
-- Java 21 installe
-- Maven installe
-- Docker + Docker Compose installes
+Les proprietes MQTT sont deja branchees sur des variables d'environnement:
+- `MQTT_BROKER_URI` (default: `tcp://localhost:1883`)
+- `MQTT_TOPIC` (default: `futurekawa/bresil/entrepot1/data`)
+- `MQTT_OUTBOUND_DEFAULT_TOPIC` (default: `futurekawa/default`)
 
-## 7) Lancer le projet en local
+`app.entrepot.id` peut aussi etre override via environnement Spring standard:
+- `APP_ENTREPOT_ID`
 
-### 7.1 Demarrer les dependances (Postgres, MQTT, Adminer)
+## 6) Lancement local
 
-```bash
+Prerequis:
+- Java 21
+- Maven 3.9+
+- Docker Desktop (ou moteur Docker)
+
+### 6.1 Demarrer les dependances
+
+```powershell
 docker compose up -d
 ```
 
-Services exposes :
-- Postgres : `localhost:5433`
-- Mosquitto MQTT : `localhost:1883`
-- Adminer : `http://localhost:8081`
+Services exposes:
+- PostgreSQL: `localhost:5433`
+- Mosquitto MQTT: `localhost:1883` (WebSocket `9001`)
+- Adminer: `http://localhost:8081`
 
-### 7.2 Lancer l'application Spring Boot
+### 6.2 Lancer le backend
 
-```bash
+```powershell
 mvn spring-boot:run
 ```
 
-L'application lit sa config dans :
-- `src/main/resources/application.yml`
+ou avec profil local:
 
-Parametres DB locaux par defaut :
-- URL : `jdbc:postgresql://localhost:5433/futurekawa_country`
-- user : `admin`
-- password : `password123`
-- serveur : `db-sql`
+```powershell
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
 
-## 8) Tests
+Swagger:
+- `http://localhost:8080/swagger-ui/index.html`
 
-Executer tous les tests unitaires :
+## 7) Endpoints REST disponibles
 
-```bash
+### Lots (`/api/lots`)
+
+- `POST /api/lots`
+  - cree un lot
+  - response: `LotStatusResponseDTO { idLot, status }`
+- `GET /api/lots/getLot/{id}`
+  - recupere un lot par UUID
+- `DELETE /api/lots/deleteLot/{id}`
+  - supprime un lot
+  - response: `LotStatusResponseDTO { idLot, status }`
+- `GET /api/lots/all`
+  - liste tous les lots de l'entrepot owner
+- `GET /api/lots/with-alert-and-no-date-sortie`
+  - liste les lots de l'entrepot owner ayant au moins une alerte et `dateSortie = null`
+  - inclut l'objet alerte dans le retour (`LotResponseDTO.alertes`)
+
+Exemple `POST /api/lots`:
+
+```json
+{
+  "status": "CONFORME",
+  "quantite": 120,
+  "caracteristique": 2,
+  "dateSortie": null,
+  "dateStockage": "2026-03-15T10:00:00",
+  "emplacement": "A",
+  "idExploitation": "aa0e8400-e29b-41d4-a716-446655440022"
+}
+```
+
+### Mesures (`/api/mesures`)
+
+- `POST /api/mesures`
+  - cree une mesure
+  - response: `MesureStatusResponseDTO { idMesure, status }`
+- `GET /api/mesures/getMesure/{id}`
+  - recupere une mesure par UUID
+- `GET /api/mesures/getAllMesures`
+  - liste les mesures de l'entrepot owner
+- `DELETE /api/mesures/deleteMesure/{id}`
+  - supprime une mesure
+  - response: `MesureStatusResponseDTO { idMesure, status }`
+
+Exemple `POST /api/mesures`:
+
+```json
+{
+  "temperature": 29.38,
+  "humidite": 54.18,
+  "dateMesure": "2026-03-15T15:42:44",
+  "idCapteur": "b793e242-053a-4def-9cd8-96c990a586c9"
+}
+```
+
+### Capteurs (`/api/capteurs`)
+
+- `GET /api/capteurs/mesures/by-day?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
+- `GET /api/capteurs/mesures/by-hour?startTime=HH:mm:ss&endTime=HH:mm:ss`
+- `GET /api/capteurs/{capteurId}/mesures`
+- `GET /api/capteurs/{capteurId}/mesures/by-day?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
+- `GET /api/capteurs/{capteurId}/mesures/by-hour?startTime=HH:mm:ss&endTime=HH:mm:ss`
+
+## 8) MQTT (ingestion + simulation)
+
+Composants:
+- `MqttConfig`: setup des channels et adapters inbound/outbound
+- `MQTTAdapter`: lit les messages MQTT et appelle `MesureService`
+- `SensorSimulator`: publie periodiquement des mesures simulees
+- `MqttGateway`: envoi MQTT sortant
+
+Details:
+- topic inbound: `mqtt.topic`
+- simulation planifiee toutes les 30 secondes (`@Scheduled(fixedRate = 30000)`)
+- la simulation choisit le premier capteur trouve sur l'entrepot owner
+
+Format JSON attendu pour MQTT (meme structure que `MesureRequestDTO`):
+
+```json
+{
+  "temperature": 27.50,
+  "humidite": 56.20,
+  "dateMesure": "2026-03-15T16:00:00",
+  "idCapteur": "b793e242-053a-4def-9cd8-96c990a586c9"
+}
+```
+
+## 9) Gestion des erreurs (etat actuel)
+
+- `LotControlleur` et `MesureController` renvoient des DTO de statut pour create/delete.
+- `CapteurController` gere les erreurs via `try/catch` local et renvoie `400/404` sans body.
+- certains endpoints `getById` renvoient `null` si absence (a harmoniser eventuellement).
+
+## 10) Tests
+
+Tests presents dans `src/test/java`:
+- controllers: lot, mesure, capteur
+- services: lot, mesure, capteur
+- adapter: alerte
+- mapper: mesure
+
+Lancer tous les tests:
+
+```powershell
 mvn test
 ```
 
-Exemples de tests presents :
-- `src/test/java/fr/epsi/mspr2/api/controller/MesureControllerTest.java`
-- `src/test/java/fr/epsi/mspr2/api/controller/LotControlleurTest.java`
-- `src/test/java/fr/epsi/mspr2/domain/services/ServiceMesureTest.java`
-- `src/test/java/fr/epsi/mspr2/domain/services/ServiceLotTest.java`
+Lancer une classe cible:
 
-## 9) Documentation API
+```powershell
+mvn -Dtest=LotControlleurTest test
+```
 
-Avec `springdoc-openapi`, l'UI Swagger est generalement accessible sur :
+## 11) Points de vigilance pour contributors
 
-- `http://localhost:8080/swagger-ui/index.html`
+- respecter la separation hexagonale (`domain` sans dependance technique)
+- conserver les UUID partout (API/JPA/SQL)
+- verifier la coherence `app.entrepot.id` <-> donnees seed SQL
+- ne pas casser les contrats des DTO de statut (`id` + `status`)
+- valider les impacts MQTT si changement de format JSON
 
-## 10) Conventions pour ceux qui veulent dev
+## 12) Evolutions recommandees
 
-- Respecter la separation **domain / ports / adapters / api**.
-- Eviter de mettre de la logique metier dans les controllers.
-- Ajouter/mettre a jour les tests unitaires controller + service a chaque evolution.
-- Garder les DTO API stables (surtout sur create/delete).
-- Privilegier l'injection par constructeur.
-
-## 11) Pistes d'evolution
-
-- Completer `AdapterMQTT` pour ingestion automatique des mesures.
-- Completer `AdapterRestSiege` pour synchronisation avec le siege.
-- Ajouter une gestion d'erreurs globale (`@ControllerAdvice`).
-- Renforcer la securisation des secrets (variables d'environnement/profils Spring).
+- harmoniser completement la gestion d'erreurs via `@RestControllerAdvice`
+- completer `RestSiegeAdapter`
+- ajouter des tests d'integration (API + DB + MQTT)
+- supprimer ou implementer les fichiers vides restants (`ApiErrorResponseDTO`, `MqttMessageListenerTest`)
 

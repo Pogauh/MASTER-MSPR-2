@@ -34,5 +34,32 @@ services:
       - "8081:8080"
     restart: always
 
+  backend-app:
+    image: selimdrici/backend_future_kawa:latest
+    container_name: futurekawa-backend
+    restart: always
+    depends_on:
+      - db-sql
+      - mqtt-broker
+    ports:
+      - "8080:8080"
+    environment:
+      # Injection les variables du application.yml
+      DB_HOST: db-sql
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASSWORD: password123
+      MQTT_BROKER_URI: tcp://mqtt-broker:1883
+
+      # écraser le topic ici si besoin :
+      # MQTT_TOPIC: futurekawa/bresil/entrepot1/data
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30 --cleanup
+    restart: always
+
 volumes:
   postgres_data:

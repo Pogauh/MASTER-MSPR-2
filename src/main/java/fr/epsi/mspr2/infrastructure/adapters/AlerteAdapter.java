@@ -23,11 +23,14 @@ public class AlerteAdapter implements AlertePort {
     private final JpaCapteurRepository jpaCapteurRepository;
     private final JpaLotRepository jpaLotRepository;
     private final JpaGenereAlerteRepository jpaGenereAlerteRepository;
+    private static final String tolerance = ", tolerance=";
+    private static final String ideal = " (ideal=";
 
 
     @Override
     @Transactional
     public void sendAlerte(Mesure mesure) {
+
 
         Capteur capteur = resolveCapteurWithPays(mesure);
         Pays pays = capteur.getEntrepot().getPays();
@@ -47,16 +50,16 @@ public class AlerteAdapter implements AlertePort {
         Alerte alerte = new Alerte();
         if (temp.compareTo(tempMax) > 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.HAUTETEMPERATURE);
-            alerte.setDescription("Temperature trop haute: " + temp + " (ideal=" + tempIdeal + ", tolerance=" + tempTolerance + ")");
+            alerte.setDescription("Temperature trop haute: " + temp + ideal + tempIdeal + tolerance + tempTolerance + ")");
         } else if (temp.compareTo(tempMin) < 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.BASSETEMPERATURE);
-            alerte.setDescription("Temperature trop basse: " + temp + " (ideal=" + tempIdeal + ", tolerance=" + tempTolerance + ")");
+            alerte.setDescription("Temperature trop basse: " + temp + ideal + tempIdeal + tolerance + tempTolerance + ")");
         } else if (humi.compareTo(humiMax) > 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.HAUTEHUMIDITE);
-            alerte.setDescription("Humidite trop haute: " + humi + " (ideal=" + humiIdeal + ", tolerance=" + humiTolerance + ")");
+            alerte.setDescription("Humidite trop haute: " + humi + ideal + humiIdeal + tolerance + humiTolerance + ")");
         } else if (humi.compareTo(humiMin) < 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.BASSEHUMIDITE);
-            alerte.setDescription("Humidite trop basse: " + humi + " (ideal=" + humiIdeal + ", tolerance=" + humiTolerance + ")");
+            alerte.setDescription("Humidite trop basse: " + humi + ideal + humiIdeal + tolerance + humiTolerance + ")");
         }
 
         if (alerte.getTypeAlerte() == null) {
