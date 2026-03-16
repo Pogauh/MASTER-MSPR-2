@@ -58,7 +58,7 @@ services:
     container_name: watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 --cleanup
+    command: --interval 30 --cleanup futurekawa-backend
     restart: always
 
 volumes:
