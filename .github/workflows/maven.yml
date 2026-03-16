@@ -36,8 +36,4 @@ jobs:
         with:
           context: .
           push: true
-<<<<<<< dev
           tags: selimdrici/backend_future_kawa:latest
-=======
-          tags: selimdrici/backend_future_kawa:latest
->>>>>>> master
