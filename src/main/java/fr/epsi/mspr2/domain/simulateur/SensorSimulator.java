@@ -34,7 +34,8 @@ public class SensorSimulator {
 
     // 900 000 ms = 15 minutes
     // Pour tests, mettre 30000 (30 secondes)
-    @Scheduled(fixedRate = 30000)
+    // 5 heures = 18 000 000 ms
+    @Scheduled(fixedRate = 18000000)
     public void simulateSensorData() {
         UUID capteurId = resolveCapteurId();
         if (capteurId == null) {
