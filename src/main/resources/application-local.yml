@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/futurekawa_country
-    username: admin
-    password: password123
+    url: jdbc:postgresql://localhost:5432/db_bresil
+    username: admin_pays
+    password: password_pays
     driver-class-name: org.postgresql.Driver
 
   jpa:
