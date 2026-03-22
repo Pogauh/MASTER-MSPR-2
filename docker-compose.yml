@@ -17,11 +17,11 @@ services:
     image: postgres:15-alpine
     container_name: futurekawa-db-local
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: futurekawa_country
+      POSTGRES_USER: admin_pays
+      POSTGRES_PASSWORD: password_pays
+      POSTGRES_DB: db_bresil
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -36,7 +36,7 @@ services:
 
   backend-app:
     image: selimdrici/backend_future_kawa:latest
-    container_name: futurekawa-backend
+    container_name: futurekawa-pays
     restart: always
     depends_on:
       - db-sql
@@ -47,8 +47,8 @@ services:
       # Injection les variables du application.yml
       DB_HOST: db-sql
       DB_PORT: 5432
-      DB_USER: admin
-      DB_PASSWORD: password123
+      DB_USER: admin_pays
+      DB_PASSWORD: password_pays
       MQTT_BROKER_URI: tcp://mqtt-broker:1883
 
       # écraser le topic ici si besoin :
@@ -58,7 +58,7 @@ services:
     container_name: watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 --cleanup
+    command: --interval 30 --cleanup futurekawa-backend
     restart: always
 
 volumes:
