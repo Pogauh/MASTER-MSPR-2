@@ -263,3 +263,31 @@
 1773681716: mosquitto version 2.1.2 running
 1773681732: mosquitto version 2.1.2 terminating
 1773681732: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774103850: mosquitto version 2.1.2 starting
+1774103850: Config loaded from /mosquitto/config/mosquitto.conf.
+1774103850: Bridge support available.
+1774103850: Persistence support available.
+1774103850: TLS support available.
+1774103850: TLS-PSK support available.
+1774103850: Websockets support available.
+1774103850: Opening ipv4 listen socket on port 1883.
+1774103850: Opening ipv6 listen socket on port 1883.
+1774103850: mosquitto version 2.1.2 running
+1774103862: mosquitto version 2.1.2 terminating
+1774103862: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774195545: mosquitto version 2.1.2 starting
+1774195545: Config loaded from /mosquitto/config/mosquitto.conf.
+1774195545: Bridge support available.
+1774195545: Persistence support available.
+1774195545: TLS support available.
+1774195545: TLS-PSK support available.
+1774195545: Websockets support available.
+1774195545: Opening ipv4 listen socket on port 1883.
+1774195545: Opening ipv6 listen socket on port 1883.
+1774195545: mosquitto version 2.1.2 running
+1774195594: New connection from 172.20.0.1:41226 on port 1883.
+1774195594: New client connected from 172.20.0.1:41226 as java-backend-client (p4, c1, k60).
+1774195594: New connection from 172.20.0.1:41232 on port 1883.
+1774195595: New client connected from 172.20.0.1:41232 as java-backend-sender (p4, c1, k60).
+1774196586: mosquitto version 2.1.2 terminating
+1774196586: Saving in-memory database to /mosquitto/data//mosquitto.db.
