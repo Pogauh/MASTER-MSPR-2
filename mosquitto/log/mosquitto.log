@@ -263,3 +263,47 @@
 1773681716: mosquitto version 2.1.2 running
 1773681732: mosquitto version 2.1.2 terminating
 1773681732: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774212470: mosquitto version 2.1.2 starting
+1774212470: Config loaded from /mosquitto/config/mosquitto.conf.
+1774212470: Bridge support available.
+1774212470: Persistence support available.
+1774212470: TLS support available.
+1774212470: TLS-PSK support available.
+1774212470: Websockets support available.
+1774212470: Opening ipv4 listen socket on port 1883.
+1774212470: Opening ipv6 listen socket on port 1883.
+1774212470: mosquitto version 2.1.2 running
+1774212484: New connection from 172.22.0.6:46936 on port 1883.
+1774212484: New client connected from 172.22.0.6:46936 as java-backend-client (p4, c1, k60).
+1774212484: New connection from 172.22.0.6:46950 on port 1883.
+1774212485: New client connected from 172.22.0.6:46950 as java-backend-sender (p4, c1, k60).
+1774212533: Client java-backend-client [172.22.0.6:46936] disconnected.
+1774212538: Client java-backend-sender [172.22.0.6:46950] disconnected.
+1774212638: mosquitto version 2.1.2 starting
+1774212638: Config loaded from /mosquitto/config/mosquitto.conf.
+1774212638: Bridge support available.
+1774212638: Persistence support available.
+1774212638: TLS support available.
+1774212638: TLS-PSK support available.
+1774212638: Websockets support available.
+1774212638: Opening ipv4 listen socket on port 1883.
+1774212638: Opening ipv6 listen socket on port 1883.
+1774212638: mosquitto version 2.1.2 running
+1774212668: New connection from 172.22.0.1:34054 on port 1883.
+1774212668: New client connected from 172.22.0.1:34054 as java-backend-client (p4, c1, k60).
+1774212669: New connection from 172.22.0.1:34068 on port 1883.
+1774212669: New client connected from 172.22.0.1:34068 as java-backend-sender (p4, c1, k60).
+1774213374: mosquitto version 2.1.2 terminating
+1774213374: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1774213528: mosquitto version 2.1.2 starting
+1774213528: Config loaded from /mosquitto/config/mosquitto.conf.
+1774213528: Bridge support available.
+1774213528: Persistence support available.
+1774213528: TLS support available.
+1774213528: TLS-PSK support available.
+1774213528: Websockets support available.
+1774213528: Opening ipv4 listen socket on port 1883.
+1774213528: Opening ipv6 listen socket on port 1883.
+1774213528: mosquitto version 2.1.2 running
+1774213623: mosquitto version 2.1.2 terminating
+1774213623: Saving in-memory database to /mosquitto/data//mosquitto.db.

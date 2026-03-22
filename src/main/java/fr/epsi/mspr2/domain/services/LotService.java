@@ -63,4 +63,9 @@ public class LotService {
         List<Lot> lots = lotPort.findAllWithAlerteAndDateSortieNullForEntrepotOwner();
         return lots != null ? lots.stream().map(LotMapper::toResponse).toList() : List.of();
     }
+
+    public Integer getQuantiteTotale() {
+        List<Lot> lots = lotPort.findAllByEntrepotOwner();
+        return lots != null ? lots.stream().map(Lot::getQuantite).reduce(0, Integer::sum) : 0;
+    }
 }

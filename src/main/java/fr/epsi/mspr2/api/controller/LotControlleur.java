@@ -51,4 +51,10 @@ public class LotControlleur {
     public List<LotResponseDTO> getLotsWithAlerteAndNoDateSortie() {
         return service.getLotsWithAlerteAndNoDateSortieForEntrepot();
     }
+
+
+    @GetMapping("/getAllQuantity")
+    public Integer getInventaireMondial() {
+        return service.getQuantiteTotale();
+    }
 }
