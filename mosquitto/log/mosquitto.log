@@ -461,3 +461,27 @@
 1776075407: Client java-backend-sender [172.23.0.1:45438] disconnected: connection closed by client.
 1776075427: mosquitto version 2.1.2 terminating
 1776075427: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776088913: mosquitto version 2.1.2 starting
+1776088913: Config loaded from /mosquitto/config/mosquitto.conf.
+1776088913: Bridge support available.
+1776088913: Persistence support available.
+1776088913: TLS support available.
+1776088913: TLS-PSK support available.
+1776088913: Websockets support available.
+1776088913: Opening ipv4 listen socket on port 1883.
+1776088913: mosquitto version 2.1.2 running
+1776090713: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776153720: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776155521: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776157322: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776159122: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776160923: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776162724: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776167185: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776168986: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776170787: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776172588: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776174388: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776176189: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776177990: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1776179791: Saving in-memory database to /mosquitto/data//mosquitto.db.
