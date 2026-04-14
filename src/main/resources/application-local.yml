@@ -1,13 +1,13 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/db_bresil
-    username: admin_pays
-    password: password_pays
+    url: jdbc:postgresql://localhost:5433/futurekawa_country
+    username: admin
+    password: password123
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -17,9 +17,21 @@ spring:
 app:
   entrepot:
     id: 770e8400-e29b-41d4-a716-446655440011
+  alert:
+    tolerences:
+      temperature-ideale: ${TEMPERATURE_IDEALE:29}
+      humidite-ideale: ${HUMIDITE_IDEALE:55}
+      tolerance-temperature: ${TOLERANCE_TEMPERATURE:3}
+      tolerance-humidite: ${TOLERANCE_HUMIDITE:2}
 
 
 springdoc:
   openapi:
     title: FutureKawa API - Backend
     description: API documentation for FutureKawa Backend
+
+
+mqtt:
+  broker-uri: ${MQTT_BROKER_URI:tcp://localhost:1883}
+  topic: ${MQTT_TOPIC:futurekawa/bresil/entrepot1/data}
+  outbound-default-topic: ${MQTT_OUTBOUND_DEFAULT_TOPIC:futurekawa/default}

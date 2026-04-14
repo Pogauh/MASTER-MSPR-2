@@ -16,6 +16,7 @@ services:
   db-sql:
     image: postgres:15-alpine
     container_name: futurekawa-db-local
+
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password123

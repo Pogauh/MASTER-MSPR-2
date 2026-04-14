@@ -11,18 +11,32 @@ import java.util.UUID;
 
 @Repository
 public interface JpaLotRepository extends JpaRepository<Lot, UUID> {
-    List<Lot> findAllByEntrepot(Entrepot entrepot);
+    @Query("""
+        select l
+        from Lot l
+        join l.zone z
+        where z.entrepot = :entrepot
+        """)
+    List<Lot> findAllByEntrepot(@Param("entrepot") Entrepot entrepot);
 
-    List<Lot> findAllByEntrepotIdEntrepotAndEmplacementIgnoreCase(UUID entrepotId, String emplacement);
+    @Query("""
+        select l
+        from Lot l
+        join l.zone z
+        where z.entrepot.idEntrepot = :entrepotId
+          and lower(z.nom) = lower(:emplacement)
+        """)
+    List<Lot> findAllByEntrepotIdEntrepotAndEmplacementIgnoreCase(@Param("entrepotId") UUID entrepotId, @Param("emplacement") String emplacement);
 
     @Query("""
         select distinct l
         from Lot l
         left join fetch l.exploitation e
-        left join fetch l.entrepot en
+        left join fetch l.zone z
+        left join fetch z.entrepot en
         join fetch l.genereAlertes ga
         join fetch ga.alerte a
-        where l.entrepot.idEntrepot = :entrepotId
+        where z.entrepot.idEntrepot = :entrepotId
           and l.dateSortie is null
         """)
     List<Lot> findAllWithAlerteAndDateSortieNullByEntrepotId(@Param("entrepotId") UUID entrepotId);

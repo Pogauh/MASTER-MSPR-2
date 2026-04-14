@@ -1,5 +1,6 @@
 package fr.epsi.mspr2.domain.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,11 +22,16 @@ public class Alerte {
     @Enumerated(EnumType.STRING)
     private TypeAlerteEnum typeAlerte;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", length = 50)
     private String description;
 
     @Column(name = "date_emission")
     private LocalDateTime dateEmission;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_capteur", nullable = false)
+    @JsonIgnore
+    private Capteur capteur;
 
     @PrePersist
     public void applyDefaults() {

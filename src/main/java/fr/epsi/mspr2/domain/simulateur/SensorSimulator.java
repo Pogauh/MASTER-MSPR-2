@@ -57,11 +57,13 @@ public class SensorSimulator {
             log.error("Impossible de sérialiser la donnée simulée MQTT", e);
         }
     }
-
+// TODO - Ajouter le dynamisme de sauvegarde en fonction de l'entrepot.
     private UUID resolveCapteurId() {
-        return jpaCapteurRepository.findFirstByEntrepotIdEntrepot(entrepotOwnerProperties.getEntrepotId())
+        var result = jpaCapteurRepository.findFirstByZoneEntrepotIdEntrepotOrderByIdCapteurAsc(entrepotOwnerProperties.getEntrepotId())
             .map(Capteur::getIdCapteur)
             .orElse(null);
+        System.out.println("Capteur ID utilisé pour la simulation: " + result);
+        return result;
     }
 
     private BigDecimal randomInRange(double min, double max) {

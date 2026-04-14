@@ -9,18 +9,26 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface JpaCapteurRepository extends JpaRepository<Capteur, UUID> {
-	boolean existsByIdCapteurAndEntrepotIdEntrepot(UUID idCapteur, UUID idEntrepot);
-
-	Optional<Capteur> findByIdCapteurAndEntrepotIdEntrepot(UUID idCapteur, UUID idEntrepot);
+	@Query("""
+		select count(c) > 0
+		from Capteur c
+		join c.zone z
+		join z.entrepot e
+		where c.idCapteur = :idCapteur and e.idEntrepot = :idEntrepot
+		""")
+	boolean existsByIdCapteurAndEntrepotIdEntrepot(@Param("idCapteur") UUID idCapteur, @Param("idEntrepot") UUID idEntrepot);
 
 	@Query("""
 		select c from Capteur c
-		join fetch c.entrepot e
-		join fetch e.pays p
+		join fetch c.zone z
+		join fetch z.entrepot e
 		where c.idCapteur = :capteurId
 		""")
-	Optional<Capteur> findByIdWithEntrepotAndPays(@Param("capteurId") UUID capteurId);
+	Optional<Capteur> findByIdWithZoneAndEntrepot(@Param("capteurId") UUID capteurId);
 
-	Optional<Capteur> findFirstByEntrepotIdEntrepot(UUID idEntrepot);
+	default Optional<Capteur> findByIdWithEntrepotAndPays(UUID capteurId) {
+		return findByIdWithZoneAndEntrepot(capteurId);
+	}
+
+	Optional<Capteur> findFirstByZoneEntrepotIdEntrepotOrderByIdCapteurAsc(@Param("idEntrepot") UUID idEntrepot);
 }
-

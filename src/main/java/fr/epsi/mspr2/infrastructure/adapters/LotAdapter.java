@@ -5,30 +5,33 @@ import fr.epsi.mspr2.infrastructure.jpa.JpaExploitationRepository;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.models.Entrepot;
 import fr.epsi.mspr2.domain.models.Exploitation;
+import fr.epsi.mspr2.domain.models.Zone;
 import fr.epsi.mspr2.domain.ports.LotPort;
 import fr.epsi.mspr2.infrastructure.jpa.JpaEntrepotRepository;
+import fr.epsi.mspr2.infrastructure.jpa.JpaZoneRepository;
 import fr.epsi.mspr2.infrastructure.config.EntrepotOwnerProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 
-
-
 @Component
 public class LotAdapter implements LotPort {
     private final JpaLotRepository jpaLotRepository;
     private final JpaEntrepotRepository jpaEntrepotRepository;
     private final JpaExploitationRepository jpaExploitationRepository;
+    private final JpaZoneRepository jpaZoneRepository;
     private final EntrepotOwnerProperties entrepotOwnerProperties;
 
     public LotAdapter(JpaLotRepository jpaLotRepository,
                       JpaEntrepotRepository jpaEntrepotRepository,
                       JpaExploitationRepository jpaExploitationRepository,
+                      JpaZoneRepository jpaZoneRepository,
                       EntrepotOwnerProperties entrepotOwnerProperties) {
         this.jpaLotRepository = jpaLotRepository;
         this.jpaEntrepotRepository = jpaEntrepotRepository;
         this.jpaExploitationRepository = jpaExploitationRepository;
+        this.jpaZoneRepository = jpaZoneRepository;
         this.entrepotOwnerProperties = entrepotOwnerProperties;
     }
 
@@ -38,14 +41,19 @@ public class LotAdapter implements LotPort {
         if (exploitationId == null) {
             throw new IllegalArgumentException("L'id de l'exploitation est obligatoire pour enregistrer un lot");
         }
+        if (lot.getEmplacement() == null || lot.getEmplacement().isBlank()) {
+            throw new IllegalArgumentException("L'emplacement (zone) est obligatoire pour enregistrer un lot");
+        }
 
         UUID entrepotId = entrepotOwnerProperties.getEntrepotId();
-        Entrepot entrepot = jpaEntrepotRepository.findById(entrepotId)
-                .orElseThrow(() -> new IllegalStateException("Entrepot propriétaire introuvable pour l'id " + entrepotId));
+        jpaEntrepotRepository.findById(entrepotId)
+            .orElseThrow(() -> new IllegalStateException("Entrepot propriétaire introuvable pour l'id " + entrepotId));
         Exploitation exploitation = jpaExploitationRepository.findById(exploitationId)
                 .orElseThrow(() -> new IllegalStateException("Exploitation introuvable pour l'id " + exploitationId));
+        Zone zone = jpaZoneRepository.findByNomIgnoreCaseAndEntrepotIdEntrepot(lot.getEmplacement(), entrepotId)
+            .orElseThrow(() -> new IllegalStateException("Zone introuvable pour l'emplacement " + lot.getEmplacement()));
 
-        lot.setEntrepot(entrepot);
+        lot.setZone(zone);
         lot.setExploitation(exploitation);
         jpaLotRepository.save(lot);
     }

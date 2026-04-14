@@ -6,7 +6,7 @@ import fr.epsi.mspr2.infrastructure.jpa.JpaAlerteRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaGenereAlerteRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
 @Component
 public class AlerteAdapter implements AlertePort {
 
@@ -23,43 +22,59 @@ public class AlerteAdapter implements AlertePort {
     private final JpaCapteurRepository jpaCapteurRepository;
     private final JpaLotRepository jpaLotRepository;
     private final JpaGenereAlerteRepository jpaGenereAlerteRepository;
-    private static final String tolerance = ", tolerance=";
-    private static final String ideal = " (ideal=";
 
+    @Value("${app.alert.tolerences.temperature-ideale:${TEMPERATURE_IDEALE:29}}")
+    private BigDecimal tempIdeale = BigDecimal.valueOf(29);
+
+    @Value("${app.alert.tolerences.humidite-ideale:${HUMIDITE_IDEALE:55}}")
+    private BigDecimal humiIdeale = BigDecimal.valueOf(55);
+
+    @Value("${app.alert.tolerences.tolerance-temperature:${TOLERANCE_TEMPERATURE:3}}")
+    private BigDecimal toleranceTemp = BigDecimal.valueOf(3);
+
+    @Value("${app.alert.tolerences.tolerance-humidite:${TOLERANCE_HUMIDITE:2}}")
+    private BigDecimal toleranceHumi = BigDecimal.valueOf(2);
+
+    private static final String TOLERANCE_LABEL = ", tolerance=";
+    private static final String IDEAL_LABEL = " (ideal=";
+
+    public AlerteAdapter(
+        JpaAlerteRepository jpaAlerteRepository,
+        JpaCapteurRepository jpaCapteurRepository,
+        JpaLotRepository jpaLotRepository,
+        JpaGenereAlerteRepository jpaGenereAlerteRepository
+    ) {
+        this.jpaAlerteRepository = jpaAlerteRepository;
+        this.jpaCapteurRepository = jpaCapteurRepository;
+        this.jpaLotRepository = jpaLotRepository;
+        this.jpaGenereAlerteRepository = jpaGenereAlerteRepository;
+    }
 
     @Override
     @Transactional
     public void sendAlerte(Mesure mesure) {
 
-
-        Capteur capteur = resolveCapteurWithPays(mesure);
-        Pays pays = capteur.getEntrepot().getPays();
-
+        Capteur capteur = resolveCapteurWithZone(mesure);
         BigDecimal temp = mesure.getTemperature();
         BigDecimal humi = mesure.getHumidite();
-        BigDecimal tempIdeal = pays.getTempIdeale();
-        BigDecimal humiIdeal = pays.getHumiIdeale();
-        BigDecimal tempTolerance = defaultTolerance(pays.getToleranceTemp());
-        BigDecimal humiTolerance = defaultTolerance(pays.getToleranceHumi());
-
-        BigDecimal tempMin = tempIdeal.subtract(tempTolerance);
-        BigDecimal tempMax = tempIdeal.add(tempTolerance);
-        BigDecimal humiMin = humiIdeal.subtract(humiTolerance);
-        BigDecimal humiMax = humiIdeal.add(humiTolerance);
+        BigDecimal tempMin = tempIdeale.subtract(toleranceTemp);
+        BigDecimal tempMax = tempIdeale.add(toleranceTemp);
+        BigDecimal humiMin = humiIdeale.subtract(toleranceHumi);
+        BigDecimal humiMax = humiIdeale.add(toleranceHumi);
 
         Alerte alerte = new Alerte();
-        if (temp.compareTo(tempMax) > 0) {
+        if (temp != null && temp.compareTo(tempMax) > 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.HAUTETEMPERATURE);
-            alerte.setDescription("Temperature trop haute: " + temp + ideal + tempIdeal + tolerance + tempTolerance + ")");
-        } else if (temp.compareTo(tempMin) < 0) {
+            alerte.setDescription("Temperature trop haute: " + temp + IDEAL_LABEL + tempIdeale + TOLERANCE_LABEL + toleranceTemp + ")");
+        } else if (temp != null && temp.compareTo(tempMin) < 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.BASSETEMPERATURE);
-            alerte.setDescription("Temperature trop basse: " + temp + ideal + tempIdeal + tolerance + tempTolerance + ")");
-        } else if (humi.compareTo(humiMax) > 0) {
+            alerte.setDescription("Temperature trop basse: " + temp + IDEAL_LABEL + tempIdeale + TOLERANCE_LABEL + toleranceTemp + ")");
+        } else if (humi != null && humi.compareTo(humiMax) > 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.HAUTEHUMIDITE);
-            alerte.setDescription("Humidite trop haute: " + humi + ideal + humiIdeal + tolerance + humiTolerance + ")");
-        } else if (humi.compareTo(humiMin) < 0) {
+            alerte.setDescription("Humidite trop haute: " + humi + IDEAL_LABEL + humiIdeale + TOLERANCE_LABEL + toleranceHumi + ")");
+        } else if (humi != null && humi.compareTo(humiMin) < 0) {
             alerte.setTypeAlerte(TypeAlerteEnum.BASSEHUMIDITE);
-            alerte.setDescription("Humidite trop basse: " + humi + ideal + humiIdeal + tolerance + humiTolerance + ")");
+            alerte.setDescription("Humidite trop basse: " + humi + IDEAL_LABEL + humiIdeale + TOLERANCE_LABEL + toleranceHumi + ")");
         }
 
         if (alerte.getTypeAlerte() == null) {
@@ -67,29 +82,22 @@ public class AlerteAdapter implements AlertePort {
         }
 
         alerte.setDateEmission(LocalDateTime.now());
+        alerte.setCapteur(capteur);
         Alerte savedAlerte = jpaAlerteRepository.save(alerte);
         createLinksWithLots(savedAlerte, capteur);
     }
 
     @Override
     public boolean isCompatible(Mesure mesure) {
-        Capteur capteur = resolveCapteurWithPays(mesure);
-        Pays pays = capteur.getEntrepot().getPays();
-
-        if (pays.getTempIdeale() == null || pays.getHumiIdeale() == null) {
-            throw new IllegalStateException("Les valeurs temp_ideale et humi_ideale doivent etre renseignees pour le pays " + pays.getIdPays());
-        }
+        resolveCapteurWithZone(mesure);
         if (mesure.getTemperature() == null || mesure.getHumidite() == null) {
             throw new IllegalArgumentException("La mesure doit contenir temperature et humidite");
         }
 
-        BigDecimal tempTolerance = defaultTolerance(pays.getToleranceTemp());
-        BigDecimal humiTolerance = defaultTolerance(pays.getToleranceHumi());
-
-        BigDecimal tempMin = pays.getTempIdeale().subtract(tempTolerance);
-        BigDecimal tempMax = pays.getTempIdeale().add(tempTolerance);
-        BigDecimal humiMin = pays.getHumiIdeale().subtract(humiTolerance);
-        BigDecimal humiMax = pays.getHumiIdeale().add(humiTolerance);
+        BigDecimal tempMin = tempIdeale.subtract(toleranceTemp);
+        BigDecimal tempMax = tempIdeale.add(toleranceTemp);
+        BigDecimal humiMin = humiIdeale.subtract(toleranceHumi);
+        BigDecimal humiMax = humiIdeale.add(toleranceHumi);
 
         boolean temperatureOutOfRange = mesure.getTemperature().compareTo(tempMin) < 0
             || mesure.getTemperature().compareTo(tempMax) > 0;
@@ -99,7 +107,7 @@ public class AlerteAdapter implements AlertePort {
         return temperatureOutOfRange || humiditeOutOfRange;
     }
 
-    private Capteur resolveCapteurWithPays(Mesure mesure) {
+    private Capteur resolveCapteurWithZone(Mesure mesure) {
         UUID capteurId = mesure.getCapteur() != null ? mesure.getCapteur().getIdCapteur() : null;
         if (capteurId == null) {
             throw new IllegalArgumentException("L'id du capteur est obligatoire pour evaluer une alerte");
@@ -109,9 +117,6 @@ public class AlerteAdapter implements AlertePort {
             .orElseThrow(() -> new IllegalStateException("Capteur introuvable pour l'id " + capteurId));
     }
 
-    private BigDecimal defaultTolerance(BigDecimal tolerance) {
-        return tolerance != null ? tolerance : BigDecimal.ZERO;
-    }
 
     private void createLinksWithLots(Alerte alerte, Capteur capteur) {
         if (alerte.getIdAlerte() == null) {

@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/db_bresil
-    username: ${DB_USER:admin_pays}
-    password: ${DB_PASSWORD:password_pays}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/futurekawa_country
+    username: ${DB_USER:admin}
+    password: ${DB_PASSWORD:password123}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,6 +17,12 @@ spring:
 app:
   entrepot:
     id: 770e8400-e29b-41d4-a716-446655440011
+  alert:
+    tolerences:
+      temperature-ideale: ${TEMPERATURE_IDEALE:29}
+      humidite-ideale: ${HUMIDITE_IDEALE:55}
+      tolerance-temperature: ${TOLERANCE_TEMPERATURE:3}
+      tolerance-humidite: ${TOLERANCE_HUMIDITE:2}
 
 
 springdoc:

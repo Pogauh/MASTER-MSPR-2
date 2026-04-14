@@ -6,7 +6,6 @@ import fr.epsi.mspr2.domain.models.Entrepot;
 import fr.epsi.mspr2.domain.models.GenereAlerte;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.models.Mesure;
-import fr.epsi.mspr2.domain.models.Pays;
 import fr.epsi.mspr2.domain.ports.AlertePort;
 import fr.epsi.mspr2.infrastructure.jpa.JpaAlerteRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
@@ -55,7 +54,7 @@ class AlerteAdapterTest {
     void isCompatible_shouldReturnTrueWhenTemperatureOutOfRange() {
         Mesure mesure = buildMesure(new BigDecimal("35.00"), new BigDecimal("55.00"));
         when(jpaCapteurRepository.findByIdWithEntrepotAndPays(mesure.getCapteur().getIdCapteur()))
-            .thenReturn(Optional.of(buildCapteurWithCountry()));
+            .thenReturn(Optional.of(buildCapteur()));
 
         boolean result = alertePort.isCompatible(mesure);
 
@@ -66,7 +65,7 @@ class AlerteAdapterTest {
     void isCompatible_shouldReturnFalseWhenMesureInsideRange() {
         Mesure mesure = buildMesure(new BigDecimal("29.00"), new BigDecimal("55.00"));
         when(jpaCapteurRepository.findByIdWithEntrepotAndPays(mesure.getCapteur().getIdCapteur()))
-            .thenReturn(Optional.of(buildCapteurWithCountry()));
+            .thenReturn(Optional.of(buildCapteur()));
 
         boolean result = alertePort.isCompatible(mesure);
 
@@ -76,7 +75,7 @@ class AlerteAdapterTest {
     @Test
     void sendAlerte_shouldPersistWhenMesureOutOfRange() {
         Mesure mesure = buildMesure(new BigDecimal("29.00"), new BigDecimal("70.00"));
-        Capteur capteur = buildCapteurWithCountry();
+        Capteur capteur = buildCapteur();
         when(jpaCapteurRepository.findByIdWithEntrepotAndPays(mesure.getCapteur().getIdCapteur()))
             .thenReturn(Optional.of(capteur));
         when(jpaLotRepository.findAllByEntrepotIdEntrepotAndEmplacementIgnoreCase(any(), any()))
@@ -92,7 +91,7 @@ class AlerteAdapterTest {
     void sendAlerte_shouldNotPersistWhenMesureInRange() {
         Mesure mesure = buildMesure(new BigDecimal("29.00"), new BigDecimal("55.00"));
         when(jpaCapteurRepository.findByIdWithEntrepotAndPays(mesure.getCapteur().getIdCapteur()))
-            .thenReturn(Optional.of(buildCapteurWithCountry()));
+            .thenReturn(Optional.of(buildCapteur()));
 
         alertePort.sendAlerte(mesure);
 
@@ -111,16 +110,9 @@ class AlerteAdapterTest {
         return mesure;
     }
 
-    private Capteur buildCapteurWithCountry() {
-        Pays pays = new Pays();
-        pays.setTempIdeale(new BigDecimal("29.00"));
-        pays.setHumiIdeale(new BigDecimal("55.00"));
-        pays.setToleranceTemp(new BigDecimal("2.00"));
-        pays.setToleranceHumi(new BigDecimal("3.00"));
-
+    private Capteur buildCapteur() {
         Entrepot entrepot = new Entrepot();
         entrepot.setIdEntrepot(UUID.randomUUID());
-        entrepot.setPays(pays);
 
         Capteur capteur = new Capteur();
         capteur.setEmplacementPrecis("A");

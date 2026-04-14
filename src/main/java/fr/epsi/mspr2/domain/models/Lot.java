@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,17 +39,17 @@ public class Lot {
     @Column(name = "date_stockage")
     private LocalDateTime dateStockage;
 
-    @Column(name = "emplacement", length = 150)
-    private String emplacement;
+    @Column(name = "date_production")
+    private LocalDate dateProduction;
 
     @ManyToOne
     @JoinColumn(name = "id_exploitation", nullable = false)
     private Exploitation exploitation;
 
     @ManyToOne
-    @JoinColumn(name = "id_entrepot", nullable = false)
+    @JoinColumn(name = "id_zone", nullable = false)
     @JsonIgnore
-    private Entrepot entrepot;
+    private Zone zone;
 
     @OneToMany(mappedBy = "lot", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -62,5 +63,29 @@ public class Lot {
         if (dateStockage == null) {
             dateStockage = LocalDateTime.now();
         }
+    }
+
+    @Transient
+    public String getEmplacement() {
+        return zone != null ? zone.getNom() : null;
+    }
+
+    public void setEmplacement(String emplacement) {
+        if (zone == null) {
+            zone = new Zone();
+        }
+        zone.setNom(emplacement);
+    }
+
+    @Transient
+    public Entrepot getEntrepot() {
+        return zone != null ? zone.getEntrepot() : null;
+    }
+
+    public void setEntrepot(Entrepot entrepot) {
+        if (zone == null) {
+            zone = new Zone();
+        }
+        zone.setEntrepot(entrepot);
     }
 }

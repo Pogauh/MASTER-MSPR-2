@@ -29,8 +29,31 @@ public class Capteur {
     private String emplacementPrecis;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_entrepot", nullable = false)
+    @JoinColumn(name = "id_zone", nullable = false, unique = true )
     @JsonIgnore
-    private Entrepot entrepot;
-}
+    private Zone zone;
 
+    @Transient
+    public String getEmplacementPrecis() {
+        return zone != null ? zone.getNom() : null;
+    }
+
+    public void setEmplacementPrecis(String emplacementPrecis) {
+        if (zone == null) {
+            zone = new Zone();
+        }
+        zone.setNom(emplacementPrecis);
+    }
+
+    @Transient
+    public Entrepot getEntrepot() {
+        return zone != null ? zone.getEntrepot() : null;
+    }
+
+    public void setEntrepot(Entrepot entrepot) {
+        if (zone == null) {
+            zone = new Zone();
+        }
+        zone.setEntrepot(entrepot);
+    }
+}
