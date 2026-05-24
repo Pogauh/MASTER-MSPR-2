@@ -19,30 +19,6 @@ public class CapteurController {
 
     private final CapteurService serviceCapteur;
 
-    @GetMapping("/mesures/by-day")
-    public ResponseEntity<List<MesureResponseDTO>> getAllMesuresByDayRange(
-        @RequestParam("startDate") LocalDate startDate,
-        @RequestParam("endDate") LocalDate endDate
-    ) {
-        try {
-            return ResponseEntity.ok(serviceCapteur.getAllMesuresByDayRange(startDate, endDate));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
-
-    @GetMapping("/mesures/by-hour")
-    public ResponseEntity<List<MesureResponseDTO>> getAllMesuresByHourRange(
-        @RequestParam("startTime") LocalTime startTime,
-        @RequestParam("endTime") LocalTime endTime
-    ) {
-        try {
-            return ResponseEntity.ok(serviceCapteur.getAllMesuresByHourRange(startTime, endTime));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
-
     @GetMapping("/{capteurId}/mesures")
     public ResponseEntity<List<MesureResponseDTO>> getMesuresByCapteurId(@PathVariable UUID capteurId) {
         try {
@@ -84,4 +60,3 @@ public class CapteurController {
         }
     }
 }
-

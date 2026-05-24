@@ -15,15 +15,12 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 app:
-  entrepot:
-    id: 770e8400-e29b-41d4-a716-446655440011
   alert:
     tolerences:
       temperature-ideale: ${TEMPERATURE_IDEALE:29}
       humidite-ideale: ${HUMIDITE_IDEALE:55}
       tolerance-temperature: ${TOLERANCE_TEMPERATURE:3}
       tolerance-humidite: ${TOLERANCE_HUMIDITE:2}
-
 
 springdoc:
   openapi:

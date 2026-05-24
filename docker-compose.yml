@@ -35,13 +35,5 @@ services:
       - "8081:8080"
     restart: always
 
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 --cleanup futurekawa-backend
-    restart: always
-
 volumes:
   postgres_data:

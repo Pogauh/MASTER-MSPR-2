@@ -1,8 +1,6 @@
 package fr.epsi.mspr2.infrastructure.adapters;
 
-import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
-import fr.epsi.mspr2.infrastructure.config.EntrepotOwnerProperties;
 import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.domain.ports.CapteurPort;
 import lombok.AllArgsConstructor;
@@ -19,39 +17,16 @@ import java.util.UUID;
 public class CapteurAdapter implements CapteurPort {
 
     private final JpaMesureRepository jpaMesureRepository;
-    private final JpaCapteurRepository jpaCapteurRepository;
-    private final EntrepotOwnerProperties entrepotOwnerProperties;
-
-    @Override
-    public List<Mesure> findAllMesuresByDayRange(LocalDate startDate, LocalDate endDate) {
-        UUID entrepotId = entrepotOwnerProperties.getEntrepotId();
-        return jpaMesureRepository.findAllByCapteurEntrepotIdEntrepotAndDateMesureBetween(
-            entrepotId,
-            toStartOfDay(startDate),
-            toEndOfDay(endDate)
-        );
-    }
-
-    @Override
-    public List<Mesure> findAllMesuresByHourRange(LocalTime startTime, LocalTime endTime) {
-        UUID entrepotId = entrepotOwnerProperties.getEntrepotId();
-        return jpaMesureRepository.findAllByEntrepotIdAndHourRange(entrepotId, startTime, endTime);
-    }
 
     @Override
     public List<Mesure> findMesuresByCapteurId(UUID capteurId) {
-        UUID entrepotId = entrepotOwnerProperties.getEntrepotId();
-        ensureCapteurBelongsToOwner(capteurId, entrepotId);
-        return jpaMesureRepository.findAllByCapteurIdCapteurAndCapteurEntrepotIdEntrepot(capteurId, entrepotId);
+        return jpaMesureRepository.findAllByIdCapteur(capteurId);
     }
 
     @Override
     public List<Mesure> findMesuresByCapteurIdAndDayRange(UUID capteurId, LocalDate startDate, LocalDate endDate) {
-        UUID entrepotId = entrepotOwnerProperties.getEntrepotId();
-        ensureCapteurBelongsToOwner(capteurId, entrepotId);
-        return jpaMesureRepository.findAllByCapteurIdCapteurAndCapteurEntrepotIdEntrepotAndDateMesureBetween(
+        return jpaMesureRepository.findAllByCapteurIdAndDateMesureBetween(
             capteurId,
-            entrepotId,
             toStartOfDay(startDate),
             toEndOfDay(endDate)
         );
@@ -59,17 +34,9 @@ public class CapteurAdapter implements CapteurPort {
 
     @Override
     public List<Mesure> findMesuresByCapteurIdAndHourRange(UUID capteurId, LocalTime startTime, LocalTime endTime) {
-        UUID entrepotId = entrepotOwnerProperties.getEntrepotId();
-        ensureCapteurBelongsToOwner(capteurId, entrepotId);
-        return jpaMesureRepository.findAllByCapteurIdAndEntrepotIdAndHourRange(capteurId, entrepotId, startTime, endTime);
+        return jpaMesureRepository.findAllByCapteurIdAndHourRange(capteurId, startTime, endTime);
     }
 
-    private void ensureCapteurBelongsToOwner(UUID capteurId, UUID entrepotId) {
-        boolean exists = jpaCapteurRepository.existsByIdCapteurAndEntrepotIdEntrepot(capteurId, entrepotId);
-        if (!exists) {
-            throw new IllegalStateException("Capteur introuvable pour l'id " + capteurId + " dans l'entrepôt propriétaire " + entrepotId);
-        }
-    }
 
     private LocalDateTime toStartOfDay(LocalDate date) {
         return date.atStartOfDay();
@@ -79,4 +46,3 @@ public class CapteurAdapter implements CapteurPort {
         return date.plusDays(1).atStartOfDay().minusNanos(1);
     }
 }
-

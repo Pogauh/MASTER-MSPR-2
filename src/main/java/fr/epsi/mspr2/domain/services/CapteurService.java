@@ -17,22 +17,6 @@ public class CapteurService {
 
     private final CapteurPort capteurPort;
 
-    public List<MesureResponseDTO> getAllMesuresByDayRange(LocalDate startDate, LocalDate endDate) {
-        validateDayRange(startDate, endDate);
-        return capteurPort.findAllMesuresByDayRange(startDate, endDate)
-            .stream()
-            .map(MesureMapper::toResponse)
-            .toList();
-    }
-
-    public List<MesureResponseDTO> getAllMesuresByHourRange(LocalTime startTime, LocalTime endTime) {
-        validateHourRange(startTime, endTime);
-        return capteurPort.findAllMesuresByHourRange(startTime, endTime)
-            .stream()
-            .map(MesureMapper::toResponse)
-            .toList();
-    }
-
     public List<MesureResponseDTO> getMesuresByCapteurId(UUID capteurId) {
         if (capteurId == null) {
             throw new IllegalArgumentException("capteurId est obligatoire");
@@ -83,4 +67,3 @@ public class CapteurService {
         }
     }
 }
-

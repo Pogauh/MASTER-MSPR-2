@@ -485,3 +485,95 @@
 1776176189: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1776177990: Saving in-memory database to /mosquitto/data//mosquitto.db.
 1776179791: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1778056938: mosquitto version 2.1.2 starting
+1778056938: Config loaded from /mosquitto/config/mosquitto.conf.
+1778056938: Bridge support available.
+1778056938: Persistence support available.
+1778056938: TLS support available.
+1778056938: TLS-PSK support available.
+1778056938: Websockets support available.
+1778056938: Opening ipv4 listen socket on port 1883.
+1778056938: mosquitto version 2.1.2 running
+1778057014: mosquitto version 2.1.2 terminating
+1778057014: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1778436851: mosquitto version 2.1.2 starting
+1778436851: Config loaded from /mosquitto/config/mosquitto.conf.
+1778436851: Bridge support available.
+1778436851: Persistence support available.
+1778436851: TLS support available.
+1778436851: TLS-PSK support available.
+1778436851: Websockets support available.
+1778436851: Opening ipv4 listen socket on port 1883.
+1778436851: mosquitto version 2.1.2 running
+1778437061: New connection from 172.23.0.1:59888 on port 1883.
+1778437062: New client connected from 172.23.0.1:59888 as java-backend-client (p4, c1, k60).
+1778437062: New connection from 172.23.0.1:59892 on port 1883.
+1778437062: New client connected from 172.23.0.1:59892 as java-backend-sender (p4, c1, k60).
+1778437774: Client java-backend-client [172.23.0.1:59888] disconnected.
+1778437779: Client java-backend-sender [172.23.0.1:59892] disconnected.
+1778437946: New connection from 172.23.0.1:58574 on port 1883.
+1778437946: New client connected from 172.23.0.1:58574 as java-backend-client (p4, c1, k60).
+1778437946: New connection from 172.23.0.1:58582 on port 1883.
+1778437947: New client connected from 172.23.0.1:58582 as java-backend-sender (p4, c1, k60).
+1778438052: Client java-backend-client [172.23.0.1:58574] disconnected.
+1778438057: Client java-backend-sender [172.23.0.1:58582] disconnected.
+1778438075: New connection from 172.23.0.1:52580 on port 1883.
+1778438075: New client connected from 172.23.0.1:52580 as java-backend-client (p4, c1, k60).
+1778438075: New connection from 172.23.0.1:52594 on port 1883.
+1778438076: New client connected from 172.23.0.1:52594 as java-backend-sender (p4, c1, k60).
+1778438118: Client java-backend-client [172.23.0.1:52580] disconnected.
+1778438123: Client java-backend-sender [172.23.0.1:52594] disconnected.
+1778438285: New connection from 172.23.0.1:38548 on port 1883.
+1778438286: New client connected from 172.23.0.1:38548 as java-backend-client (p4, c1, k60).
+1778438286: New connection from 172.23.0.1:38564 on port 1883.
+1778438286: New client connected from 172.23.0.1:38564 as java-backend-sender (p4, c1, k60).
+1778438651: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1778439326: Client java-backend-client [172.23.0.1:38548] disconnected.
+1778439331: Client java-backend-sender [172.23.0.1:38564] disconnected.
+1778439333: mosquitto version 2.1.2 terminating
+1778439333: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1778439345: mosquitto version 2.1.2 starting
+1778439345: Config loaded from /mosquitto/config/mosquitto.conf.
+1778439345: Bridge support available.
+1778439345: Persistence support available.
+1778439345: TLS support available.
+1778439345: TLS-PSK support available.
+1778439345: Websockets support available.
+1778439345: Opening ipv4 listen socket on port 1883.
+1778439345: mosquitto version 2.1.2 running
+1778439365: New connection from 172.23.0.1:58354 on port 1883.
+1778439365: New client connected from 172.23.0.1:58354 as java-backend-client (p4, c1, k60).
+1778439366: New connection from 172.23.0.1:58364 on port 1883.
+1778439366: New client connected from 172.23.0.1:58364 as java-backend-sender (p4, c1, k60).
+1778439931: Client java-backend-client [172.23.0.1:58354] disconnected.
+1778439936: Client java-backend-sender [172.23.0.1:58364] disconnected.
+1778441145: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1778443981: mosquitto version 2.1.2 terminating
+1778443981: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1778447274: mosquitto version 2.1.2 starting
+1778447274: Config loaded from /mosquitto/config/mosquitto.conf.
+1778447274: Bridge support available.
+1778447274: Persistence support available.
+1778447274: TLS support available.
+1778447274: TLS-PSK support available.
+1778447274: Websockets support available.
+1778447274: Opening ipv4 listen socket on port 1883.
+1778447274: mosquitto version 2.1.2 running
+1778448739: mosquitto version 2.1.2 terminating
+1778448739: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779655182: mosquitto version 2.1.2 starting
+1779655182: Config loaded from /mosquitto/config/mosquitto.conf.
+1779655182: Bridge support available.
+1779655182: Persistence support available.
+1779655182: TLS support available.
+1779655182: TLS-PSK support available.
+1779655182: Websockets support available.
+1779655182: Opening ipv4 listen socket on port 1883.
+1779655182: mosquitto version 2.1.2 running
+1779656982: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779657725: New connection from 172.23.0.1:52658 on port 1883.
+1779657725: New client connected from 172.23.0.1:52658 as java-backend-client (p4, c1, k60).
+1779657725: New connection from 172.23.0.1:52670 on port 1883.
+1779657726: New client connected from 172.23.0.1:52670 as java-backend-sender (p4, c1, k60).
+1779657753: Client java-backend-client [172.23.0.1:52658] disconnected.
+1779657758: Client java-backend-sender [172.23.0.1:52670] disconnected.

@@ -63,12 +63,17 @@ CREATE TABLE historique (
 );
 
 INSERT INTO entrepot (id_entrepot, nom, localisation)
-VALUES ('770e8400-e29b-41d4-a716-446655440011', 'Entrepot Principal', 'Bresil')
-VALUES ('3f7c9e8a-6b2d-4d91-9a5e-2c8f1b7e4a63', 'Entrepot Secondaire', 'Bresil')
-
+VALUES
+    ('770e8400-e29b-41d4-a716-446655440011', 'Entrepot Principal', 'Bresil'),
+    ('3f7c9e8a-6b2d-4d91-9a5e-2c8f1b7e4a63', 'Entrepot Secondaire', 'Bresil')
 ON CONFLICT (id_entrepot) DO NOTHING;
 
-WITH zone_seed (nom_zone) AS (
+WITH entrepot_seed (id_entrepot) AS (
+    VALUES
+        ('770e8400-e29b-41d4-a716-446655440011'::uuid),
+        ('3f7c9e8a-6b2d-4d91-9a5e-2c8f1b7e4a63'::uuid)
+),
+zone_seed (nom_zone) AS (
     VALUES
         ('A'), ('B'), ('C'), ('D'), ('E'), ('F'), ('G'), ('H'),
         ('I'), ('J'), ('K'), ('L'), ('M'), ('N'), ('O'), ('P'),
@@ -79,25 +84,29 @@ INSERT INTO zone (id_zone, nom, id_entrepot)
 SELECT
     uuid_generate_v4(),
     zone_seed.nom_zone,
-    '770e8400-e29b-41d4-a716-446655440011'
+    entrepot_seed.id_entrepot
 FROM zone_seed
+CROSS JOIN entrepot_seed
 ON CONFLICT (nom, id_entrepot) DO NOTHING;
 
-WITH capteur_seed (idx, nom_zone) AS (
-    VALUES
-        (1, 'A'), (2, 'B'), (3, 'C'), (4, 'D'), (5, 'E'), (6, 'F'), (7, 'G'), (8, 'H'),
-        (9, 'I'), (10, 'J'), (11, 'K'), (12, 'L'), (13, 'M'), (14, 'N'), (15, 'O'), (16, 'P'),
-        (17, 'Q'), (18, 'R'), (19, 'S'), (20, 'T'), (21, 'U'), (22, 'V'), (23, 'W'), (24, 'X'),
-        (25, 'Y'), (26, 'Z'), (27, 'AA'), (28, 'AB'), (29, 'AC'), (30, 'AD')
+WITH capteur_seed AS (
+    SELECT
+        z.id_zone,
+        row_number() OVER (ORDER BY z.id_zone) AS idx
+    FROM zone z
+    WHERE z.id_entrepot IN (
+        '770e8400-e29b-41d4-a716-446655440011'::uuid,
+        '3f7c9e8a-6b2d-4d91-9a5e-2c8f1b7e4a63'::uuid
+    )
 )
 INSERT INTO capteur (id_capteur, code_serie, id_zone)
 SELECT
     uuid_generate_v4(),
     format('02:AA:BB:CC:DD:%s', lpad(upper(to_hex(capteur_seed.idx)), 2, '0')),
-    zone.id_zone
+    capteur_seed.id_zone
 FROM capteur_seed
-JOIN zone
-    ON zone.nom = capteur_seed.nom_zone
-   AND zone.id_entrepot = '770e8400-e29b-41d4-a716-446655440011'
 ON CONFLICT (id_zone) DO NOTHING;
 
+INSERT INTO exploitation (id_exploitation, nom, adresse)
+VALUES ('aa0e8400-e29b-41d4-a716-446655440022', 'Exploitation Flamenco', '804 rue du Barista')
+ON CONFLICT (id_exploitation) DO NOTHING;

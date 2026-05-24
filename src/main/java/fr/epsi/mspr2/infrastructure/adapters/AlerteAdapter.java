@@ -23,17 +23,17 @@ public class AlerteAdapter implements AlertePort {
     private final JpaLotRepository jpaLotRepository;
     private final JpaGenereAlerteRepository jpaGenereAlerteRepository;
 
-    @Value("${app.alert.tolerences.temperature-ideale:${TEMPERATURE_IDEALE:29}}")
-    private BigDecimal tempIdeale = BigDecimal.valueOf(29);
+    @Value("${app.alert.tolerences.temperature-ideale}")
+    private BigDecimal tempIdeale;
 
-    @Value("${app.alert.tolerences.humidite-ideale:${HUMIDITE_IDEALE:55}}")
-    private BigDecimal humiIdeale = BigDecimal.valueOf(55);
+    @Value("${app.alert.tolerences.humidite-ideale}")
+    private BigDecimal humiIdeale;
 
-    @Value("${app.alert.tolerences.tolerance-temperature:${TOLERANCE_TEMPERATURE:3}}")
-    private BigDecimal toleranceTemp = BigDecimal.valueOf(3);
+    @Value("${app.alert.tolerences.tolerance-temperature}")
+    private BigDecimal toleranceTemp;
 
-    @Value("${app.alert.tolerences.tolerance-humidite:${TOLERANCE_HUMIDITE:2}}")
-    private BigDecimal toleranceHumi = BigDecimal.valueOf(2);
+    @Value("${app.alert.tolerences.tolerance-humidite}")
+    private BigDecimal toleranceHumi;
 
     private static final String TOLERANCE_LABEL = ", tolerance=";
     private static final String IDEAL_LABEL = " (ideal=";
@@ -113,10 +113,9 @@ public class AlerteAdapter implements AlertePort {
             throw new IllegalArgumentException("L'id du capteur est obligatoire pour evaluer une alerte");
         }
 
-        return jpaCapteurRepository.findByIdWithEntrepotAndPays(capteurId)
+        return jpaCapteurRepository.findByCapteurId(capteurId)
             .orElseThrow(() -> new IllegalStateException("Capteur introuvable pour l'id " + capteurId));
     }
-
 
     private void createLinksWithLots(Alerte alerte, Capteur capteur) {
         if (alerte.getIdAlerte() == null) {

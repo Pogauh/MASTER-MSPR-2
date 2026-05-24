@@ -1,4 +1,7 @@
 spring:
+  config:
+    activate:
+      on-profile: local
   datasource:
     url: jdbc:postgresql://localhost:5433/futurekawa_country
     username: admin
@@ -15,8 +18,6 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 app:
-  entrepot:
-    id: 770e8400-e29b-41d4-a716-446655440011
   alert:
     tolerences:
       temperature-ideale: ${TEMPERATURE_IDEALE:29}

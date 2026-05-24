@@ -37,14 +37,6 @@ public class MesureService {
         return MesureMapper.toStatusResponse(mesure);
     }
 
-    public List<MesureResponseDTO> getAllMesuresForEntrepot() {
-        return mesurePort.findAllByEntrepot()
-            .stream()
-            .map(MesureMapper::toResponse)
-            .toList();
-    }
-
-
     public MesureResponseDTO getMesureById(UUID idMesure) {
         Mesure mesure = mesurePort.findById(idMesure);
         return mesure != null ? MesureMapper.toResponse(mesure) : null;

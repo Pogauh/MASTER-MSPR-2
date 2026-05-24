@@ -8,14 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CapteurPort {
-    List<Mesure> findAllMesuresByDayRange(LocalDate startDate, LocalDate endDate);
-
-    List<Mesure> findAllMesuresByHourRange(LocalTime startTime, LocalTime endTime);
-
     List<Mesure> findMesuresByCapteurId(UUID capteurId);
 
     List<Mesure> findMesuresByCapteurIdAndDayRange(UUID capteurId, LocalDate startDate, LocalDate endDate);
 
     List<Mesure> findMesuresByCapteurIdAndHourRange(UUID capteurId, LocalTime startTime, LocalTime endTime);
 }
-

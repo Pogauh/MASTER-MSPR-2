@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,35 +30,6 @@ class CapteurControllerTest {
         serviceCapteur = mock(CapteurService.class);
         CapteurController controller = new CapteurController(serviceCapteur);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-    }
-
-    @Test
-    void getAllMesuresByDayRange_shouldReturn200() throws Exception {
-        LocalDate startDate = LocalDate.of(2026, 3, 1);
-        LocalDate endDate = LocalDate.of(2026, 3, 2);
-        MesureResponseDTO dto = buildResponseDto();
-        when(serviceCapteur.getAllMesuresByDayRange(startDate, endDate)).thenReturn(List.of(dto));
-
-        mockMvc.perform(get("/api/capteurs/mesures/by-day")
-                .param("startDate", "2026-03-01")
-                .param("endDate", "2026-03-02"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].idMesure").value(dto.idMesure.toString()));
-
-        verify(serviceCapteur).getAllMesuresByDayRange(startDate, endDate);
-    }
-
-    @Test
-    void getAllMesuresByHourRange_shouldReturn400WhenInvalid() throws Exception {
-        LocalTime start = LocalTime.of(20, 0);
-        LocalTime end = LocalTime.of(10, 0);
-        when(serviceCapteur.getAllMesuresByHourRange(start, end))
-            .thenThrow(new IllegalArgumentException("invalid range"));
-
-        mockMvc.perform(get("/api/capteurs/mesures/by-hour")
-                .param("startTime", "20:00:00")
-                .param("endTime", "10:00:00"))
-            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -111,4 +81,3 @@ class CapteurControllerTest {
         return dto;
     }
 }
-

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -29,47 +28,6 @@ class ServiceCapteurTest {
     void setUp() {
         capteurPort = mock(CapteurPort.class);
         serviceCapteur = new CapteurService(capteurPort);
-    }
-
-    @Test
-    void getAllMesuresByDayRange_shouldReturnMappedDtos() {
-        LocalDate startDate = LocalDate.of(2026, 3, 1);
-        LocalDate endDate = LocalDate.of(2026, 3, 7);
-        Mesure mesure = buildMesure();
-        when(capteurPort.findAllMesuresByDayRange(startDate, endDate)).thenReturn(List.of(mesure));
-
-        List<MesureResponseDTO> result = serviceCapteur.getAllMesuresByDayRange(startDate, endDate);
-
-        assertEquals(1, result.size());
-        assertEquals(mesure.getIdMesure(), result.get(0).idMesure);
-        assertEquals(mesure.getCapteur().getIdCapteur(), result.get(0).idCapteur);
-        verify(capteurPort).findAllMesuresByDayRange(startDate, endDate);
-    }
-
-    @Test
-    void getAllMesuresByDayRange_shouldThrowWhenInvalidRange() {
-        LocalDate startDate = LocalDate.of(2026, 3, 10);
-        LocalDate endDate = LocalDate.of(2026, 3, 1);
-
-        IllegalArgumentException ex = assertThrows(
-            IllegalArgumentException.class,
-            () -> serviceCapteur.getAllMesuresByDayRange(startDate, endDate)
-        );
-
-        assertEquals("endDate doit être supérieur ou égal à startDate", ex.getMessage());
-    }
-
-    @Test
-    void getAllMesuresByHourRange_shouldThrowWhenInvalidRange() {
-        LocalTime startTime = LocalTime.of(20, 0);
-        LocalTime endTime = LocalTime.of(8, 0);
-
-        IllegalArgumentException ex = assertThrows(
-            IllegalArgumentException.class,
-            () -> serviceCapteur.getAllMesuresByHourRange(startTime, endTime)
-        );
-
-        assertEquals("endTime doit être supérieur ou égal à startTime", ex.getMessage());
     }
 
     @Test
@@ -108,4 +66,3 @@ class ServiceCapteurTest {
         return mesure;
     }
 }
-

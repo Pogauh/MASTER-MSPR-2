@@ -1,23 +1,16 @@
 package fr.epsi.mspr2.infrastructure.mapper;
 
-import fr.epsi.mspr2.infrastructure.dto.AlerteResponseDTO;
+import fr.epsi.mspr2.domain.models.Exploitation;
+import fr.epsi.mspr2.domain.models.Lot;
+import fr.epsi.mspr2.domain.models.Zone;
+import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
 import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
-import fr.epsi.mspr2.domain.models.Alerte;
-import fr.epsi.mspr2.domain.models.GenereAlerte;
-import fr.epsi.mspr2.domain.models.Lot;
-
-import java.util.Comparator;
-import java.util.List;
 
 
 public interface LotMapper {
 
     static LotResponseDTO toResponse(Lot lot) {
-        return toResponse(lot, true);
-    }
-
-    static LotResponseDTO toResponse(Lot lot, boolean includeAlertes) {
         LotResponseDTO dto = new LotResponseDTO();
         dto.idLot = lot.getIdLot();
         dto.status = lot.getStatus();
@@ -29,7 +22,7 @@ public interface LotMapper {
         dto.emplacement = lot.getEmplacement();
         dto.idExploitation = lot.getExploitation() != null ? lot.getExploitation().getIdExploitation() : null;
         dto.idEntrepot = lot.getEntrepot() != null ? lot.getEntrepot().getIdEntrepot() : null;
-        dto.alertes = includeAlertes ? toAlerteResponses(lot.getGenereAlertes()) : List.of();
+        dto.historique = lot.getHistorique();
         return dto;
     }
 
@@ -39,25 +32,22 @@ public interface LotMapper {
         return dto;
     }
 
-    private static List<AlerteResponseDTO> toAlerteResponses(List<GenereAlerte> genereAlertes) {
-        if (genereAlertes == null || genereAlertes.isEmpty()) {
-            return List.of();
+    static Lot toEntity(LotRequestDTO request) {
+        if (request == null) {
+            return null;
         }
 
-        return genereAlertes.stream()
-            .map(GenereAlerte::getAlerte)
-            .filter(java.util.Objects::nonNull)
-            .sorted(Comparator.comparing(Alerte::getDateEmission, Comparator.nullsLast(Comparator.reverseOrder())))
-            .map(LotMapper::toAlerteResponse)
-            .toList();
-    }
+        Lot lot = new Lot();
+        lot.setStatus(request.status);
+        lot.setQuantite(request.quantite);
+        lot.setCaracteristique(request.caracteristique);
+        Zone zone = new Zone();
+        zone.setIdZone(request.idZone);
+        lot.setZone(zone);
+        Exploitation exploitation = new Exploitation();
+        exploitation.setIdExploitation(request.idExploitation);
+        lot.setExploitation(exploitation);
 
-    private static AlerteResponseDTO toAlerteResponse(Alerte source) {
-        AlerteResponseDTO target = new AlerteResponseDTO();
-        target.idAlerte = source.getIdAlerte();
-        target.typeAlerte = source.getTypeAlerte() != null ? source.getTypeAlerte().name() : null;
-        target.description = source.getDescription();
-        target.dateEmission = source.getDateEmission();
-        return target;
+        return lot;
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -31,10 +30,6 @@ public class MesureController {
         return serviceMesure.getMesureById(idMesure);
     }
 
-    @GetMapping("/getAllMesures")
-    public List<MesureResponseDTO> getAllMesures() {
-        return serviceMesure.getAllMesuresForEntrepot();
-    }
 
     @DeleteMapping("/deleteMesure/{id}")
     public ResponseEntity<MesureStatusResponseDTO> deleteMesure(@PathVariable("id") UUID idMesure) {

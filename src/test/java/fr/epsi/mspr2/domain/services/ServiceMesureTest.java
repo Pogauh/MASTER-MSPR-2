@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,21 +50,6 @@ class ServiceMesureTest {
         assertNull(response.status);
         verify(mesurePort).save(any(Mesure.class));
         verify(alerteService).sendAlerte(any(Mesure.class));
-    }
-
-    @Test
-    void getAllMesuresForEntrepot_shouldReturnList() {
-        Mesure mesure = new Mesure();
-        mesure.setTemperature(new BigDecimal("22.00"));
-        mesure.setHumidite(new BigDecimal("55.00"));
-        mesure.setDateMesure(LocalDateTime.now());
-        Capteur capteur = new Capteur();
-        capteur.setIdCapteur(UUID.randomUUID());
-        mesure.setCapteur(capteur);
-        when(mesurePort.findAllByEntrepot()).thenReturn(Collections.singletonList(mesure));
-        List<MesureResponseDTO> result = serviceMesure.getAllMesuresForEntrepot();
-        assertEquals(1, result.size());
-        assertEquals(new BigDecimal("22.00"), result.get(0).temperature);
     }
 
     @Test

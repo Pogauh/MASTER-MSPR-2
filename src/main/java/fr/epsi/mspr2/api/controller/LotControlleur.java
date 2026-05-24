@@ -31,30 +31,24 @@ public class LotControlleur {
         return service.getLotById(idLot);
     }
 
+    @GetMapping("/allLotsFromAllEntrepots")
+    public List<LotResponseDTO> getAllLots() {
+        return service.getAllLotsForAllEntrepot();
+    }
+
+    @GetMapping("/getAllQuantity")
+    public Integer getInventaireMondial() {
+        return service.getQuantiteTotale();
+    }
+
     @DeleteMapping("/deleteLot/{id}")
     public ResponseEntity<LotStatusResponseDTO> deleteLot(@PathVariable("id") UUID idLot) {
         LotStatusResponseDTO response = service.deleteLot(idLot);
         if (response == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new LotStatusResponseDTO(null, HttpStatus.NOT_FOUND.name()));
+                    .body(new LotStatusResponseDTO(null, HttpStatus.NOT_FOUND.name()));
         }
         response.status = HttpStatus.OK.name();
         return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/all")
-    public List<LotResponseDTO> getAllLots() {
-        return service.getAllLotsForEntrepot();
-    }
-
-    @GetMapping("/with-alert-and-no-date-sortie")
-    public List<LotResponseDTO> getLotsWithAlerteAndNoDateSortie() {
-        return service.getLotsWithAlerteAndNoDateSortieForEntrepot();
-    }
-
-
-    @GetMapping("/getAllQuantity")
-    public Integer getInventaireMondial() {
-        return service.getQuantiteTotale();
     }
 }

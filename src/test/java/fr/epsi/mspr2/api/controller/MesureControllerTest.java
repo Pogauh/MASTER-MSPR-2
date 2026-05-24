@@ -2,7 +2,6 @@ package fr.epsi.mspr2.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
-import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.MesureService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +13,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.nullValue;
@@ -55,23 +53,6 @@ class MesureControllerTest {
                 .andExpect(jsonPath("$.status").value(HttpStatus.CREATED.name()));
 
         verify(serviceMesure).createMesure(any());
-    }
-
-    @Test
-    void getAllMesures_shouldReturnList() throws Exception {
-        MesureResponseDTO dto = new MesureResponseDTO();
-        dto.temperature = new BigDecimal("22.00");
-        MesureResponseDTO dto2 = new MesureResponseDTO();
-        dto2.temperature = new BigDecimal("18.00");
-        List<MesureResponseDTO> mesures = List.of(dto, dto2);
-        when(serviceMesure.getAllMesuresForEntrepot()).thenReturn(mesures);
-
-        mockMvc.perform(get("/api/mesures/getAllMesures"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].temperature").value(22.00))
-                .andExpect(jsonPath("$[1].temperature").value(18.00));
-
-        verify(serviceMesure).getAllMesuresForEntrepot();
     }
 
     @Test

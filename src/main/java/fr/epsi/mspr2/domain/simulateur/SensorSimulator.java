@@ -3,9 +3,8 @@ package fr.epsi.mspr2.domain.simulateur;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.epsi.mspr2.infrastructure.config.MqttGateway;
-import fr.epsi.mspr2.infrastructure.config.EntrepotOwnerProperties;
 import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
-import fr.epsi.mspr2.domain.models.Capteur;
+import fr.epsi.mspr2.infrastructure.jpa.JpaEntrepotRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,20 +25,22 @@ public class SensorSimulator {
 
     private final MqttGateway mqttGateway;
     private final JpaCapteurRepository jpaCapteurRepository;
-    private final EntrepotOwnerProperties entrepotOwnerProperties;
-    private final ObjectMapper objectMapper;
+    // TODO gerer le fait que l'entrepot n'est plus dans les properties
 
+    private UUID capteurId;
+    private final ObjectMapper objectMapper;
+    private final JpaEntrepotRepository jpaEntrepotRepository;
     @Value("${mqtt.topic}")
     private String mqttTopic;
 
     // 900 000 ms = 15 minutes
     // Pour tests, mettre 30000 (30 secondes)
     // 5 heures = 18 000 000 ms
-    @Scheduled(fixedRate = 18000000)
+    @Scheduled(fixedRate = 30000)
     public void simulateSensorData() {
         UUID capteurId = resolveCapteurId();
         if (capteurId == null) {
-            log.warn("Simulation ignorée: aucun capteur trouvé pour l'entrepôt {}", entrepotOwnerProperties.getEntrepotId());
+            log.warn("Simulation ignorée: aucun capteur trouvé pour l'entrepôt {}", capteurId);
             return;
         }
 
@@ -59,11 +60,16 @@ public class SensorSimulator {
     }
 // TODO - Ajouter le dynamisme de sauvegarde en fonction de l'entrepot.
     private UUID resolveCapteurId() {
-        var result = jpaCapteurRepository.findFirstByZoneEntrepotIdEntrepotOrderByIdCapteurAsc(entrepotOwnerProperties.getEntrepotId())
-            .map(Capteur::getIdCapteur)
-            .orElse(null);
-        System.out.println("Capteur ID utilisé pour la simulation: " + result);
-        return result;
+        capteurId = jpaCapteurRepository.findAllByEntrepotId(
+                jpaEntrepotRepository.findAll()
+                        .getFirst()
+                        .getIdEntrepot()
+        )
+                .getFirst()
+                .getIdCapteur();
+
+        System.out.println("Capteur ID utilisé pour la simulation: " + capteurId);
+        return capteurId;
     }
 
     private BigDecimal randomInRange(double min, double max) {

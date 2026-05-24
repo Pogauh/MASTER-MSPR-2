@@ -1,4 +1,3 @@
-
 package fr.epsi.mspr2.domain.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -54,6 +53,10 @@ public class Lot {
     @OneToMany(mappedBy = "lot", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<GenereAlerte> genereAlertes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "lot", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Historique> historique = new ArrayList<>();
 
     @PrePersist
     public void applyDefaults() {

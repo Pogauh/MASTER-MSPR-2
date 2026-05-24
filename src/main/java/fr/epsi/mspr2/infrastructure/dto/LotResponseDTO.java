@@ -1,5 +1,7 @@
 package fr.epsi.mspr2.infrastructure.dto;
 
+import fr.epsi.mspr2.domain.models.Historique;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +16,5 @@ public class LotResponseDTO {
     public String emplacement;
     public UUID idExploitation;
     public UUID idEntrepot;
-    public List<AlerteResponseDTO> alertes;
+    public List<Historique> historique;
 }
-

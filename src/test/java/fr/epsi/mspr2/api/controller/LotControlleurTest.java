@@ -1,7 +1,6 @@
 package fr.epsi.mspr2.api.controller;
 
-import fr.epsi.mspr2.infrastructure.dto.AlerteResponseDTO;
-import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
+
 import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
 import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.LotService;
@@ -13,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.UUID;
-import java.util.List;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,7 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,25 +77,6 @@ class LotControlleurTest {
             .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.name()));
 
         verify(serviceLot).deleteLot(id);
-    }
-
-    @Test
-    void getLotsWithAlerteAndNoDateSortie_shouldReturn200WithList() throws Exception {
-        LotResponseDTO dto = new LotResponseDTO();
-        dto.idLot = UUID.randomUUID();
-        AlerteResponseDTO alerte = new AlerteResponseDTO();
-        alerte.idAlerte = UUID.randomUUID();
-        alerte.typeAlerte = "HAUTETEMPERATURE";
-        dto.alertes = List.of(alerte);
-        when(serviceLot.getLotsWithAlerteAndNoDateSortieForEntrepot()).thenReturn(List.of(dto));
-
-        mockMvc.perform(get("/api/lots/with-alert-and-no-date-sortie"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].idLot").value(dto.idLot.toString()))
-            .andExpect(jsonPath("$[0].alertes[0].idAlerte").value(alerte.idAlerte.toString()))
-            .andExpect(jsonPath("$[0].alertes[0].typeAlerte").value("HAUTETEMPERATURE"));
-
-        verify(serviceLot).getLotsWithAlerteAndNoDateSortieForEntrepot();
     }
 }
 

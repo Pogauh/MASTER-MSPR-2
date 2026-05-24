@@ -5,30 +5,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface JpaCapteurRepository extends JpaRepository<Capteur, UUID> {
 	@Query("""
-		select count(c) > 0
-		from Capteur c
-		join c.zone z
-		join z.entrepot e
-		where c.idCapteur = :idCapteur and e.idEntrepot = :idEntrepot
+		select c from Capteur c
+		join fetch c.zone z
+		where c.idCapteur = :capteurId
 		""")
-	boolean existsByIdCapteurAndEntrepotIdEntrepot(@Param("idCapteur") UUID idCapteur, @Param("idEntrepot") UUID idEntrepot);
+	Optional<Capteur> findByCapteurId(@Param("capteurId") UUID capteurId);
 
 	@Query("""
 		select c from Capteur c
 		join fetch c.zone z
 		join fetch z.entrepot e
-		where c.idCapteur = :capteurId
+		where e.idEntrepot = :entrepotId
 		""")
-	Optional<Capteur> findByIdWithZoneAndEntrepot(@Param("capteurId") UUID capteurId);
-
-	default Optional<Capteur> findByIdWithEntrepotAndPays(UUID capteurId) {
-		return findByIdWithZoneAndEntrepot(capteurId);
-	}
-
-	Optional<Capteur> findFirstByZoneEntrepotIdEntrepotOrderByIdCapteurAsc(@Param("idEntrepot") UUID idEntrepot);
+	List<Capteur> findAllByEntrepotId(@Param("entrepotId") UUID entrepotId);
 }
