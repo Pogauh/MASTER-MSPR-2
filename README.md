@@ -43,7 +43,7 @@ Fichiers clefs:
 ### Couches
 
 - `src/main/java/fr/epsi/mspr2/api/controller`
-  - endpoints REST (`LotControlleur`, `MesureController`, `CapteurController`)
+  - endpoints REST (`LotControlleur`, `MesureController`, `CapteurController`, `EntrepotController`)
 - `src/main/java/fr/epsi/mspr2/domain/services`
   - logique applicative (`LotService`, `MesureService`, `CapteurService`, `AlerteService`)
 - `src/main/java/fr/epsi/mspr2/domain/ports`
@@ -147,11 +147,10 @@ Swagger:
 - `DELETE /api/lots/deleteLot/{id}`
   - supprime un lot
   - response: `LotStatusResponseDTO { idLot, status }`
-- `GET /api/lots/all`
-  - liste tous les lots de l'entrepot owner
-- `GET /api/lots/with-alert-and-no-date-sortie`
-  - liste les lots de l'entrepot owner ayant au moins une alerte et `dateSortie = null`
-  - inclut l'objet alerte dans le retour (`LotResponseDTO.alertes`)
+- `GET /api/lots/allLotsFromAllEntrepots`
+  - liste tous les lots de tous les entrepots
+- `GET /api/lots/getAllQuantity`
+  - inventaire mondial (quantite totale)
 
 Exemple `POST /api/lots`:
 
@@ -174,8 +173,6 @@ Exemple `POST /api/lots`:
   - response: `MesureStatusResponseDTO { idMesure, status }`
 - `GET /api/mesures/getMesure/{id}`
   - recupere une mesure par UUID
-- `GET /api/mesures/getAllMesures`
-  - liste les mesures de l'entrepot owner
 - `DELETE /api/mesures/deleteMesure/{id}`
   - supprime une mesure
   - response: `MesureStatusResponseDTO { idMesure, status }`
@@ -193,11 +190,13 @@ Exemple `POST /api/mesures`:
 
 ### Capteurs (`/api/capteurs`)
 
-- `GET /api/capteurs/mesures/by-day?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
-- `GET /api/capteurs/mesures/by-hour?startTime=HH:mm:ss&endTime=HH:mm:ss`
 - `GET /api/capteurs/{capteurId}/mesures`
 - `GET /api/capteurs/{capteurId}/mesures/by-day?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
 - `GET /api/capteurs/{capteurId}/mesures/by-hour?startTime=HH:mm:ss&endTime=HH:mm:ss`
+
+### Entrepots (`/api/entrepots`)
+
+- `GET /api/entrepots`
 
 ## 8) MQTT (ingestion + simulation)
 
@@ -209,8 +208,9 @@ Composants:
 
 Details:
 - topic inbound: `mqtt.topic`
+- topic outbound par defaut: `mqtt.outbound-default-topic`
 - simulation planifiee toutes les 30 secondes (`@Scheduled(fixedRate = 30000)`)
-- la simulation choisit le premier capteur trouve sur l'entrepot owner
+- la simulation utilise le premier entrepot et le premier capteur trouves en base
 
 Format JSON attendu pour MQTT (meme structure que `MesureRequestDTO`):
 
@@ -263,4 +263,3 @@ mvn -Dtest=LotControlleurTest test
 - completer `RestSiegeAdapter`
 - ajouter des tests d'integration (API + DB + MQTT)
 - supprimer ou implementer les fichiers vides restants (`ApiErrorResponseDTO`, `MqttMessageListenerTest`)
-

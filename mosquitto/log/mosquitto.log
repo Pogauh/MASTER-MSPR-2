@@ -577,3 +577,6 @@
 1779657726: New client connected from 172.23.0.1:52670 as java-backend-sender (p4, c1, k60).
 1779657753: Client java-backend-client [172.23.0.1:52658] disconnected.
 1779657758: Client java-backend-sender [172.23.0.1:52670] disconnected.
+1779658783: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1779659798: mosquitto version 2.1.2 terminating
+1779659798: Saving in-memory database to /mosquitto/data//mosquitto.db.
