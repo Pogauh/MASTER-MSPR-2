@@ -10,7 +10,7 @@ Le service expose des APIs REST pour:
 
 Le projet suit une architecture hexagonale (ports/adapters) et integre MQTT pour l'ingestion et la simulation de donnees capteurs.
 
-## 1) Objectif metier
+## 1) Objectif metier.
 
 Ce backend represente un entrepot "owner" (backend deploye par entrepot). Il permet:
 - d'enregistrer des mesures de capteurs rattaches a cet entrepot,

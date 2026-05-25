@@ -21,3 +21,6 @@ jobs:
 
       - name: Build and Test
         run: mvn clean install
+
+      - name: Run Cucumber tests
+        run: mvn -Dtest=CucumberTest test
