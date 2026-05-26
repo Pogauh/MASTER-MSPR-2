@@ -24,6 +24,11 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: Extract Maven version
+        id: project_version
+        run: echo "version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+
+
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
@@ -60,5 +65,6 @@ jobs:
           push: true
           tags: |
             selimdrici/backend_future_kawa:latest
+            selimdrici/backend_future_kawa:${{ steps.project_version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
