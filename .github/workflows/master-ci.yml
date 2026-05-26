@@ -37,6 +37,10 @@ jobs:
             version.txt
           retention-days: 1
 
+      - name: Read version
+        id: read_version
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+
   docker:
     needs: build
     runs-on: ubuntu-latest
