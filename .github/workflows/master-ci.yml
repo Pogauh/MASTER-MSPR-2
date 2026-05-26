@@ -32,7 +32,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-backend
-          path: target/*.jar
+          path: |
+            target/*.jar
+            version.txt
           retention-days: 1
 
   docker:
