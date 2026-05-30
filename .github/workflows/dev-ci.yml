@@ -19,7 +19,5 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
-
-
-      - name: Run Cucumber tests
-        run: mvn -Dtest=CucumberTest test
+      - name: Run all tests and build
+        run: mvn clean verify

@@ -13,7 +13,7 @@
 
     <groupId>fr.epsi.mspr2</groupId>
     <artifactId>backend-mspr2</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <name>FutureKawa-Backend</name>
 
     <properties>
@@ -110,6 +110,24 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.5</version> <executions>
+                <execution>
+                    <goals>
+                        <goal>integration-test</goal>
+                        <goal>verify</goal>
+                    </goals>
+                    <configuration>
+                        <includes>
+                            <include>**/CucumberTest.java</include>
+                        </includes>
+                    </configuration>
+                </execution>
+            </executions>
             </plugin>
         </plugins>
     </build>
