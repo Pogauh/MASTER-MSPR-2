@@ -13,7 +13,7 @@ public class GenereAlerte {
     private GenereAlerteId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("lotIdemorugzeoiufgzehfoupzbef")
+    @MapsId("lotId")
     @JoinColumn(name = "id_lot", nullable = false)
     private Lot lot;
 

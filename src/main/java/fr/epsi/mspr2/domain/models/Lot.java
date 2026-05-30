@@ -19,7 +19,7 @@ import java.util.UUID;
 public class Lot {
     @Id
     @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GenericGenerator(name = "UUID" , strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id_lot", updatable = false, nullable = false)
     private UUID idLot;
 

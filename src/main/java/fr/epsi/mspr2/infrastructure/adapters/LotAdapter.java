@@ -39,4 +39,12 @@ public class LotAdapter implements LotPort {
     public List<Lot> findAllLotsForAllEntrepot() {
         return jpaLotRepository.findAll();
     }
+
+    @Override
+    public Lot updateEmplacementLot(Lot lot, Lot lotRequest) {
+        if (lotRequest.getZone() != null && lotRequest.getZone().getIdZone() != null) {
+            lot.setZone(lotRequest.getZone());
+        }
+        return jpaLotRepository.save(lot);
+    }
 }

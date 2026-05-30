@@ -6,11 +6,13 @@ import fr.epsi.mspr2.domain.models.Zone;
 import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
 import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
+import org.springframework.stereotype.Component;
 
 
-public interface LotMapper {
+@Component
+public class LotMapper {
 
-    static LotResponseDTO toResponse(Lot lot) {
+    public LotResponseDTO toResponse(Lot lot) {
         LotResponseDTO dto = new LotResponseDTO();
         dto.idLot = lot.getIdLot();
         dto.status = lot.getStatus();
@@ -19,6 +21,7 @@ public interface LotMapper {
 
         dto.dateSortie = lot.getDateSortie();
         dto.dateStockage = lot.getDateStockage();
+        dto.dateProduction = lot.getDateProduction();
         dto.emplacement = lot.getEmplacement();
         dto.idExploitation = lot.getExploitation() != null ? lot.getExploitation().getIdExploitation() : null;
         dto.idEntrepot = lot.getEntrepot() != null ? lot.getEntrepot().getIdEntrepot() : null;
@@ -26,13 +29,13 @@ public interface LotMapper {
         return dto;
     }
 
-    static LotStatusResponseDTO toStatusResponse(Lot lot) {
+    public LotStatusResponseDTO toStatusResponse(Lot lot) {
         LotStatusResponseDTO dto = new LotStatusResponseDTO();
         dto.idLot = lot.getIdLot();
         return dto;
     }
 
-    static Lot toEntity(LotRequestDTO request) {
+    public Lot lotToEntity(LotRequestDTO request) {
         if (request == null) {
             return null;
         }
@@ -44,6 +47,7 @@ public interface LotMapper {
         Zone zone = new Zone();
         zone.setIdZone(request.idZone);
         lot.setZone(zone);
+        lot.setDateProduction(request.dateProduction);
         Exploitation exploitation = new Exploitation();
         exploitation.setIdExploitation(request.idExploitation);
         lot.setExploitation(exploitation);
