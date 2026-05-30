@@ -10,4 +10,5 @@ public interface LotPort {
         Lot findById(UUID id_lot);
         void delete(UUID id_lot);
         List<Lot> findAllLotsForAllEntrepot();
+        Lot updateEmplacementLot(Lot lot,Lot lotRequest);
 }

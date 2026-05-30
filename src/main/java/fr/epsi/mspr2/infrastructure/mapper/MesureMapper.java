@@ -3,9 +3,11 @@ package fr.epsi.mspr2.infrastructure.mapper;
 import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
+import org.springframework.stereotype.Component;
 
-public interface MesureMapper {
-    static MesureResponseDTO toResponse(Mesure mesure) {
+@Component
+public class MesureMapper {
+    public MesureResponseDTO toResponse(Mesure mesure) {
         MesureResponseDTO dto = new MesureResponseDTO();
         dto.idMesure = mesure.getIdMesure();
         dto.temperature = mesure.getTemperature();
@@ -15,7 +17,7 @@ public interface MesureMapper {
         return dto;
     }
 
-    static MesureStatusResponseDTO toStatusResponse(Mesure mesure) {
+    public MesureStatusResponseDTO toStatusResponse(Mesure mesure) {
         MesureStatusResponseDTO dto = new MesureStatusResponseDTO();
         dto.idMesure = mesure.getIdMesure();
         return dto;

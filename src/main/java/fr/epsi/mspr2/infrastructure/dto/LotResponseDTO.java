@@ -2,6 +2,7 @@ package fr.epsi.mspr2.infrastructure.dto;
 
 import fr.epsi.mspr2.domain.models.Historique;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +14,7 @@ public class LotResponseDTO {
     public Integer caracteristique;
     public LocalDateTime dateSortie;
     public LocalDateTime dateStockage;
+    public LocalDate dateProduction;
     public String emplacement;
     public UUID idExploitation;
     public UUID idEntrepot;

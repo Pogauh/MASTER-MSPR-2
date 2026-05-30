@@ -19,6 +19,7 @@ public class MesureService {
 
     private final MesurePort mesurePort;
     private final AlerteService alerteService;
+    private final MesureMapper mesureMapper;
 
     public MesureStatusResponseDTO createMesure(MesureRequestDTO dto) {
         if (dto.idCapteur == null) {
@@ -33,19 +34,19 @@ public class MesureService {
         mesure.setCapteur(capteur);
         mesurePort.save(mesure);
         alerteService.sendAlerte(mesure);
-        return MesureMapper.toStatusResponse(mesure);
+        return mesureMapper.toStatusResponse(mesure);
     }
 
     public MesureResponseDTO getMesureById(UUID idMesure) {
         Mesure mesure = mesurePort.findById(idMesure);
-        return mesure != null ? MesureMapper.toResponse(mesure) : null;
+        return mesure != null ? mesureMapper.toResponse(mesure) : null;
     }
 
     public MesureStatusResponseDTO deleteMesure(UUID idMesure) {
         Mesure mesure = mesurePort.findById(idMesure);
         if (mesure != null) {
             mesurePort.delete(idMesure);
-            return MesureMapper.toStatusResponse(mesure);
+            return mesureMapper.toStatusResponse(mesure);
         }
         return null;
     }

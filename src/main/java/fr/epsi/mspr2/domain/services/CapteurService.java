@@ -16,6 +16,7 @@ import java.util.UUID;
 public class CapteurService {
 
     private final CapteurPort capteurPort;
+    private final MesureMapper mesureMapper;
 
     public List<MesureResponseDTO> getMesuresByCapteurId(UUID capteurId) {
         if (capteurId == null) {
@@ -23,7 +24,7 @@ public class CapteurService {
         }
         return capteurPort.findMesuresByCapteurId(capteurId)
             .stream()
-            .map(MesureMapper::toResponse)
+            .map(mesureMapper::toResponse)
             .toList();
     }
 
@@ -34,7 +35,7 @@ public class CapteurService {
         validateDayRange(startDate, endDate);
         return capteurPort.findMesuresByCapteurIdAndDayRange(capteurId, startDate, endDate)
             .stream()
-            .map(MesureMapper::toResponse)
+            .map(mesureMapper::toResponse)
             .toList();
     }
 
@@ -45,7 +46,7 @@ public class CapteurService {
         validateHourRange(startTime, endTime);
         return capteurPort.findMesuresByCapteurIdAndHourRange(capteurId, startTime, endTime)
             .stream()
-            .map(MesureMapper::toResponse)
+            .map(mesureMapper::toResponse)
             .toList();
     }
 

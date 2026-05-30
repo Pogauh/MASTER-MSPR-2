@@ -36,9 +36,9 @@ public class SensorSimulator {
     // 900 000 ms = 15 minutes
     // Pour tests, mettre 30000 (30 secondes)
     // 5 heures = 18 000 000 ms
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 900000)
     public void simulateSensorData() {
-        UUID capteurId = resolveCapteurId();
+        resolveCapteurId();
         if (capteurId == null) {
             log.warn("Simulation ignorée: aucun capteur trouvé pour l'entrepôt {}", capteurId);
             return;
@@ -58,8 +58,7 @@ public class SensorSimulator {
             log.error("Impossible de sérialiser la donnée simulée MQTT", e);
         }
     }
-// TODO - Ajouter le dynamisme de sauvegarde en fonction de l'entrepot.
-    private UUID resolveCapteurId() {
+    private void resolveCapteurId() {
         capteurId = jpaCapteurRepository.findAllByEntrepotId(
                 jpaEntrepotRepository.findAll()
                         .getFirst()
@@ -68,8 +67,7 @@ public class SensorSimulator {
                 .getFirst()
                 .getIdCapteur();
 
-        System.out.println("Capteur ID utilisé pour la simulation: " + capteurId);
-        return capteurId;
+        log.debug("Capteur ID utilisé pour la simulation: " + capteurId);
     }
 
     private BigDecimal randomInRange(double min, double max) {

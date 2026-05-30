@@ -1,9 +1,5 @@
 package fr.epsi.mspr2.domain.services;
 
-import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
-import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
-import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
-import fr.epsi.mspr2.infrastructure.mapper.LotMapper;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.ports.LotPort;
 import lombok.AllArgsConstructor;
@@ -17,33 +13,27 @@ import java.util.UUID;
 public class LotService {
     
     private final LotPort lotPort;
+    private final HistoriqueService historiqueService;
 
-    
-    public LotStatusResponseDTO createLot(LotRequestDTO request) {
-        Lot lot = LotMapper.toEntity(request);
+    public Lot createLot(Lot lot) {
         lotPort.save(lot);
-        return LotMapper.toStatusResponse(lot);
+        return lot;
     }
     
-    public LotResponseDTO getLotById(UUID idLot) {
-        Lot lot = lotPort.findById(idLot);
-        return lot != null ? LotMapper.toResponse(lot) : null;
+    public Lot getLotById(UUID idLot) {
+        return lotPort.findById(idLot);
     }
     
-    public LotStatusResponseDTO deleteLot(UUID idLot) {
+    public Lot deleteLot(UUID idLot) {
         Lot lot = lotPort.findById(idLot);
         if (lot != null) {
             lotPort.delete(idLot);
-            return LotMapper.toStatusResponse(lot);
         }
-        return null;
+        return lot;
     }
     
-    public List<LotResponseDTO> getAllLotsForAllEntrepot() {
-        List<Lot> lot = lotPort.findAllLotsForAllEntrepot();
-        return lot != null ? lot.stream()
-                .map(LotMapper::toResponse)
-                .toList() : List.of();
+    public List<Lot> getAllLotsForAllEntrepot() {
+        return lotPort.findAllLotsForAllEntrepot();
     }
 
     public Integer getQuantiteTotale() {
@@ -51,5 +41,15 @@ public class LotService {
         return lots != null ? lots.stream()
                 .map(Lot::getQuantite)
                 .reduce(0, Integer::sum) : 0;
+    }
+
+    public Lot updateEmplacementLot(UUID idLot, Lot request) {
+        Lot existingLot = lotPort.findById(idLot);
+        if (existingLot == null) {
+            return null;
+        }
+        historiqueService.createTransfereHistoriqueForLot(existingLot, request);
+
+        return lotPort.updateEmplacementLot(existingLot, request);
     }
 }

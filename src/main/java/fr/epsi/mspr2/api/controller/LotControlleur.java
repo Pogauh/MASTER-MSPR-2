@@ -4,6 +4,8 @@ import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
 import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.LotService;
+import fr.epsi.mspr2.infrastructure.mapper.LotMapper;
+import fr.epsi.mspr2.domain.models.Lot;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,22 +20,32 @@ import java.util.UUID;
 public class LotControlleur {
 
     private final LotService service;
+    private final LotMapper lotMapper;
 
     @PostMapping
     public ResponseEntity<LotStatusResponseDTO> createLot(@RequestBody LotRequestDTO request) {
-        LotStatusResponseDTO response = service.createLot(request);
+        Lot lot = lotMapper.lotToEntity(request);
+        Lot createdLot = service.createLot(lot);
+        LotStatusResponseDTO response = lotMapper.toStatusResponse(createdLot);
         response.status = HttpStatus.CREATED.name();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/getLot/{id}")
-    public LotResponseDTO getLotById(@PathVariable("id") UUID idLot) {
-        return service.getLotById(idLot);
+    public ResponseEntity<LotResponseDTO> getLotById(@PathVariable("id") UUID idLot) {
+        Lot lot = service.getLotById(idLot);
+        if (lot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(lotMapper.toResponse(lot));
     }
 
     @GetMapping("/allLotsFromAllEntrepots")
     public List<LotResponseDTO> getAllLots() {
-        return service.getAllLotsForAllEntrepot();
+        List<Lot> lots = service.getAllLotsForAllEntrepot();
+        return lots != null ? lots.stream()
+                .map(lotMapper::toResponse)
+                .toList() : List.of();
     }
 
     @GetMapping("/getAllQuantity")
@@ -43,11 +55,24 @@ public class LotControlleur {
 
     @DeleteMapping("/deleteLot/{id}")
     public ResponseEntity<LotStatusResponseDTO> deleteLot(@PathVariable("id") UUID idLot) {
-        LotStatusResponseDTO response = service.deleteLot(idLot);
-        if (response == null) {
+        Lot lot = service.deleteLot(idLot);
+        if (lot == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new LotStatusResponseDTO(null, HttpStatus.NOT_FOUND.name()));
         }
+        LotStatusResponseDTO response = lotMapper.toStatusResponse(lot);
+        response.status = HttpStatus.OK.name();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/lot/{id}")
+    public ResponseEntity<LotStatusResponseDTO> updateLot(@PathVariable("id") UUID idLot, @RequestBody LotRequestDTO request) {
+        Lot lot = service.updateEmplacementLot(idLot, lotMapper.lotToEntity(request));
+        if (lot == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new LotStatusResponseDTO(null, HttpStatus.NOT_FOUND.name()));
+        }
+        LotStatusResponseDTO response = lotMapper.toStatusResponse(lot);
         response.status = HttpStatus.OK.name();
         return ResponseEntity.ok(response);
     }

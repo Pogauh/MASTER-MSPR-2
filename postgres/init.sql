@@ -49,7 +49,7 @@ CREATE TABLE mesure (
 CREATE TABLE alerte (
     id_alerte UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     type_alerte VARCHAR(50),
-    description VARCHAR(50),
+    description VARCHAR(255),
     date_emission TIMESTAMP,
     id_capteur UUID NOT NULL REFERENCES capteur(id_capteur)
 );
@@ -58,7 +58,9 @@ CREATE TABLE historique (
     id_historique UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     type VARCHAR(50),
     date_emission TIMESTAMP,
-    zone_precedente VARCHAR(50),
+    zone_precedente UUID,
+    zone_actuelle UUID,
+    detail VARCHAR(255),
     id_lot UUID NOT NULL REFERENCES lot(id_lot)
 );
 

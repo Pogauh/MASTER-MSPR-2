@@ -1,5 +1,6 @@
 package fr.epsi.mspr2.domain.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,16 +28,23 @@ public class Historique {
     private UUID idHistorique;
 
     @Column(name = "type", length = 50)
-    private String type;
+    private TypeHistoriqueEnum type;
 
     @Column(name = "date_emission")
     private LocalDateTime dateEmission;
 
-    @Column(name = "zone_precedente", length = 50)
-    private String zonePrecedente;
+    @Column(name = "zone_precedente")
+    private UUID zonePrecedente;
+
+    @Column(name = "zone_actuelle")
+    private UUID zoneActuelle;
+
+    @Column(name = "detail", length = 255)
+    private String detail;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_lot", nullable = false)
+    @JsonIgnore
     private Lot lot;
 }
 

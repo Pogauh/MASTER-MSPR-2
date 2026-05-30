@@ -89,7 +89,6 @@ public class AlerteAdapter implements AlertePort {
 
     @Override
     public boolean isCompatible(Mesure mesure) {
-        resolveCapteurWithZone(mesure);
         if (mesure.getTemperature() == null || mesure.getHumidite() == null) {
             throw new IllegalArgumentException("La mesure doit contenir temperature et humidite");
         }

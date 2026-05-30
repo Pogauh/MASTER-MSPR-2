@@ -22,7 +22,7 @@ public class Alerte {
     @Enumerated(EnumType.STRING)
     private TypeAlerteEnum typeAlerte;
 
-    @Column(name = "description", length = 50)
+    @Column(name = "description", length = 255)
     private String description;
 
     @Column(name = "date_emission")
