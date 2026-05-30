@@ -144,6 +144,9 @@ Swagger:
   - response: `LotStatusResponseDTO { idLot, status }`
 - `GET /api/lots/getLot/{id}`
   - recupere un lot par UUID
+- `PUT /api/lots/lot/{id}`
+  - met a jour l'emplacement d'un lot (via la zone) et cree un historique de transfert
+  - response: `LotStatusResponseDTO { idLot, status }`
 - `DELETE /api/lots/deleteLot/{id}`
   - supprime un lot
   - response: `LotStatusResponseDTO { idLot, status }`
@@ -159,10 +162,16 @@ Exemple `POST /api/lots`:
   "status": "CONFORME",
   "quantite": 120,
   "caracteristique": 2,
-  "dateSortie": null,
-  "dateStockage": "2026-03-15T10:00:00",
-  "emplacement": "A",
+  "idZone": "cd2ba9e5-e5df-4970-89ff-3bfa84004c4f",
   "idExploitation": "aa0e8400-e29b-41d4-a716-446655440022"
+}
+```
+
+Exemple `PUT /api/lots/lot/{id}`:
+
+```json
+{
+  "idZone": "cd2ba9e5-e5df-4970-89ff-3bfa84004c4f"
 }
 ```
 
@@ -232,21 +241,19 @@ Format JSON attendu pour MQTT (meme structure que `MesureRequestDTO`):
 ## 10) Tests
 
 Tests presents dans `src/test/java`:
-- controllers: lot, mesure, capteur
-- services: lot, mesure, capteur
-- adapter: alerte
-- mapper: mesure
+- unitaires (controllers: lot, mesure, capteur ; services: lot, mesure, capteur ; adapter: alerte ; mapper: mesure)
+- BDD / Gherkin (Cucumber): tests d'integration pour la creation et le transfert de lots via API (`LotCreationSteps`, `LotUpdateSteps`)
 
-Lancer tous les tests:
+Lancer tous les tests (unitaires et BDD):
 
 ```powershell
 mvn test
 ```
 
-Lancer une classe cible:
+Lancer une classe cible (ex. Cucumber):
 
 ```powershell
-mvn -Dtest=LotControlleurTest test
+mvn test "-Dtest=fr.epsi.mspr2.gherkin.CucumberTest"
 ```
 
 ## 11) Points de vigilance pour contributors
@@ -263,3 +270,5 @@ mvn -Dtest=LotControlleurTest test
 - completer `RestSiegeAdapter`
 - ajouter des tests d'integration (API + DB + MQTT)
 - supprimer ou implementer les fichiers vides restants (`ApiErrorResponseDTO`, `MqttMessageListenerTest`)
+
+
