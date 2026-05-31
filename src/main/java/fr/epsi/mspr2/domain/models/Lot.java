@@ -69,15 +69,15 @@ public class Lot {
     }
 
     @Transient
-    public String getEmplacement() {
-        return zone != null ? zone.getNom() : null;
+    public UUID getEmplacement() {
+        return zone != null ? zone.getIdZone() : null;
     }
 
-    public void setEmplacement(String emplacement) {
+    public void setEmplacement(UUID emplacement) {
         if (zone == null) {
             zone = new Zone();
         }
-        zone.setNom(emplacement);
+        zone.setIdZone(emplacement);
     }
 
     @Transient

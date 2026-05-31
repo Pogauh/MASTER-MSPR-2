@@ -15,7 +15,7 @@ public class LotResponseDTO {
     public LocalDateTime dateSortie;
     public LocalDateTime dateStockage;
     public LocalDate dateProduction;
-    public String emplacement;
+    public UUID emplacement;
     public UUID idExploitation;
     public UUID idEntrepot;
     public List<Historique> historique;
