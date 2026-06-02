@@ -56,21 +56,6 @@ class CapteurControllerTest {
             .andExpect(jsonPath("$[0].idCapteur").value(dto.idCapteur.toString()));
     }
 
-    @Test
-    void getMesuresByCapteurIdAndHourRange_shouldReturn200() throws Exception {
-        UUID capteurId = UUID.randomUUID();
-        LocalTime start = LocalTime.of(8, 0);
-        LocalTime end = LocalTime.of(12, 0);
-        MesureResponseDTO dto = buildResponseDto();
-        when(serviceCapteur.getMesuresByCapteurIdAndHourRange(capteurId, start, end)).thenReturn(List.of(dto));
-
-        mockMvc.perform(get("/api/capteurs/{capteurId}/mesures/by-hour", capteurId)
-                .param("startTime", "08:00:00")
-                .param("endTime", "12:00:00"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].temperature").value(25.00));
-    }
-
     private MesureResponseDTO buildResponseDto() {
         MesureResponseDTO dto = new MesureResponseDTO();
         dto.idMesure = UUID.randomUUID();

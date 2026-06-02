@@ -4,15 +4,12 @@ import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.domain.ports.AlertePort;
 import fr.epsi.mspr2.infrastructure.jpa.JpaAlerteRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
-import fr.epsi.mspr2.infrastructure.jpa.JpaGenereAlerteRepository;
-import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -20,8 +17,6 @@ public class AlerteAdapter implements AlertePort {
 
     private final JpaAlerteRepository jpaAlerteRepository;
     private final JpaCapteurRepository jpaCapteurRepository;
-    private final JpaLotRepository jpaLotRepository;
-    private final JpaGenereAlerteRepository jpaGenereAlerteRepository;
 
     @Value("${app.alert.tolerences.temperature-ideale}")
     private BigDecimal tempIdeale;
@@ -40,14 +35,10 @@ public class AlerteAdapter implements AlertePort {
 
     public AlerteAdapter(
         JpaAlerteRepository jpaAlerteRepository,
-        JpaCapteurRepository jpaCapteurRepository,
-        JpaLotRepository jpaLotRepository,
-        JpaGenereAlerteRepository jpaGenereAlerteRepository
+        JpaCapteurRepository jpaCapteurRepository
     ) {
         this.jpaAlerteRepository = jpaAlerteRepository;
         this.jpaCapteurRepository = jpaCapteurRepository;
-        this.jpaLotRepository = jpaLotRepository;
-        this.jpaGenereAlerteRepository = jpaGenereAlerteRepository;
     }
 
     @Override
@@ -83,8 +74,7 @@ public class AlerteAdapter implements AlertePort {
 
         alerte.setDateEmission(LocalDateTime.now());
         alerte.setCapteur(capteur);
-        Alerte savedAlerte = jpaAlerteRepository.save(alerte);
-        createLinksWithLots(savedAlerte, capteur);
+        jpaAlerteRepository.save(alerte);
     }
 
     @Override
@@ -114,30 +104,5 @@ public class AlerteAdapter implements AlertePort {
 
         return jpaCapteurRepository.findByCapteurId(capteurId)
             .orElseThrow(() -> new IllegalStateException("Capteur introuvable pour l'id " + capteurId));
-    }
-
-    private void createLinksWithLots(Alerte alerte, Capteur capteur) {
-        if (alerte.getIdAlerte() == null) {
-            return;
-        }
-        if (capteur.getEntrepot() == null || capteur.getEntrepot().getIdEntrepot() == null) {
-            return;
-        }
-        if (capteur.getEmplacementPrecis() == null || capteur.getEmplacementPrecis().isBlank()) {
-            return;
-        }
-
-        UUID entrepotId = capteur.getEntrepot().getIdEntrepot();
-        String emplacementCapteur = capteur.getEmplacementPrecis();
-
-        List<Lot> lots = jpaLotRepository
-            .findAllByEntrepotIdEntrepotAndEmplacementIgnoreCase(entrepotId, emplacementCapteur);
-
-        for (Lot lot : lots) {
-            if (lot.getIdLot() == null) {
-                continue;
-            }
-            jpaGenereAlerteRepository.save(new GenereAlerte(lot, alerte));
-        }
     }
 }

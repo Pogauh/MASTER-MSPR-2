@@ -39,4 +39,6 @@ build/
 
 .idea/
 
-.mosquitto
+# Mosquitto runtime files
+mosquitto/data/
+mosquitto/log/
