@@ -22,7 +22,7 @@ public class LotMapper {
         dto.dateSortie = lot.getDateSortie();
         dto.dateStockage = lot.getDateStockage();
         dto.dateProduction = lot.getDateProduction();
-        dto.emplacement = lot.getEmplacement();
+        dto.emplacement = lot.getZone().getIdZone();
         dto.idExploitation = lot.getExploitation() != null ? lot.getExploitation().getIdExploitation() : null;
         dto.idEntrepot = lot.getEntrepot() != null ? lot.getEntrepot().getIdEntrepot() : null;
         dto.historique = lot.getHistorique();

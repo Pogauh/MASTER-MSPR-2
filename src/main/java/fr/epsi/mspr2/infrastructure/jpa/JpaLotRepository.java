@@ -11,14 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface JpaLotRepository extends JpaRepository<Lot, UUID> {
-    @Query("""
-        select l
-        from Lot l
-        join l.zone z
-        where z.entrepot.idEntrepot = :entrepotId
-          and lower(z.nom) = lower(:emplacement)
-        """)
-    List<Lot> findAllByEntrepotIdEntrepotAndEmplacementIgnoreCase(@Param("entrepotId") UUID entrepotId, @Param("emplacement") String emplacement);
 
     @Query("""
         select distinct l

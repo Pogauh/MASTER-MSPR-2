@@ -1,6 +1,8 @@
 package fr.epsi.mspr2.infrastructure.adapters;
 
 import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
+import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
+import fr.epsi.mspr2.domain.models.Capteur;
 import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.domain.ports.CapteurPort;
 import lombok.AllArgsConstructor;
@@ -8,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +18,12 @@ import java.util.UUID;
 public class CapteurAdapter implements CapteurPort {
 
     private final JpaMesureRepository jpaMesureRepository;
+    private final JpaCapteurRepository jpaCapteurRepository;
+
+    @Override
+    public List<Capteur> findByEntrepotId(UUID entrepotId) {
+        return jpaCapteurRepository.findAllByEntrepotId(entrepotId);
+    }
 
     @Override
     public List<Mesure> findMesuresByCapteurId(UUID capteurId) {
@@ -31,12 +38,6 @@ public class CapteurAdapter implements CapteurPort {
             toEndOfDay(endDate)
         );
     }
-
-    @Override
-    public List<Mesure> findMesuresByCapteurIdAndHourRange(UUID capteurId, LocalTime startTime, LocalTime endTime) {
-        return jpaMesureRepository.findAllByCapteurIdAndHourRange(capteurId, startTime, endTime);
-    }
-
 
     private LocalDateTime toStartOfDay(LocalDate date) {
         return date.atStartOfDay();

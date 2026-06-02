@@ -22,28 +22,10 @@ public class Capteur {
     @Column(name = "code_serie", length = 50, nullable = false, unique = true)
     private String codeSerie;
 
-    @Column(name = "nom", length = 50)
-    private String nom;
-
-    @Column(name = "emplacement_precis", length = 150)
-    private String emplacementPrecis;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_zone", nullable = false, unique = true )
     @JsonIgnore
     private Zone zone;
-
-    @Transient
-    public String getEmplacementPrecis() {
-        return zone != null ? zone.getNom() : null;
-    }
-
-    public void setEmplacementPrecis(String emplacementPrecis) {
-        if (zone == null) {
-            zone = new Zone();
-        }
-        zone.setNom(emplacementPrecis);
-    }
 
     @Transient
     public Entrepot getEntrepot() {

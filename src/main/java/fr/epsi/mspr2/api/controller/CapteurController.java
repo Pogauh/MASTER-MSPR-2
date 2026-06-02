@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,21 +37,6 @@ public class CapteurController {
     ) {
         try {
             return ResponseEntity.ok(serviceCapteur.getMesuresByCapteurIdAndDayRange(capteurId, startDate, endDate));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @GetMapping("/{capteurId}/mesures/by-hour")
-    public ResponseEntity<List<MesureResponseDTO>> getMesuresByCapteurIdAndHourRange(
-        @PathVariable UUID capteurId,
-        @RequestParam("startTime") LocalTime startTime,
-        @RequestParam("endTime") LocalTime endTime
-    ) {
-        try {
-            return ResponseEntity.ok(serviceCapteur.getMesuresByCapteurIdAndHourRange(capteurId, startTime, endTime));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (IllegalStateException e) {

@@ -39,17 +39,6 @@ public class CapteurService {
             .toList();
     }
 
-    public List<MesureResponseDTO> getMesuresByCapteurIdAndHourRange(UUID capteurId, LocalTime startTime, LocalTime endTime) {
-        if (capteurId == null) {
-            throw new IllegalArgumentException("capteurId est obligatoire");
-        }
-        validateHourRange(startTime, endTime);
-        return capteurPort.findMesuresByCapteurIdAndHourRange(capteurId, startTime, endTime)
-            .stream()
-            .map(mesureMapper::toResponse)
-            .toList();
-    }
-
     private void validateDayRange(LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
             throw new IllegalArgumentException("startDate et endDate sont obligatoires");

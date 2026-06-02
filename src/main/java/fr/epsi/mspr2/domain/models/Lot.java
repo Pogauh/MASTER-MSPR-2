@@ -52,10 +52,6 @@ public class Lot {
 
     @OneToMany(mappedBy = "lot", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<GenereAlerte> genereAlertes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "lot", fetch = FetchType.LAZY)
-    @JsonIgnore
     private List<Historique> historique = new ArrayList<>();
 
     @PrePersist
@@ -66,18 +62,6 @@ public class Lot {
         if (dateStockage == null) {
             dateStockage = LocalDateTime.now();
         }
-    }
-
-    @Transient
-    public UUID getEmplacement() {
-        return zone != null ? zone.getIdZone() : null;
-    }
-
-    public void setEmplacement(UUID emplacement) {
-        if (zone == null) {
-            zone = new Zone();
-        }
-        zone.setIdZone(emplacement);
     }
 
     @Transient
