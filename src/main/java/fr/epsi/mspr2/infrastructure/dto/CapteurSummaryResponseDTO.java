@@ -1,6 +1,5 @@
 package fr.epsi.mspr2.infrastructure.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,21 +11,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CapteurSummaryResponseDTO {
-    @JsonProperty("zone_id")
     private UUID zoneId;
-
-    @JsonProperty("zone_name")
     private String zoneName;
-
-    @JsonProperty("last_temp")
     private BigDecimal lastTemp;
-
-    @JsonProperty("last_humidity")
     private BigDecimal lastHumidity;
-
-    @JsonProperty("avg_temp_24h")
     private BigDecimal avgTemp24h;
-
-    @JsonProperty("avg_humidity_24h")
     private BigDecimal avgHumidity24h;
 }
