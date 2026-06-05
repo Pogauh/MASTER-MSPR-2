@@ -52,4 +52,12 @@ public class LotService {
 
         return lotPort.updateEmplacementLot(existingLot, request);
     }
+
+    public Lot updateStatusLot(UUID idLot, Lot request) {
+        Lot existingLot = lotPort.findById(idLot);
+        if (existingLot == null) {
+            return null;
+        }
+        return lotPort.updateStatusLot(existingLot, request);
+    }
 }

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 public class HistoriqueAdapter implements HistoriquePort {
@@ -35,5 +37,15 @@ public class HistoriqueAdapter implements HistoriquePort {
         historique.setDetail("Transfert du lot " + lot.getIdLot() + " de la zone " + lot.getZone().getIdZone() + " vers la zone " + lotRequest.getZone().getIdZone());
         historique.setLot(lot);
         historiqueJpaRepository.save(historique);
+    }
+
+    @Override
+    public List<Historique> findAllHistoriqueForLot(UUID idLot) {
+        return historiqueJpaRepository.findAllHistoriqueForLot(idLot);
+    }
+
+    @Override
+    public List<Historique> findAllHistoriqueForLotByType(UUID idLot, TypeHistoriqueEnum type) {
+        return historiqueJpaRepository.findAllHistoriqueForLotByType(idLot, type);
     }
 }

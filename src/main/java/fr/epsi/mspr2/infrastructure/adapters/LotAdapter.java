@@ -47,4 +47,12 @@ public class LotAdapter implements LotPort {
         }
         return jpaLotRepository.save(lot);
     }
+
+    @Override
+    public Lot updateStatusLot(Lot lot, Lot lotRequest) {
+        if (lotRequest.getStatus() != null) {
+            lot.setStatus(lotRequest.getStatus());
+        }
+        return jpaLotRepository.save(lot);
+    }
 }

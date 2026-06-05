@@ -23,8 +23,9 @@ public class Lot {
     @Column(name = "id_lot", updatable = false, nullable = false)
     private UUID idLot;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
-    private String status;
+    private StatusEnum status;
 
     @Column(name = "quantite")
     private Integer quantite;
@@ -56,8 +57,8 @@ public class Lot {
 
     @PrePersist
     public void applyDefaults() {
-        if (status == null || status.isBlank()) {
-            status = "CONFORME";
+        if (status == null ) {
+            status = StatusEnum.COMPLIANT;
         }
         if (dateStockage == null) {
             dateStockage = LocalDateTime.now();
@@ -74,5 +75,9 @@ public class Lot {
             zone = new Zone();
         }
         zone.setEntrepot(entrepot);
+    }
+
+    public enum StatusEnum {
+        COMPLIANT, ALERT, BLOCKED, SHIPPED
     }
 }
