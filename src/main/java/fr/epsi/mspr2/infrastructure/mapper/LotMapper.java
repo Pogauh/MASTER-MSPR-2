@@ -3,9 +3,7 @@ package fr.epsi.mspr2.infrastructure.mapper;
 import fr.epsi.mspr2.domain.models.Exploitation;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.models.Zone;
-import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
-import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
-import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
+import fr.epsi.mspr2.infrastructure.dto.*;
 import org.springframework.stereotype.Component;
 
 
@@ -15,7 +13,7 @@ public class LotMapper {
     public LotResponseDTO toResponse(Lot lot) {
         LotResponseDTO dto = new LotResponseDTO();
         dto.idLot = lot.getIdLot();
-        dto.status = lot.getStatus();
+        dto.status = String.valueOf(lot.getStatus());
         dto.quantite = lot.getQuantite();
         dto.caracteristique = lot.getCaracteristique();
 
@@ -41,7 +39,7 @@ public class LotMapper {
         }
 
         Lot lot = new Lot();
-        lot.setStatus(request.status);
+        lot.setStatus(Lot.StatusEnum.valueOf(request.status));
         lot.setQuantite(request.quantite);
         lot.setCaracteristique(request.caracteristique);
         Zone zone = new Zone();
@@ -51,6 +49,28 @@ public class LotMapper {
         Exploitation exploitation = new Exploitation();
         exploitation.setIdExploitation(request.idExploitation);
         lot.setExploitation(exploitation);
+
+        return lot;
+    }
+
+    public Lot lotStatusToEntity(LotStatusRequestDTO request) {
+        if (request == null) {
+            return null;
+        }
+        Lot lot = new Lot();
+        lot.setStatus(Lot.StatusEnum.valueOf(request.status));
+
+        return lot;
+    }
+
+    public Lot lotEmplacementToEntity(LotEmplacementRequestDTO request) {
+        if (request == null) {
+            return null;
+        }
+        Lot lot = new Lot();
+        Zone zone = new Zone();
+        zone.setIdZone(request.idZone);
+        lot.setZone(zone);
 
         return lot;
     }

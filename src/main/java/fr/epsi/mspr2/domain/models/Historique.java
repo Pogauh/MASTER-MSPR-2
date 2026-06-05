@@ -1,14 +1,7 @@
 package fr.epsi.mspr2.domain.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
@@ -27,6 +20,7 @@ public class Historique {
     @Column(name = "id_historique", updatable = false, nullable = false)
     private UUID idHistorique;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", length = 50)
     private TypeHistoriqueEnum type;
 

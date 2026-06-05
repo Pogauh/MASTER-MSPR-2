@@ -25,7 +25,6 @@ public class SensorSimulator {
 
     private final MqttGateway mqttGateway;
     private final JpaCapteurRepository jpaCapteurRepository;
-    // TODO gerer le fait que l'entrepot n'est plus dans les properties
 
     private UUID capteurId;
     private final ObjectMapper objectMapper;

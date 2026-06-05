@@ -1,8 +1,6 @@
 package fr.epsi.mspr2.api.controller;
 
-import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
-import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
-import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
+import fr.epsi.mspr2.infrastructure.dto.*;
 import fr.epsi.mspr2.domain.services.LotService;
 import fr.epsi.mspr2.infrastructure.mapper.LotMapper;
 import fr.epsi.mspr2.domain.models.Lot;
@@ -31,8 +29,8 @@ public class LotControlleur {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/getLot/{id}")
-    public ResponseEntity<LotResponseDTO> getLotById(@PathVariable("id") UUID idLot) {
+    @GetMapping("/getLot/{idLot}")
+    public ResponseEntity<LotResponseDTO> getLotById(@PathVariable("idLot") UUID idLot) {
         Lot lot = service.getLotById(idLot);
         if (lot == null) {
             return ResponseEntity.notFound().build();
@@ -53,8 +51,8 @@ public class LotControlleur {
         return service.getQuantiteTotale();
     }
 
-    @DeleteMapping("/deleteLot/{id}")
-    public ResponseEntity<LotStatusResponseDTO> deleteLot(@PathVariable("id") UUID idLot) {
+    @DeleteMapping("/deleteLot/{idLot}")
+    public ResponseEntity<LotStatusResponseDTO> deleteLot(@PathVariable("idLot") UUID idLot) {
         Lot lot = service.deleteLot(idLot);
         if (lot == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -65,9 +63,21 @@ public class LotControlleur {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/lot/{id}")
-    public ResponseEntity<LotStatusResponseDTO> updateLot(@PathVariable("id") UUID idLot, @RequestBody LotRequestDTO request) {
-        Lot lot = service.updateEmplacementLot(idLot, lotMapper.lotToEntity(request));
+    @PutMapping("/emplacementLot/{idLot}")
+    public ResponseEntity<LotStatusResponseDTO> updateEmplacementLot(@PathVariable("idLot") UUID idLot, @RequestBody LotEmplacementRequestDTO request) {
+        Lot lot = service.updateEmplacementLot(idLot, lotMapper.lotEmplacementToEntity(request));
+        if (lot == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new LotStatusResponseDTO(null, HttpStatus.NOT_FOUND.name()));
+        }
+        LotStatusResponseDTO response = lotMapper.toStatusResponse(lot);
+        response.status = HttpStatus.OK.name();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/statusLot/{idLot}")
+    public ResponseEntity<LotStatusResponseDTO> updateStatusLot(@PathVariable("idLot") UUID idLot, @RequestBody LotStatusRequestDTO request) {
+        Lot lot = service.updateStatusLot(idLot, lotMapper.lotStatusToEntity(request));
         if (lot == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new LotStatusResponseDTO(null, HttpStatus.NOT_FOUND.name()));
