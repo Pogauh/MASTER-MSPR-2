@@ -67,7 +67,7 @@ public class LotUpdateSteps {
     @When("je mets a jour l'emplacement du lot via l'API")
     public void je_mets_a_jour_l_emplacement_du_lot_via_l_api() {
         try {
-            result = mockMvc.perform(put("/api/lots/lot/" + idLot)
+            result = mockMvc.perform(put("/api/lots/emplacementLot/" + idLot)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(requestDTO)))
                 .andReturn();
