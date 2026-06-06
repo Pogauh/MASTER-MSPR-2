@@ -177,11 +177,11 @@ class LotControlleurTest {
         
         LotStatusResponseDTO statusResponse = new LotStatusResponseDTO(id, null);
         
-        when(lotMapper.lotToEntity(any())).thenReturn(lot);
+        when(lotMapper.lotEmplacementToEntity(any())).thenReturn(lot);
         when(serviceLot.updateEmplacementLot(any(UUID.class), any(Lot.class))).thenReturn(lot);
         when(lotMapper.toStatusResponse(lot)).thenReturn(statusResponse);
 
-        mockMvc.perform(put("/api/lots/lot/{id}", id)
+        mockMvc.perform(put("/api/lots/emplacementLot/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
             .andExpect(status().isOk())
@@ -195,10 +195,10 @@ class LotControlleurTest {
     void updateLot_shouldReturn404WhenNotFound() throws Exception {
         UUID id = UUID.randomUUID();
         
-        when(lotMapper.lotToEntity(any())).thenReturn(new Lot());
+        when(lotMapper.lotEmplacementToEntity(any())).thenReturn(new Lot());
         when(serviceLot.updateEmplacementLot(any(UUID.class), any(Lot.class))).thenReturn(null);
 
-        mockMvc.perform(put("/api/lots/lot/{id}", id)
+        mockMvc.perform(put("/api/lots/emplacementLot/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
             .andExpect(status().isNotFound())
