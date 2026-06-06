@@ -28,26 +28,6 @@ public class CapteurService {
             .toList();
     }
 
-    public List<MesureResponseDTO> getMesuresByCapteurIdAndDayRange(UUID capteurId, LocalDate startDate, LocalDate endDate) {
-        if (capteurId == null) {
-            throw new IllegalArgumentException("capteurId est obligatoire");
-        }
-        validateDayRange(startDate, endDate);
-        return capteurPort.findMesuresByCapteurIdAndDayRange(capteurId, startDate, endDate)
-            .stream()
-            .map(mesureMapper::toResponse)
-            .toList();
-    }
-
-    private void validateDayRange(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException("startDate et endDate sont obligatoires");
-        }
-        if (endDate.isBefore(startDate)) {
-            throw new IllegalArgumentException("endDate doit être supérieur ou égal à startDate");
-        }
-    }
-
     private void validateHourRange(LocalTime startTime, LocalTime endTime) {
         if (startTime == null || endTime == null) {
             throw new IllegalArgumentException("startTime et endTime sont obligatoires");

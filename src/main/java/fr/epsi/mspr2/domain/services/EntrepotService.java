@@ -3,7 +3,6 @@ package fr.epsi.mspr2.domain.services;
 import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.domain.ports.EntrepotPort;
 import fr.epsi.mspr2.domain.ports.CapteurPort;
-import fr.epsi.mspr2.infrastructure.dto.ZoneResponseDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
