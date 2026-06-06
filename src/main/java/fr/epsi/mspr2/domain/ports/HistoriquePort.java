@@ -2,6 +2,7 @@ package fr.epsi.mspr2.domain.ports;
 
 import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.Lot;
+import fr.epsi.mspr2.domain.models.TypeHistoriqueEnum;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,5 +13,5 @@ public interface HistoriquePort {
 
     List<Historique> findAllHistoriqueForLot(UUID idLot);
 
-    List<Historique> findAllHistoriqueForLotByType(UUID idLot, fr.epsi.mspr2.domain.models.TypeHistoriqueEnum type);
+    List<Historique> findAllHistoriqueForLotByType(UUID idLot, TypeHistoriqueEnum type);
 }

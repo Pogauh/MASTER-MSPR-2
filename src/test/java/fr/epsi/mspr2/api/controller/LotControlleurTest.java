@@ -181,7 +181,7 @@ class LotControlleurTest {
         when(serviceLot.updateEmplacementLot(any(UUID.class), any(Lot.class))).thenReturn(lot);
         when(lotMapper.toStatusResponse(lot)).thenReturn(statusResponse);
 
-        mockMvc.perform(put("/api/lots/emplacementLot/{id}", id)
+        mockMvc.perform(put("/api/lots/{id}/zone", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
             .andExpect(status().isOk())
@@ -198,7 +198,7 @@ class LotControlleurTest {
         when(lotMapper.lotEmplacementToEntity(any())).thenReturn(new Lot());
         when(serviceLot.updateEmplacementLot(any(UUID.class), any(Lot.class))).thenReturn(null);
 
-        mockMvc.perform(put("/api/lots/emplacementLot/{id}", id)
+        mockMvc.perform(put("/api/lots/{id}/zone", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
             .andExpect(status().isNotFound())

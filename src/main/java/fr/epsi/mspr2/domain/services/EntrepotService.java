@@ -1,12 +1,9 @@
 package fr.epsi.mspr2.domain.services;
 
-import fr.epsi.mspr2.domain.models.Entrepot;
-import fr.epsi.mspr2.domain.models.Capteur;
-import fr.epsi.mspr2.domain.models.CapteurSummary;
-import fr.epsi.mspr2.domain.models.Mesure;
-import fr.epsi.mspr2.domain.models.Zone;
+import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.domain.ports.EntrepotPort;
 import fr.epsi.mspr2.domain.ports.CapteurPort;
+import fr.epsi.mspr2.infrastructure.dto.ZoneResponseDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -69,6 +66,14 @@ public class EntrepotService {
 
             return new CapteurSummary(zoneId, zoneName, lastTemp, lastHumi, avgTemp, avgHumi);
         }).toList();
+    }
+
+    public List<ZoneResponse> findZonesByEntrepotId(UUID idEntrepot) {
+        if (idEntrepot == null) {
+            throw new IllegalArgumentException("ID de zone ne peut pas être null");
+        }
+        var resultat  = entrepotPort.findZoneByIdEntrepot(idEntrepot);
+        return resultat;
     }
 
     private BigDecimal average(List<BigDecimal> values) {
