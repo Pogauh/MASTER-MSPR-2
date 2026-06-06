@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface JpaMesureRepository extends JpaRepository<Mesure, UUID> {
@@ -22,17 +23,16 @@ public interface JpaMesureRepository extends JpaRepository<Mesure, UUID> {
     List<Mesure> findAllByIdCapteur(@Param("capteurId") UUID capteurId);
 
     @Query("""
-        select m
-        from Mesure m
-        join m.capteur c
-        join c.zone z
-        where c.idCapteur = :capteurId
-          and m.dateMesure between :start and :end
+        SELECT m
+        FROM Mesure m
+        JOIN m.capteur c
+        WHERE c.zone.idZone = :zoneId
+          AND m.dateMesure BETWEEN :start AND :end
         """)
-    List<Mesure> findAllByCapteurIdAndDateMesureBetween(
-        @Param("capteurId") UUID capteurId,
-        @Param("start") LocalDateTime start,
-        @Param("end") LocalDateTime end
+    Optional<List<Mesure>> findAllByZoneIdAndDateMesureBetween(
+            @Param("zoneId") UUID zoneId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
     );
 
     @Query(value = """
