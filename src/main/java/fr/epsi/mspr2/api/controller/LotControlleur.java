@@ -63,7 +63,7 @@ public class LotControlleur {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/emplacementLot/{idLot}")
+    @PutMapping("/{idLot}/zone")
     public ResponseEntity<LotStatusResponseDTO> updateEmplacementLot(@PathVariable("idLot") UUID idLot, @RequestBody LotEmplacementRequestDTO request) {
         Lot lot = service.updateEmplacementLot(idLot, lotMapper.lotEmplacementToEntity(request));
         if (lot == null) {
@@ -75,7 +75,7 @@ public class LotControlleur {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/statusLot/{idLot}")
+    @PutMapping("/{idLot}/status")
     public ResponseEntity<LotStatusResponseDTO> updateStatusLot(@PathVariable("idLot") UUID idLot, @RequestBody LotStatusRequestDTO request) {
         Lot lot = service.updateStatusLot(idLot, lotMapper.lotStatusToEntity(request));
         if (lot == null) {

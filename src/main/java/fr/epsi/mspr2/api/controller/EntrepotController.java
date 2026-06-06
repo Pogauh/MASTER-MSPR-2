@@ -3,7 +3,9 @@ package fr.epsi.mspr2.api.controller;
 import fr.epsi.mspr2.domain.models.Entrepot;
 import fr.epsi.mspr2.domain.services.EntrepotService;
 import fr.epsi.mspr2.infrastructure.dto.CapteurSummaryResponseDTO;
+import fr.epsi.mspr2.infrastructure.dto.ZoneResponseDto;
 import fr.epsi.mspr2.infrastructure.mapper.CapteurMapper;
+import fr.epsi.mspr2.infrastructure.mapper.ZoneMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,8 @@ import java.util.UUID;
 public class EntrepotController {
     private final EntrepotService service;
     private final CapteurMapper capteurMapper;
+    private final ZoneMapper zoneMapper;
+
 
     @GetMapping
     public List<Entrepot> getAllEntrepots() {
@@ -32,6 +36,19 @@ public class EntrepotController {
             List<CapteurSummaryResponseDTO> response = service.getCapteurSummaryByEntrepotId(entrepotId)
                     .stream()
                     .map(capteurMapper::toResponse)
+                    .toList();
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping(value = {"/{idEntrepot}/zones"})
+    public ResponseEntity<List<ZoneResponseDto>> getZonesByEntrepotId(@PathVariable UUID idEntrepot) {
+        try {
+            List<ZoneResponseDto> response = service.findZonesByEntrepotId(idEntrepot)
+                    .stream()
+                    .map(zoneMapper::toDtoResponse)
                     .toList();
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
