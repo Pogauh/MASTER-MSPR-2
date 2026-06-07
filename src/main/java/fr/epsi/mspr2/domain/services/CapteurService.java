@@ -6,8 +6,6 @@ import fr.epsi.mspr2.domain.ports.CapteurPort;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,14 +24,5 @@ public class CapteurService {
             .stream()
             .map(mesureMapper::toResponse)
             .toList();
-    }
-
-    private void validateHourRange(LocalTime startTime, LocalTime endTime) {
-        if (startTime == null || endTime == null) {
-            throw new IllegalArgumentException("startTime et endTime sont obligatoires");
-        }
-        if (endTime.isBefore(startTime)) {
-            throw new IllegalArgumentException("endTime doit être supérieur ou égal à startTime");
-        }
     }
 }
