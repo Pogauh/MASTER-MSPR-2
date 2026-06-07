@@ -26,4 +26,10 @@ public class ZoneAdapter implements ZonePort {
                     endDate
             );
         }
+
+    @Override
+    public Optional<Mesure> findLastMesuresByZoneId(UUID zoneId) {
+
+        return jpaMesureRepository.findFirstByCapteurZoneIdZoneOrderByDateMesureDesc(zoneId);
+    }
 }
