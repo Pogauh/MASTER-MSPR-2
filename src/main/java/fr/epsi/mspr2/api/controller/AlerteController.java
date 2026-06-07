@@ -20,7 +20,7 @@ public class AlerteController {
     private final AlerteService service;
     private final AlerteMapper mapper;
 
-    @GetMapping("/alerte")
+    @GetMapping("/Alerte")
     public ResponseEntity<List<AlerteDetailsResponseDto>> getAlerte(UUID idEntrepot,
                                                                         @RequestParam(value = "startDate", required = false)
                                                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
