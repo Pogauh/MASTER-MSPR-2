@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -75,6 +76,11 @@ public class AlerteAdapter implements AlertePort {
         alerte.setDateEmission(LocalDateTime.now());
         alerte.setCapteur(capteur);
         jpaAlerteRepository.save(alerte);
+    }
+
+    @Override
+    public List<AlerteDetails> findAlerteByEntrepot(UUID idEntrepot, LocalDateTime startDate, LocalDateTime endDate){
+        return jpaAlerteRepository.findByEntrepotId(idEntrepot,startDate,endDate);
     }
 
     @Override

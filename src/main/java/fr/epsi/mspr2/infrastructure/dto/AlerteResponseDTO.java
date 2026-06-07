@@ -9,4 +9,3 @@ public class AlerteResponseDTO {
     public String description;
     public LocalDateTime dateEmission;
 }
-
