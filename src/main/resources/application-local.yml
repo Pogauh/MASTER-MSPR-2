@@ -3,9 +3,9 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:postgresql://localhost:5433/futurekawa_country
-    username: admin
-    password: password123
+    url: jdbc:postgresql://localhost:5433/db_bresil
+    username: admin_bresil
+    password: password_bresil
     driver-class-name: org.postgresql.Driver
 
   jpa:
