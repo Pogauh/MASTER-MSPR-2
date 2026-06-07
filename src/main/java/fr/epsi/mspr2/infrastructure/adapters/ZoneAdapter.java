@@ -6,7 +6,6 @@ import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -19,19 +18,12 @@ public class ZoneAdapter implements ZonePort {
     private final JpaMesureRepository jpaMesureRepository;
 
         @Override
-        public Optional<List<Mesure>> findMesuresByZoneIdAndDayRange(UUID zoneId, LocalDate startDate, LocalDate endDate) {
+        public Optional<List<Mesure>> findMesuresByZoneId(UUID zoneId, LocalDateTime startDate, LocalDateTime endDate) {
 
             return jpaMesureRepository.findAllByZoneIdAndDateMesureBetween(
                     zoneId,
-                    toStartOfDay(startDate),
-                    toEndOfDay(endDate)
+                    startDate,
+                    endDate
             );
         }
-    private LocalDateTime toStartOfDay(LocalDate date) {
-        return date.atStartOfDay();
-    }
-
-    private LocalDateTime toEndOfDay(LocalDate date) {
-        return date.plusDays(1).atStartOfDay().minusNanos(1);
-    }
 }

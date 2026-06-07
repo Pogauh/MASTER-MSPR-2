@@ -13,14 +13,14 @@ services:
       - ./mosquitto/log:/mosquitto/log
     restart: always
 
-  db-sql:
+  db_bresil:
     image: postgres:15-alpine
     container_name: futurekawa-db-local
 
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: futurekawa_country
+      POSTGRES_USER: admin_bresil
+      POSTGRES_PASSWORD: password_bresil
+      POSTGRES_DB: db_bresil
     ports:
       - "5433:5432"
     volumes:

@@ -45,7 +45,7 @@ public interface JpaMesureRepository extends JpaRepository<Mesure, UUID> {
         """, nativeQuery = true)
     List<Mesure> findAllByCapteurIdAndHourRange(
         @Param("capteurId") UUID capteurId,
-        @Param("startTime") LocalTime startTime,
-        @Param("endTime") LocalTime endTime
+        @Param("startTime") LocalDateTime startTime,
+        @Param("endTime") LocalDateTime endTime
     );
 }
