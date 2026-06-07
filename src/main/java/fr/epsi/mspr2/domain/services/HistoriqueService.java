@@ -1,5 +1,6 @@
 package fr.epsi.mspr2.domain.services;
 
+import fr.epsi.mspr2.domain.models.Alerte;
 import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.ports.HistoriquePort;
@@ -17,6 +18,10 @@ public class HistoriqueService {
 
     public void createTransfereHistoriqueForLot(Lot lot, Lot lotRequest) {
         historiquePort.transfert(lot, lotRequest);
+    }
+
+    public void createAlerteHistoriqueForLot(Lot lot, Alerte alerte) {
+        historiquePort.alerte(lot, alerte);
     }
 
     public List<Historique> findAllHistoriquesForLot(UUID idLot) {

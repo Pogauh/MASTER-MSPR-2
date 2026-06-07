@@ -21,6 +21,7 @@ public class AlerteService {
             alertePort.sendAlerte(mesure);
         }
     }
+
     public List<AlerteDetails> getAlerteByEntrepot(UUID idEntrepot, LocalDateTime startDate, LocalDateTime endDate) {
         return alertePort.findAlerteByEntrepot(idEntrepot,startDate,endDate);
     }

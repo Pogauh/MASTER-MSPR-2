@@ -4,6 +4,8 @@ import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.domain.ports.AlertePort;
 import fr.epsi.mspr2.infrastructure.jpa.JpaAlerteRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
+import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
+import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,10 @@ public class AlerteAdapter implements AlertePort {
 
     private final JpaAlerteRepository jpaAlerteRepository;
     private final JpaCapteurRepository jpaCapteurRepository;
+    private final JpaHistoriqueRepository jpaHistoriqueRepository;
+    private final JpaLotRepository jpaLotRepository;
+
+
 
     @Value("${app.alert.tolerences.temperature-ideale}")
     private BigDecimal tempIdeale;
@@ -36,10 +42,14 @@ public class AlerteAdapter implements AlertePort {
 
     public AlerteAdapter(
         JpaAlerteRepository jpaAlerteRepository,
-        JpaCapteurRepository jpaCapteurRepository
+        JpaCapteurRepository jpaCapteurRepository,
+        JpaHistoriqueRepository jpaHistoriqueRepository
+        ,JpaLotRepository jpaLotRepository
     ) {
         this.jpaAlerteRepository = jpaAlerteRepository;
         this.jpaCapteurRepository = jpaCapteurRepository;
+        this.jpaHistoriqueRepository = jpaHistoriqueRepository;
+        this.jpaLotRepository = jpaLotRepository;
     }
 
     @Override
@@ -75,7 +85,24 @@ public class AlerteAdapter implements AlertePort {
 
         alerte.setDateEmission(LocalDateTime.now());
         alerte.setCapteur(capteur);
-        jpaAlerteRepository.save(alerte);
+
+        Alerte alerteSauvegardee = jpaAlerteRepository.save(alerte);
+
+        UUID idZoneAffectee = capteur.getZone().getIdZone();
+
+        List<Lot> lotsImpactes = jpaLotRepository.findByZoneIdZone(idZoneAffectee);
+
+        for (Lot lot : lotsImpactes) {
+            Historique historique = new Historique();
+            historique.setType(TypeHistoriqueEnum.ALERTE);
+            historique.setDateEmission(LocalDateTime.now());
+            historique.setZonePrecedente(idZoneAffectee);
+            historique.setZoneActuelle(idZoneAffectee);
+            historique.setDetail(alerteSauvegardee.getIdAlerte().toString());
+            historique.setLot(lot);
+
+            jpaHistoriqueRepository.save(historique);
+        }
     }
 
     @Override

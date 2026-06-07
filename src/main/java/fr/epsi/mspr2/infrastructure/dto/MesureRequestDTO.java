@@ -1,6 +1,5 @@
 package fr.epsi.mspr2.infrastructure.dto;
 
-
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.UUID;
