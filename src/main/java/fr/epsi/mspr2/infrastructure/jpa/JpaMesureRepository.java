@@ -35,17 +35,5 @@ public interface JpaMesureRepository extends JpaRepository<Mesure, UUID> {
             @Param("end") LocalDateTime end
     );
 
-    @Query(value = """
-        SELECT m.*
-        FROM mesure m
-        JOIN capteur c ON c.id_capteur = m.id_capteur
-        JOIN zone z ON z.id_zone = c.id_zone
-        WHERE c.id_capteur = :capteurId
-          AND CAST(m.date_mesure AS time) BETWEEN :startTime AND :endTime
-        """, nativeQuery = true)
-    List<Mesure> findAllByCapteurIdAndHourRange(
-        @Param("capteurId") UUID capteurId,
-        @Param("startTime") LocalDateTime startTime,
-        @Param("endTime") LocalDateTime endTime
-    );
+    Optional<Mesure> findFirstByCapteurZoneIdZoneOrderByDateMesureDesc(UUID zoneId);
 }

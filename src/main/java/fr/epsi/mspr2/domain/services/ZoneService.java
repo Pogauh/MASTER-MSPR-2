@@ -16,7 +16,7 @@ public class ZoneService {
 
     private final ZonePort zonePort;
 
-    public Optional<List<Mesure>> findMesuresByZoneIdAndDayRange(UUID zoneId, LocalDateTime startDate, LocalDateTime endDate) {
+    public Optional<List<Mesure>> findMesuresByZoneId(UUID zoneId, LocalDateTime startDate, LocalDateTime endDate) {
         if (zoneId == null) {
             throw new IllegalArgumentException("ZoneId est obligatoire");
         }
@@ -24,7 +24,12 @@ public class ZoneService {
         return zonePort.findMesuresByZoneId(zoneId, startDate, endDate);
     }
 
-
+    public Optional<Mesure> findLastMesuresByZoneId(UUID zoneId) {
+        if (zoneId == null) {
+            throw new IllegalArgumentException("ZoneId est obligatoire");
+        }
+        return zonePort.findLastMesuresByZoneId(zoneId);
+    }
 
     private void validateDateTimeRange(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate == null || endDate == null) {

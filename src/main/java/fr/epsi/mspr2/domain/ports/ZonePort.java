@@ -9,4 +9,6 @@ import java.util.UUID;
 
 public interface ZonePort {
     Optional<List<Mesure>> findMesuresByZoneId(UUID zoneId, LocalDateTime startDate, LocalDateTime endDate);
+
+    Optional<Mesure> findLastMesuresByZoneId(UUID zoneId);
 }

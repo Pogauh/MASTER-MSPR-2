@@ -33,7 +33,7 @@ public class ZoneControlleur {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)LocalDateTime endDate
     ) {
         try {
-            List<MesureResponseDTO> dtos = zoneService.findMesuresByZoneIdAndDayRange(zoneId, startDate, endDate)
+            List<MesureResponseDTO> dtos = zoneService.findMesuresByZoneId(zoneId, startDate, endDate)
                     .orElse(List.of())
                     .stream()
                     .map(zoneMapper::toMesureResponseDto)
@@ -46,4 +46,14 @@ public class ZoneControlleur {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    @GetMapping("/{zoneId}/readings/latest")
+    public ResponseEntity<MesureResponseDTO> getLastMesuresByZoneId(
+            @PathVariable UUID zoneId
+    ) {
+        return zoneService.findLastMesuresByZoneId(zoneId)
+                .map(zoneMapper::toMesureResponseDto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+        }
 }
