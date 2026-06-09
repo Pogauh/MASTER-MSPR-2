@@ -1,77 +1,50 @@
 package fr.epsi.mspr2.infrastructure.mapper;
 
-import fr.epsi.mspr2.domain.models.Exploitation;
 import fr.epsi.mspr2.domain.models.Lot;
-import fr.epsi.mspr2.domain.models.Zone;
 import fr.epsi.mspr2.infrastructure.dto.*;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface LotMapper {
 
 
-@Component
-public class LotMapper {
+    @Mapping(target = "emplacement", source = "zone.idZone")
+    @Mapping(target = "idExploitation", source = "exploitation.idExploitation")
+    @Mapping(target = "idEntrepot", source = "entrepot.idEntrepot")
+    LotResponseDTO toResponse(Lot lot);
 
-    public LotResponseDTO toResponse(Lot lot) {
-        LotResponseDTO dto = new LotResponseDTO();
-        dto.idLot = lot.getIdLot();
-        dto.status = String.valueOf(lot.getStatus());
-        dto.quantite = lot.getQuantite();
-        dto.caracteristique = lot.getCaracteristique();
+    LotStatusResponseDTO toStatusResponse(Lot lot);
 
-        dto.dateSortie = lot.getDateSortie();
-        dto.dateStockage = lot.getDateStockage();
-        dto.dateProduction = lot.getDateProduction();
-        dto.emplacement = lot.getZone().getIdZone();
-        dto.idExploitation = lot.getExploitation() != null ? lot.getExploitation().getIdExploitation() : null;
-        dto.idEntrepot = lot.getEntrepot() != null ? lot.getEntrepot().getIdEntrepot() : null;
-        dto.historique = lot.getHistorique();
-        return dto;
-    }
+    @Mapping(target = "zone.idZone", source = "idZone")
+    @Mapping(target = "exploitation.idExploitation", source = "idExploitation")
+    @Mapping(target = "idLot", ignore = true)
+    @Mapping(target = "dateSortie", ignore = true)
+    @Mapping(target = "dateStockage", ignore = true)
+    @Mapping(target = "historique", ignore = true)
+    Lot lotToEntity(LotRequestDTO request);
 
-    public LotStatusResponseDTO toStatusResponse(Lot lot) {
-        LotStatusResponseDTO dto = new LotStatusResponseDTO();
-        dto.idLot = lot.getIdLot();
-        return dto;
-    }
+    @Mapping(target = "idLot", ignore = true)
+    @Mapping(target = "quantite", ignore = true)
+    @Mapping(target = "caracteristique", ignore = true)
+    @Mapping(target = "dateSortie", ignore = true)
+    @Mapping(target = "dateStockage", ignore = true)
+    @Mapping(target = "dateProduction", ignore = true)
+    @Mapping(target = "exploitation", ignore = true)
+    @Mapping(target = "zone", ignore = true)
+    @Mapping(target = "historique", ignore = true)
+    Lot lotStatusToEntity(LotStatusRequestDTO request);
 
-    public Lot lotToEntity(LotRequestDTO request) {
-        if (request == null) {
-            return null;
-        }
-
-        Lot lot = new Lot();
-        lot.setStatus(Lot.StatusEnum.valueOf(request.status));
-        lot.setQuantite(request.quantite);
-        lot.setCaracteristique(request.caracteristique);
-        Zone zone = new Zone();
-        zone.setIdZone(request.idZone);
-        lot.setZone(zone);
-        lot.setDateProduction(request.dateProduction);
-        Exploitation exploitation = new Exploitation();
-        exploitation.setIdExploitation(request.idExploitation);
-        lot.setExploitation(exploitation);
-
-        return lot;
-    }
-
-    public Lot lotStatusToEntity(LotStatusRequestDTO request) {
-        if (request == null) {
-            return null;
-        }
-        Lot lot = new Lot();
-        lot.setStatus(Lot.StatusEnum.valueOf(request.status));
-
-        return lot;
-    }
-
-    public Lot lotEmplacementToEntity(LotEmplacementRequestDTO request) {
-        if (request == null) {
-            return null;
-        }
-        Lot lot = new Lot();
-        Zone zone = new Zone();
-        zone.setIdZone(request.idZone);
-        lot.setZone(zone);
-
-        return lot;
-    }
+    @Mapping(target = "zone.idZone", source = "idZone")
+    @Mapping(target = "idLot", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "quantite", ignore = true)
+    @Mapping(target = "caracteristique", ignore = true)
+    @Mapping(target = "dateSortie", ignore = true)
+    @Mapping(target = "dateStockage", ignore = true)
+    @Mapping(target = "dateProduction", ignore = true)
+    @Mapping(target = "exploitation", ignore = true)
+    @Mapping(target = "historique", ignore = true)
+    Lot lotEmplacementToEntity(LotEmplacementRequestDTO request);
 }

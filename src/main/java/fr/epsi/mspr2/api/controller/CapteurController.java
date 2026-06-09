@@ -2,6 +2,7 @@ package fr.epsi.mspr2.api.controller;
 
 import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
 import fr.epsi.mspr2.domain.services.CapteurService;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +17,14 @@ import java.util.UUID;
 public class CapteurController {
 
     private final CapteurService serviceCapteur;
+    private final MesureMapper mesureMapper;
 
     @GetMapping("/{capteurId}/mesures")
     public ResponseEntity<List<MesureResponseDTO>> getMesuresByCapteurId(@PathVariable UUID capteurId) {
         try {
-            return ResponseEntity.ok(serviceCapteur.getMesuresByCapteurId(capteurId));
+            return ResponseEntity.ok(serviceCapteur.getMesuresByCapteurId(capteurId).stream()
+                    .map(mesureMapper::toResponse)
+                    .toList());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (IllegalStateException e) {

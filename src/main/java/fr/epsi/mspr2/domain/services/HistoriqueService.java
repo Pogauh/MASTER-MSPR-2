@@ -2,6 +2,7 @@ package fr.epsi.mspr2.domain.services;
 
 import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.Lot;
+import fr.epsi.mspr2.domain.models.TypeHistoriqueEnum;
 import fr.epsi.mspr2.domain.ports.HistoriquePort;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class HistoriqueService {
         return historiquePort.findAllHistoriqueForLot(idLot);
     }
 
-    public List<Historique> findAllHistoriquesForLotByType(UUID idLot, fr.epsi.mspr2.domain.models.TypeHistoriqueEnum type) {
+    public List<Historique> findAllHistoriquesForLotByType(UUID idLot, TypeHistoriqueEnum type) {
         return historiquePort.findAllHistoriqueForLotByType(idLot, type);
     }
 }

@@ -20,6 +20,9 @@ public class MesureAdapter implements MesurePort {
         if (capteurId == null) {
             throw new IllegalArgumentException("L'id du capteur est obligatoire pour enregistrer une mesure");
         }
+        if (mesure.getTemperature() == null || mesure.getHumidite() == null) {
+            throw new IllegalArgumentException("La mesure doit contenir temperature et humidite");
+        }
         jpaMesureRepository.save(mesure);
     }
 

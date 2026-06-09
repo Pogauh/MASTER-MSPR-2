@@ -1,25 +1,23 @@
 package fr.epsi.mspr2.infrastructure.mapper;
 
 import fr.epsi.mspr2.domain.models.Mesure;
+import fr.epsi.mspr2.domain.models.MesureRequest;
+import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class MesureMapper {
-    public MesureResponseDTO toResponse(Mesure mesure) {
-        MesureResponseDTO dto = new MesureResponseDTO();
-        dto.idMesure = mesure.getIdMesure();
-        dto.temperature = mesure.getTemperature();
-        dto.humidite = mesure.getHumidite();
-        dto.dateMesure = mesure.getDateMesure();
-        dto.idCapteur = mesure.getCapteur() != null ? mesure.getCapteur().getIdCapteur() : null;
-        return dto;
-    }
+@Mapper(componentModel = "spring")
+public interface MesureMapper {
 
-    public MesureStatusResponseDTO toStatusResponse(Mesure mesure) {
-        MesureStatusResponseDTO dto = new MesureStatusResponseDTO();
-        dto.idMesure = mesure.getIdMesure();
-        return dto;
-    }
+    @Mapping(target = "idCapteur", source = "capteur.idCapteur")
+    MesureResponseDTO toResponse(Mesure mesure);
+
+    MesureStatusResponseDTO toStatusResponse(Mesure mesure);
+
+    MesureRequest mesureRequestDtoToMesureRequest(MesureRequestDTO request);
+
+    @Mapping(source = "idCapteur", target = "capteur.idCapteur")
+    Mesure mesureRequestToMesureEntity(MesureRequest mesureRequest);
 }

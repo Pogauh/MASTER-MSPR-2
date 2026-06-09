@@ -2,8 +2,8 @@ package fr.epsi.mspr2.infrastructure.adapters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
 import fr.epsi.mspr2.domain.services.MesureService;
+import fr.epsi.mspr2.domain.models.MesureRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -32,8 +32,8 @@ public class MQTTAdapter {
         }
 
         try {
-            MesureRequestDTO dto = objectMapper.readValue(payload, MesureRequestDTO.class);
-            serviceMesure.createMesure(dto);
+            MesureRequest mesureRequest = objectMapper.readValue(payload, MesureRequest.class);
+            serviceMesure.createMesure(mesureRequest);
         } catch (JsonProcessingException e) {
             log.error("Erreur de parsing du message MQTT. Payload: {}", payload, e);
         } catch (Exception e) {

@@ -71,8 +71,7 @@ public class EntrepotService {
         if (idEntrepot == null) {
             throw new IllegalArgumentException("ID de zone ne peut pas être null");
         }
-        var resultat  = entrepotPort.findZoneByIdEntrepot(idEntrepot);
-        return resultat;
+        return entrepotPort.findZoneByIdEntrepot(idEntrepot);
     }
 
     private BigDecimal average(List<BigDecimal> values) {
