@@ -22,9 +22,8 @@ public class LotControlleur {
 
     @PostMapping
     public ResponseEntity<LotStatusResponseDTO> createLot(@RequestBody LotRequestDTO request) {
-        Lot lot = lotMapper.lotToEntity(request);
-        Lot createdLot = service.createLot(lot);
-        LotStatusResponseDTO response = lotMapper.toStatusResponse(createdLot);
+
+        LotStatusResponseDTO response = lotMapper.toStatusResponse(service.createLot(lotMapper.lotToEntity(request)));
         response.status = HttpStatus.CREATED.name();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

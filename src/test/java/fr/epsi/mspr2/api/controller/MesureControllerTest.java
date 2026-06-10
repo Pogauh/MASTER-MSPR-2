@@ -1,11 +1,14 @@
 package fr.epsi.mspr2.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.MesureService;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,12 +27,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MesureControllerTest {
     private MockMvc mockMvc;
     private MesureService serviceMesure;
+    private MesureMapper mesureMapper;
     private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @BeforeEach
     void setUp() {
         serviceMesure = mock(MesureService.class);
-        MesureController controller = new MesureController(serviceMesure);
+        mesureMapper = mock(MesureMapper.class);
+        MesureController controller = new MesureController(serviceMesure, mesureMapper);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -47,7 +52,7 @@ class MesureControllerTest {
 
         mockMvc.perform(post("/api/mesures")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
+                        .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.idMesure").value(createdId.toString()))
                 .andExpect(jsonPath("$.status").value(HttpStatus.CREATED.name()));

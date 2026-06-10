@@ -1,6 +1,7 @@
 package fr.epsi.mspr2.api.controller;
 
 import fr.epsi.mspr2.domain.services.CapteurService;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,11 +18,12 @@ class CapteurControllerTest {
 
     private MockMvc mockMvc;
     private CapteurService serviceCapteur;
+    private MesureMapper mesureMapper;
 
     @BeforeEach
     void setUp() {
         serviceCapteur = mock(CapteurService.class);
-        CapteurController controller = new CapteurController(serviceCapteur);
+        CapteurController controller = new CapteurController(serviceCapteur,mesureMapper);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

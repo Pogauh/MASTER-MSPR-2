@@ -3,6 +3,8 @@ package fr.epsi.mspr2.api.controller;
 import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.TypeHistoriqueEnum;
 import fr.epsi.mspr2.domain.services.HistoriqueService;
+import fr.epsi.mspr2.infrastructure.dto.HistoriqueDto;
+import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +18,15 @@ import java.util.UUID;
 public class HistoriqueController {
 
     private final HistoriqueService historiqueService;
+    private final HistoriqueMapper historiqueMapper;
 
     @GetMapping("/allHistoriquesForLot/{idLot}")
-    public ResponseEntity<List<Historique>> getAllHistoriquesForLot(@PathVariable("idLot") UUID idLot,
-                                                                    @RequestParam(value = "type", required = false) String type) {
+    public ResponseEntity<List<HistoriqueDto>> getAllHistoriquesForLot(@PathVariable("idLot") UUID idLot,
+                                                                       @RequestParam(value = "type", required = false) String type) {
         if (type == null || type.isBlank()) {
-            return ResponseEntity.ok(historiqueService.findAllHistoriquesForLot(idLot));
+            return ResponseEntity.ok(historiqueService.findAllHistoriquesForLot(idLot).stream()
+                    .map(historiqueMapper::toDto)
+                    .toList());
         }
 
         String normalized = type.trim().toUpperCase();
@@ -36,6 +41,9 @@ public class HistoriqueController {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(historiqueService.findAllHistoriquesForLotByType(idLot, enumType));
+        return ResponseEntity.ok(historiqueService.findAllHistoriquesForLotByType(idLot, enumType)
+                .stream()
+                .map(historiqueMapper::toDto)
+                .toList());
     }
 }

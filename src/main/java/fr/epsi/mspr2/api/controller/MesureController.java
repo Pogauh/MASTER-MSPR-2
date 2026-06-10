@@ -4,6 +4,7 @@ import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.MesureService;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,11 @@ import java.util.UUID;
 public class MesureController {
 
     private final MesureService serviceMesure;
+    private final MesureMapper mesureMapper;
 
     @PostMapping
     public ResponseEntity<MesureStatusResponseDTO> createMesure(@RequestBody MesureRequestDTO dto) {
-        MesureStatusResponseDTO response = serviceMesure.createMesure(dto);
+        MesureStatusResponseDTO response = serviceMesure.createMesure(mesureMapper.mesureRequestDtoToMesureRequest(dto));
         response.status = HttpStatus.CREATED.name();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
