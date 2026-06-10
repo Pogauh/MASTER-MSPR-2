@@ -4,9 +4,8 @@ import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.infrastructure.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = "spring")
 public interface LotMapper {
 
 
@@ -23,6 +22,7 @@ public interface LotMapper {
     @Mapping(target = "dateSortie", ignore = true)
     @Mapping(target = "dateStockage", ignore = true)
     @Mapping(target = "historique", ignore = true)
+    @Mapping(target = "entrepot.idEntrepot", ignore = true)
     Lot lotToEntity(LotRequestDTO request);
 
     @Mapping(target = "idLot", ignore = true)
