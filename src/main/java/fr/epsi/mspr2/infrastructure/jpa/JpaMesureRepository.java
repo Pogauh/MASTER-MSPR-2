@@ -36,4 +36,6 @@ public interface JpaMesureRepository extends JpaRepository<Mesure, UUID> {
     );
 
     Optional<Mesure> findFirstByCapteurZoneIdZoneOrderByDateMesureDesc(UUID zoneId);
+
+    List<Mesure> findTop5ByCapteurIdCapteurOrderByDateMesureDesc(UUID idCapteur);
 }

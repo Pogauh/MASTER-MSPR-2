@@ -2,10 +2,7 @@ package fr.epsi.mspr2.infrastructure.adapters;
 
 import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.domain.ports.AlertePort;
-import fr.epsi.mspr2.infrastructure.jpa.JpaAlerteRepository;
-import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
-import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
-import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
+import fr.epsi.mspr2.infrastructure.jpa.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +19,7 @@ public class AlerteAdapter implements AlertePort {
     private final JpaCapteurRepository jpaCapteurRepository;
     private final JpaHistoriqueRepository jpaHistoriqueRepository;
     private final JpaLotRepository jpaLotRepository;
-
-
+    private final JpaMesureRepository jpaMesureRepository;
 
     @Value("${app.alert.tolerences.temperature-ideale}")
     private BigDecimal tempIdeale;
@@ -41,20 +37,33 @@ public class AlerteAdapter implements AlertePort {
     private static final String IDEAL_LABEL = " (ideal=";
 
     public AlerteAdapter(
-        JpaAlerteRepository jpaAlerteRepository,
-        JpaCapteurRepository jpaCapteurRepository,
-        JpaHistoriqueRepository jpaHistoriqueRepository
-        ,JpaLotRepository jpaLotRepository
+            JpaAlerteRepository jpaAlerteRepository,
+            JpaCapteurRepository jpaCapteurRepository,
+            JpaHistoriqueRepository jpaHistoriqueRepository
+        , JpaLotRepository jpaLotRepository, JpaMesureRepository jpaMesureRepository
     ) {
         this.jpaAlerteRepository = jpaAlerteRepository;
         this.jpaCapteurRepository = jpaCapteurRepository;
         this.jpaHistoriqueRepository = jpaHistoriqueRepository;
         this.jpaLotRepository = jpaLotRepository;
+        this.jpaMesureRepository = jpaMesureRepository;
     }
 
     @Override
     @Transactional
     public void sendAlerte(Mesure mesure) {
+
+        List<Mesure> dernieresMesures = jpaMesureRepository.findTop5ByCapteurIdCapteurOrderByDateMesureDesc(mesure.getCapteur().getIdCapteur());
+
+        if (dernieresMesures.size() < 5) {
+            return;
+        }
+
+        boolean toutesEnAnomalie = dernieresMesures.stream().allMatch(this::isCompatible);
+
+        if (!toutesEnAnomalie) {
+            return;
+        }
 
         Capteur capteur = resolveCapteurWithZone(mesure);
         BigDecimal temp = mesure.getTemperature();
@@ -93,6 +102,7 @@ public class AlerteAdapter implements AlertePort {
         List<Lot> lotsImpactes = jpaLotRepository.findByZoneIdZone(idZoneAffectee);
 
         for (Lot lot : lotsImpactes) {
+            lot.setStatus(StatusEnum.ALERT);
             Historique historique = new Historique();
             historique.setType(TypeHistoriqueEnum.ALERTE);
             historique.setDateEmission(LocalDateTime.now());
@@ -101,6 +111,7 @@ public class AlerteAdapter implements AlertePort {
             historique.setDetail(alerteSauvegardee.getIdAlerte().toString());
             historique.setLot(lot);
 
+            jpaLotRepository.save(lot);
             jpaHistoriqueRepository.save(historique);
         }
     }
