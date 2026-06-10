@@ -76,8 +76,4 @@ public class Lot {
         }
         zone.setEntrepot(entrepot);
     }
-
-    public enum StatusEnum {
-        COMPLIANT, ALERT, BLOCKED, SHIPPED
-    }
 }

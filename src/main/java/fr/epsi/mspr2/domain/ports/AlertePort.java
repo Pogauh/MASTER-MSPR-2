@@ -12,6 +12,5 @@ public interface AlertePort {
 
     List<AlerteDetails> findAlerteByEntrepot(UUID idEntrepot, LocalDateTime startDate, LocalDateTime endDate);
 
-
     boolean isCompatible(Mesure mesure);
 }
