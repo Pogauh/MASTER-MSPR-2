@@ -4,8 +4,11 @@ import fr.epsi.mspr2.api.controller.LotControlleur;
 import fr.epsi.mspr2.domain.services.LotService;
 import fr.epsi.mspr2.domain.services.HistoriqueService;
 import fr.epsi.mspr2.infrastructure.adapters.LotAdapter;
+import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
+import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
 import fr.epsi.mspr2.infrastructure.mapper.LotMapperImpl;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapperImpl;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,11 +16,17 @@ import org.springframework.context.annotation.Import;
 
 @CucumberContextConfiguration
 @WebMvcTest(controllers = LotControlleur.class)
-@Import({LotService.class, LotAdapter.class, LotMapperImpl.class})
+@Import({LotService.class, LotAdapter.class, LotMapperImpl.class, MesureMapperImpl.class})
 public class CucumberSpringConfiguration {
     @MockBean
     private JpaLotRepository jpaLotRepository;
 
     @MockBean
     private HistoriqueService historiqueService;
+
+    @MockBean
+    private JpaMesureRepository jpaMesureRepository;
+
+    @MockBean
+    private JpaHistoriqueRepository historiqueJpaRepository;
 }

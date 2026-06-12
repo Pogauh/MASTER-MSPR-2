@@ -5,6 +5,7 @@ import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.LotService;
 import fr.epsi.mspr2.infrastructure.mapper.LotMapper;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -33,13 +34,14 @@ class LotControlleurTest {
     private MockMvc mockMvc;
     private LotService serviceLot;
     private LotMapper lotMapper;
+    private MesureMapper mesureMapper;
 
 
     @BeforeEach
     void setUp() {
         serviceLot = mock(LotService.class);
         lotMapper = mock(LotMapper.class);
-        LotControlleur controller = new LotControlleur(serviceLot, lotMapper);
+        LotControlleur controller = new LotControlleur(serviceLot, lotMapper, mesureMapper);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

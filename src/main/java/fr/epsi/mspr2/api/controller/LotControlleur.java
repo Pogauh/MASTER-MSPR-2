@@ -1,15 +1,18 @@
 package fr.epsi.mspr2.api.controller;
 
+import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.infrastructure.dto.*;
 import fr.epsi.mspr2.domain.services.LotService;
 import fr.epsi.mspr2.infrastructure.mapper.LotMapper;
 import fr.epsi.mspr2.domain.models.Lot;
+import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -19,6 +22,8 @@ public class LotControlleur {
 
     private final LotService service;
     private final LotMapper lotMapper;
+    private final MesureMapper mesureMapper;
+
 
     @PostMapping
     public ResponseEntity<LotStatusResponseDTO> createLot(@RequestBody LotRequestDTO request) {
@@ -48,6 +53,19 @@ public class LotControlleur {
     @GetMapping("/getAllQuantity")
     public Integer getInventaireMondial() {
         return service.getQuantiteTotale();
+    }
+
+    @GetMapping("/getAllMesuresByLotId/{idLot}")
+    public ResponseEntity<List<MesureLotResponseDTO>> getAllMesuresByLotId(@PathVariable("idLot") UUID idLot) {
+        Optional<List<Mesure>> mesures = service.getAllMesuresByLotId(idLot);
+        if (mesures.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        List<MesureLotResponseDTO> dtos = mesures.get().stream()
+                .map(mesureMapper::toDtoforLot)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
     }
 
     @DeleteMapping("/deleteLot/{idLot}")
