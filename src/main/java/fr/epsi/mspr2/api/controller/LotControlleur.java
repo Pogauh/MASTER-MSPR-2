@@ -103,4 +103,13 @@ public class LotControlleur {
         response.status = HttpStatus.OK.name();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/oldestLot")
+    public ResponseEntity<LotResponseDTO> getOldestLot(){
+        Lot lot = service.getOldestLot();
+        if (lot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(lotMapper.toResponse(lot));
+    }
 }

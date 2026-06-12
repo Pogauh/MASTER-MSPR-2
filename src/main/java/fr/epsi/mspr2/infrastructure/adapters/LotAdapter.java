@@ -1,11 +1,8 @@
 package fr.epsi.mspr2.infrastructure.adapters;
 
-import fr.epsi.mspr2.domain.models.Historique;
-import fr.epsi.mspr2.domain.models.Mesure;
-import fr.epsi.mspr2.domain.models.TypeHistoriqueEnum;
+import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
-import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.ports.LotPort;
 import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
 import org.springframework.stereotype.Component;
@@ -89,5 +86,10 @@ public class LotAdapter implements LotPort {
                 .ifPresent(mesuresHistorique::addAll);
 
         return mesuresHistorique.isEmpty() ? Optional.empty() : Optional.of(mesuresHistorique);
+    }
+
+    @Override
+    public Lot findOldestLot() {
+        return jpaLotRepository.findFirstByStatusOrderByDateStockageAsc(StatusEnum.COMPLIANT);
     }
 }

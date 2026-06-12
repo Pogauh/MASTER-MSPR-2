@@ -1,6 +1,7 @@
 package fr.epsi.mspr2.infrastructure.jpa;
 
 import fr.epsi.mspr2.domain.models.Lot;
+import fr.epsi.mspr2.domain.models.StatusEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,5 +22,7 @@ public interface JpaLotRepository extends JpaRepository<Lot, UUID> {
         """)
     Optional<Lot> findByIdWithHistorique(@Param("idLot") UUID idLot);
 
-    List<Lot> findByZoneIdZone(UUID entrepotId);
+    List<Lot> findByZoneIdZone(UUID idZone);
+
+    Lot findFirstByStatusOrderByDateStockageAsc(StatusEnum status);
 }
