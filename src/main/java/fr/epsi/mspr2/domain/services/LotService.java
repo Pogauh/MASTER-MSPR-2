@@ -1,11 +1,13 @@
 package fr.epsi.mspr2.domain.services;
 
 import fr.epsi.mspr2.domain.models.Lot;
+import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.domain.ports.LotPort;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -22,6 +24,10 @@ public class LotService {
     
     public Lot getLotById(UUID idLot) {
         return lotPort.findById(idLot);
+    }
+
+    public Optional<List<Mesure>> getAllMesuresByLotId(UUID idLot) {
+        return lotPort.findAllMesuresByLotId(idLot);
     }
     
     public Lot deleteLot(UUID idLot) {

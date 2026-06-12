@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.infrastructure.dto.LotRequestDTO;
+import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
+import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -34,6 +36,12 @@ public class LotCreationSteps {
 
     @Autowired
     private JpaLotRepository jpaLotRepository;
+
+    @Autowired
+    private JpaHistoriqueRepository historiqueJpaRepository;
+
+    @Autowired
+    private JpaMesureRepository jpaMesureRepository;
 
     private UUID exploitationId;
     private UUID zoneId;

@@ -46,5 +46,6 @@ public interface LotMapper {
     @Mapping(target = "dateProduction", ignore = true)
     @Mapping(target = "exploitation", ignore = true)
     @Mapping(target = "historique", ignore = true)
+    @Mapping(target = "entrepot.idEntrepot", ignore = true)
     Lot lotEmplacementToEntity(LotEmplacementRequestDTO request);
 }
