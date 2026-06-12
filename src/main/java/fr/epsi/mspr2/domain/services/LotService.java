@@ -66,4 +66,8 @@ public class LotService {
         }
         return lotPort.updateStatusLot(existingLot, request);
     }
+
+    public Lot getOldestLot(){
+        return lotPort.findOldestLot();
+    }
 }

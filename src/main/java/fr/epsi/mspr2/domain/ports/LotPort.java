@@ -15,5 +15,5 @@ public interface LotPort {
         Lot updateEmplacementLot(Lot lot,Lot lotRequest);
         Lot updateStatusLot(Lot lot,Lot lotRequest);
         Optional<List<Mesure>> findAllMesuresByLotId(UUID idLot);
-
+        Lot findOldestLot();
 }
