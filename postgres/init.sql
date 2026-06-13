@@ -51,7 +51,7 @@ CREATE TABLE alerte (
     type_alerte VARCHAR(50),
     description VARCHAR(255),
     date_emission TIMESTAMP,
-    id_capteur UUID NOT NULL REFERENCES capteur(id_capteur)
+    id_capteur UUID REFERENCES capteur(id_capteur)
 );
 
 CREATE TABLE historique (

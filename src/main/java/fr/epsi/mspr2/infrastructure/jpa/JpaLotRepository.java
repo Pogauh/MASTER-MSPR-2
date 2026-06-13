@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,4 +31,7 @@ public interface JpaLotRepository extends JpaRepository<Lot, UUID> {
 
     @Query(value = "SELECT AVG(EXTRACT(DAY FROM (CURRENT_TIMESTAMP - l.date_stockage))) FROM lot l WHERE l.date_stockage IS NOT NULL", nativeQuery = true)
     Double findAverageAgeInDays();
-}
+
+    @Query("SELECT l.idLot FROM Lot l WHERE l.dateStockage BETWEEN :startDate AND :endDate")
+    List<UUID> findIdsByDateStockageBetween(@Param("startDate") LocalDateTime startDate,
+                                            @Param("endDate") LocalDateTime endDate);}

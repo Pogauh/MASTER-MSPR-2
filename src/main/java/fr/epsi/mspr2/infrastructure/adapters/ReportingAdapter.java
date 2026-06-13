@@ -1,9 +1,6 @@
 package fr.epsi.mspr2.infrastructure.adapters;
 
-import fr.epsi.mspr2.domain.models.ReportingGlobal;
-import fr.epsi.mspr2.domain.models.ReportingQuality;
-import fr.epsi.mspr2.domain.models.StatusEnum;
-import fr.epsi.mspr2.domain.models.TypeHistoriqueEnum;
+import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.domain.ports.ReportingPort;
 import fr.epsi.mspr2.infrastructure.jpa.JpaAlerteRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
@@ -12,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class ReportingAdapter implements ReportingPort {
@@ -55,5 +53,20 @@ public class ReportingAdapter implements ReportingPort {
         reportingQuality.setComplianceRate(compliantRate);
         reportingQuality.setNonComplianceCount(nonComplianceCount);
         return reportingQuality;
+    }
+
+    @Override
+    public ReportingStock generateReportingStock(LocalDateTime startDate, LocalDateTime endDate) {
+        var totalLots = jpaLotRepository.count();
+        var compliantRate = jpaLotRepository.countByStatusIn(List.of(StatusEnum.COMPLIANT)) / (double) totalLots * 100;
+        var avgAgeDays = jpaLotRepository.findAverageAgeInDays();
+        List<UUID> urgentFifo = jpaLotRepository.findIdsByDateStockageBetween(LocalDateTime.now().minusYears(1), LocalDateTime.now().minusMonths(9));
+
+        ReportingStock reportingStock = new ReportingStock();
+        reportingStock.setTotalLots((int) totalLots);
+        reportingStock.setComplianceRate(compliantRate);
+        reportingStock.setAvgAgeDays(avgAgeDays);
+        reportingStock.setLotIdsUrgentFifo(urgentFifo);
+        return reportingStock;
     }
 }
