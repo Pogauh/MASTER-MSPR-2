@@ -31,5 +31,7 @@ public interface JpaAlerteRepository extends JpaRepository<Alerte, UUID> {
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    int countByDateEmissionBetween(LocalDateTime startDate, LocalDateTime endDate);
 }
 
