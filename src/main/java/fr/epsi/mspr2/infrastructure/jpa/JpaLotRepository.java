@@ -25,4 +25,9 @@ public interface JpaLotRepository extends JpaRepository<Lot, UUID> {
     List<Lot> findByZoneIdZone(UUID idZone);
 
     Lot findFirstByStatusOrderByDateStockageAsc(StatusEnum status);
+
+    Integer countByStatus(StatusEnum status);
+
+    @Query(value = "SELECT AVG(EXTRACT(DAY FROM (CURRENT_TIMESTAMP - l.date_stockage))) FROM lot l WHERE l.date_stockage IS NOT NULL", nativeQuery = true)
+    Double findAverageAgeInDays();
 }

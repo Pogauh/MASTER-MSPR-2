@@ -112,4 +112,6 @@ public class LotControlleur {
         }
         return ResponseEntity.ok(lotMapper.toResponse(lot));
     }
+
+
 }
