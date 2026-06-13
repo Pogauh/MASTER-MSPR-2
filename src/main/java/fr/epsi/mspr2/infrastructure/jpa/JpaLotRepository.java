@@ -30,4 +30,6 @@ public interface JpaLotRepository extends JpaRepository<Lot, UUID> {
 
     @Query(value = "SELECT AVG(EXTRACT(DAY FROM (CURRENT_TIMESTAMP - l.date_stockage))) FROM lot l WHERE l.date_stockage IS NOT NULL", nativeQuery = true)
     Double findAverageAgeInDays();
+
+
 }

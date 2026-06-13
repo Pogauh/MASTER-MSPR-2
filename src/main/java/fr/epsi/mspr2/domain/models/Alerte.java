@@ -29,7 +29,7 @@ public class Alerte {
     private LocalDateTime dateEmission;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_capteur", nullable = false)
+    @JoinColumn(name = "id_capteur")
     @JsonIgnore
     private Capteur capteur;
 

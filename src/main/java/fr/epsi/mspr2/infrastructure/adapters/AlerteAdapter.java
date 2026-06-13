@@ -4,6 +4,7 @@ import fr.epsi.mspr2.domain.models.*;
 import fr.epsi.mspr2.domain.ports.AlertePort;
 import fr.epsi.mspr2.infrastructure.jpa.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -133,12 +134,50 @@ public class AlerteAdapter implements AlertePort {
         BigDecimal humiMax = humiIdeale.add(toleranceHumi);
 
         boolean temperatureOutOfRange = mesure.getTemperature().compareTo(tempMin) < 0
-            || mesure.getTemperature().compareTo(tempMax) > 0;
+                || mesure.getTemperature().compareTo(tempMax) > 0;
         boolean humiditeOutOfRange = mesure.getHumidite().compareTo(humiMin) < 0
-            || mesure.getHumidite().compareTo(humiMax) > 0;
+                || mesure.getHumidite().compareTo(humiMax) > 0;
 
         return temperatureOutOfRange || humiditeOutOfRange;
     }
+
+    @Scheduled(cron = "0 0 1 * * ?")
+    public void checkLotExpired() {
+        var lots = jpaLotRepository.findAll();
+        lots.stream()
+                .filter(this::booleanLotExpired)
+                .forEach(this::sendAlertExpiredLot);
+    }
+
+    private boolean booleanLotExpired(Lot lot) {
+        if (lot.getDateStockage() == null) {
+            return false;
+        }
+        return lot.getDateStockage().isBefore(LocalDateTime.now().minusYears(1))&& lot.getStatus()!= StatusEnum.EXPIRED;
+    }
+
+    private void sendAlertExpiredLot(Lot lot) {
+        Alerte alerte = new Alerte();
+        alerte.setTypeAlerte(TypeAlerteEnum.EXPIRED);
+        alerte.setDescription("Le lot " + lot.getIdLot() + " a expiré.");
+        alerte.setDateEmission(LocalDateTime.now());
+
+        jpaAlerteRepository.save(alerte);
+
+        lot.setStatus(StatusEnum.EXPIRED);
+        Historique historique = new Historique();
+        historique.setType(TypeHistoriqueEnum.ALERTE);
+        historique.setDateEmission(LocalDateTime.now());
+        historique.setZonePrecedente(lot.getZone().getIdZone());
+        historique.setZoneActuelle(lot.getZone().getIdZone());
+        historique.setDetail("Lot expiré");
+        historique.setLot(lot);
+
+        jpaLotRepository.save(lot);
+        jpaHistoriqueRepository.save(historique);
+    }
+
+
 
     private Capteur resolveCapteurWithZone(Mesure mesure) {
         UUID capteurId = mesure.getCapteur() != null ? mesure.getCapteur().getIdCapteur() : null;
