@@ -2,6 +2,7 @@ package fr.epsi.mspr2.domain.simulateur;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.epsi.mspr2.domain.models.Capteur;
 import fr.epsi.mspr2.infrastructure.config.MqttGateway;
 import fr.epsi.mspr2.infrastructure.jpa.JpaCapteurRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaEntrepotRepository;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,7 +28,7 @@ public class SensorSimulator {
     private final MqttGateway mqttGateway;
     private final JpaCapteurRepository jpaCapteurRepository;
 
-    private UUID capteurId;
+    private List<UUID> capteurId;
     private final ObjectMapper objectMapper;
     private final JpaEntrepotRepository jpaEntrepotRepository;
     @Value("${mqtt.topic}")
@@ -39,32 +41,31 @@ public class SensorSimulator {
     public void simulateSensorData() {
         resolveCapteurId();
         if (capteurId == null) {
-            log.warn("Simulation ignorée: aucun capteur trouvé pour l'entrepôt {}", capteurId);
+            log.warn("Simulation ignorée: liste de capteurId vide ");
             return;
         }
 
-        Map<String, Object> payloadMap = new LinkedHashMap<>();
-        payloadMap.put("temperature", randomInRange(26.0, 33.0));
-        payloadMap.put("humidite", randomInRange(52.0, 58.0));
-        payloadMap.put("dateMesure", LocalDateTime.now());
-        payloadMap.put("idCapteur", capteurId);
+        capteurId.stream().forEach(id -> {
 
-        try {
-            String payload = objectMapper.writeValueAsString(payloadMap);
-            mqttGateway.sendToMqtt(payload, mqttTopic);
-            log.info("Donnée simulée envoyée au broker: {}", payload);
-        } catch (JsonProcessingException e) {
-            log.error("Impossible de sérialiser la donnée simulée MQTT", e);
-        }
+            Map<String, Object> payloadMap = new LinkedHashMap<>();
+            payloadMap.put("idCapteur", id);
+            payloadMap.put("temperature", randomInRange(26.0, 33.0));
+            payloadMap.put("humidite", randomInRange(52.0, 58.0));
+            payloadMap.put("dateMesure", LocalDateTime.now());
+
+            try {
+                String payload = objectMapper.writeValueAsString(payloadMap);
+                mqttGateway.sendToMqtt(payload, mqttTopic);
+                log.info("Donnée simulée envoyée au broker: {}", payload);
+            } catch (JsonProcessingException e) {
+                log.error("Impossible de sérialiser la donnée simulée MQTT", e);
+            }
+        });
     }
     private void resolveCapteurId() {
-        capteurId = jpaCapteurRepository.findAllByEntrepotId(
-                jpaEntrepotRepository.findAll()
-                        .getFirst()
-                        .getIdEntrepot()
-        )
-                .getFirst()
-                .getIdCapteur();
+        capteurId = jpaCapteurRepository.findAll()
+                        .stream().map(Capteur::getIdCapteur)
+                        .toList();
 
         log.debug("Capteur ID utilisé pour la simulation: " + capteurId);
     }
