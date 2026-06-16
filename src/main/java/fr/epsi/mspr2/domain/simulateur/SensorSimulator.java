@@ -15,10 +15,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -33,6 +30,9 @@ public class SensorSimulator {
     private final JpaEntrepotRepository jpaEntrepotRepository;
     @Value("${mqtt.topic}")
     private String mqttTopic;
+
+    @Value("${app.apiName}")
+    private String apiName;
 
     // 900 000 ms = 15 minutes
     // Pour tests, mettre 30000 (30 secondes)
@@ -49,8 +49,18 @@ public class SensorSimulator {
 
             Map<String, Object> payloadMap = new LinkedHashMap<>();
             payloadMap.put("idCapteur", id);
-            payloadMap.put("temperature", randomInRange(26.0, 33.0));
-            payloadMap.put("humidite", randomInRange(52.0, 58.0));
+            if (Objects.equals(apiName, "bresil")){
+                payloadMap.put("temperature", randomInRange(25.0, 33.0));
+                payloadMap.put("humidite", randomInRange(52.0, 58.0));
+            }
+            if (Objects.equals(apiName, "equateur")){
+                payloadMap.put("temperature", randomInRange(26.0, 35.0));
+                payloadMap.put("humidite", randomInRange(57.0, 63.0));
+            }
+            if (Objects.equals(apiName, "colombie")){
+                payloadMap.put("temperature", randomInRange(22.0, 30.0));
+                payloadMap.put("humidite", randomInRange(77.0, 83.0));
+            }
             payloadMap.put("dateMesure", LocalDateTime.now());
 
             try {
