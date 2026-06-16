@@ -15,6 +15,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 app:
+  apiName: ${API_NAME:bresil}
   alert:
     tolerences:
       temperature-ideale: ${TEMPERATURE_IDEALE:29}
