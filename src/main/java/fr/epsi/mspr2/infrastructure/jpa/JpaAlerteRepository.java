@@ -13,10 +13,10 @@ import java.util.UUID;
 public interface JpaAlerteRepository extends JpaRepository<Alerte, UUID> {
     @Query("""
         SELECT new fr.epsi.mspr2.domain.models.AlerteDetails(
-            a.idAlerte, 
-            a.typeAlerte, 
-            a.description, 
-            a.dateEmission, 
+            a.idAlerte,
+            a.typeAlerte,
+            a.description,
+            a.dateEmission,
             z.idZone
         )
         FROM Alerte a
