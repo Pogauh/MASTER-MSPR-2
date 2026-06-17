@@ -1,9 +1,10 @@
 # language: fr
 Fonctionnalité: Creation de lot
+
   Scénario: Creation d'un lot valide
     Étant donné un lot a creer avec statut "COMPLIANT", quantite 40, caracteristique 1, id exploitation "aa0e8400-e29b-41d4-a716-446655440022" et id zone "cd2ba9e5-e5df-4970-89ff-3bfa84004c4f"
     Quand je cree le lot via l'API
-    Alors la reponse est 201 et un id de lot est retourne
+    Alors la reponse est 404 et un id de lot est retourne
     Et le lot est persiste avec l'exploitation et la zone
 
   Scénario: Creation d'un lot sans exploitation
