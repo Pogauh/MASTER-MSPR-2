@@ -155,8 +155,8 @@ public class AlerteAdapter implements AlertePort {
         return temperatureOutOfRange || humiditeOutOfRange;
     }
 
-//    @Scheduled(cron = "0 0 1 * * ?")
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
+//    @Scheduled(cron = "0 * * * * ?")
     public void checkLotExpired() {
         var lots = jpaLotRepository.findAll();
         lots.stream()
