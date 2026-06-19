@@ -5,6 +5,18 @@ spring:
     password: ${DB_PASSWORD:password_bresil}
     driver-class-name: org.postgresql.Driver
 
+  mail:
+    host: ${MAIL_HOST:in-v3.mailjet.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:fe087aea0f4425a38b30689d245e5045}
+    password: ${MAIL_PASSWORD:33c15ca39f5cb70fc5be569183e587dc}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -15,6 +27,9 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 app:
+  mail:
+    responsable: ${MAIL_RESPONSABLE:ultrabaga@hotmail.com}
+
   apiName: ${API_NAME:bresil}
   alert:
     tolerences:
