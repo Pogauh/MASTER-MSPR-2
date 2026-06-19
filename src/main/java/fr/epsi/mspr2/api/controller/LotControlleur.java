@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,6 +51,7 @@ public class LotControlleur {
     public List<LotResponseDTO> getAllLots() {
         List<Lot> lots = service.getAllLotsForAllEntrepot();
         return lots != null ? lots.stream()
+                .sorted(Comparator.comparing(Lot::getDateStockage, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(lotMapper::toResponse)
                 .toList() : List.of();
     }
