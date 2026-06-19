@@ -1,12 +1,15 @@
 package fr.epsi.mspr2.api.controller;
 
+import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.infrastructure.dto.*;
 import fr.epsi.mspr2.domain.services.LotService;
+import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapper;
 import fr.epsi.mspr2.infrastructure.mapper.LotMapper;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,7 @@ public class LotControlleur {
 
     private final LotService service;
     private final LotMapper lotMapper;
+    private final HistoriqueMapper historiqueMapper;
     private final MesureMapper mesureMapper;
 
 
@@ -113,5 +117,10 @@ public class LotControlleur {
         return ResponseEntity.ok(lotMapper.toResponse(lot));
     }
 
-
+    @PostMapping("/stock-out")
+    public ResponseEntity<HistoriqueResponseDto> stockOut(@RequestParam("lotId") UUID lotId) {
+        HistoriqueResponseDto response = historiqueMapper.toHistoriqueResponseDto(service.stockOut(lotId));
+        response.status = HttpStatus.CREATED.name();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 }

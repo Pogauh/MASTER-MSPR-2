@@ -7,6 +7,8 @@ import fr.epsi.mspr2.infrastructure.adapters.LotAdapter;
 import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
+import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapper;
+import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapperImpl;
 import fr.epsi.mspr2.infrastructure.mapper.LotMapperImpl;
 import fr.epsi.mspr2.infrastructure.mapper.MesureMapperImpl;
 import io.cucumber.spring.CucumberContextConfiguration;
@@ -16,7 +18,7 @@ import org.springframework.context.annotation.Import;
 
 @CucumberContextConfiguration
 @WebMvcTest(controllers = LotControlleur.class)
-@Import({LotService.class, LotAdapter.class, LotMapperImpl.class, MesureMapperImpl.class})
+@Import({LotService.class, LotAdapter.class, LotMapperImpl.class, MesureMapperImpl.class, HistoriqueMapperImpl.class})
 public class CucumberSpringConfiguration {
     @MockBean
     private JpaLotRepository jpaLotRepository;

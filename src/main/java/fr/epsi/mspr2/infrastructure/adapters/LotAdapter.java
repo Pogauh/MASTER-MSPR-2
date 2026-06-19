@@ -1,6 +1,7 @@
 package fr.epsi.mspr2.infrastructure.adapters;
 
 import fr.epsi.mspr2.domain.models.*;
+import fr.epsi.mspr2.infrastructure.dto.HistoriqueResponseDto;
 import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
 import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
 import fr.epsi.mspr2.domain.ports.LotPort;
@@ -91,5 +92,21 @@ public class LotAdapter implements LotPort {
     @Override
     public Lot findOldestLot() {
         return jpaLotRepository.findFirstByStatusOrderByDateStockageAsc(StatusEnum.COMPLIANT);
+    }
+
+    @Override
+    public Historique stockOut(UUID lotId) {
+        Lot lot = findById(lotId);
+        if (lot != null) {
+            lot.setStatus(StatusEnum.SHIPPED);
+            lot.setDateSortie(LocalDateTime.now());
+            jpaLotRepository.save(lot);
+        }
+        var historique = new Historique();
+        historique.setLot(lot);
+        historique.setDateEmission(LocalDateTime.now());
+        historique.setDetail("Le lot a été expédié.");
+        historique.setType(TypeHistoriqueEnum.SHIPPED);
+        return historiqueJpaRepository.save(historique);
     }
 }

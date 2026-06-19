@@ -1,7 +1,9 @@
 package fr.epsi.mspr2.domain.ports;
 
+import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.models.Mesure;
+import fr.epsi.mspr2.infrastructure.dto.HistoriqueResponseDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +18,6 @@ public interface LotPort {
         Lot updateStatusLot(Lot lot,Lot lotRequest);
         Optional<List<Mesure>> findAllMesuresByLotId(UUID idLot);
         Lot findOldestLot();
+
+        Historique stockOut(UUID lotId);
 }

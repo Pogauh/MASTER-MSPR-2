@@ -1,8 +1,10 @@
 package fr.epsi.mspr2.domain.services;
 
+import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.domain.ports.LotPort;
+import fr.epsi.mspr2.infrastructure.dto.HistoriqueResponseDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -69,5 +71,9 @@ public class LotService {
 
     public Lot getOldestLot(){
         return lotPort.findOldestLot();
+    }
+
+    public Historique stockOut(UUID idLot){
+        return lotPort.stockOut(idLot);
     }
 }
