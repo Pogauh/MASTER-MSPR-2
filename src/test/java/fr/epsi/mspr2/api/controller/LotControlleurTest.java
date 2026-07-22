@@ -1,12 +1,17 @@
 package fr.epsi.mspr2.api.controller;
 
 
+import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.Lot;
+import fr.epsi.mspr2.domain.models.Mesure;
+import fr.epsi.mspr2.domain.models.StatusEnum;
+import fr.epsi.mspr2.infrastructure.dto.HistoriqueResponseDto;
 import fr.epsi.mspr2.infrastructure.dto.LotStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.LotService;
 import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapper;
 import fr.epsi.mspr2.infrastructure.mapper.LotMapper;
 import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
+import fr.epsi.mspr2.infrastructure.dto.MesureLotResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -14,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.nullValue;
@@ -29,7 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import fr.epsi.mspr2.infrastructure.dto.LotResponseDTO;
 
-import java.util.List;
 
 class LotControlleurTest {
     private MockMvc mockMvc;
@@ -212,5 +218,110 @@ class LotControlleurTest {
             .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.name()));
 
         verify(serviceLot).updateEmplacementLot(any(UUID.class), any(Lot.class));
+    }
+
+    @Test
+    void updateStatusLot_shouldReturn200WhenFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        Lot lot = new Lot();
+        lot.setIdLot(id);
+        lot.setStatus(StatusEnum.SHIPPED);
+        LotStatusResponseDTO statusResponse = new LotStatusResponseDTO(id, null);
+
+        when(lotMapper.lotStatusToEntity(any())).thenReturn(lot);
+        when(serviceLot.updateStatusLot(any(UUID.class), any(Lot.class))).thenReturn(lot);
+        when(lotMapper.toStatusResponse(lot)).thenReturn(statusResponse);
+
+        mockMvc.perform(put("/api/lots/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"SHIPPED\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idLot").value(id.toString()))
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.name()));
+
+        verify(serviceLot).updateStatusLot(any(UUID.class), any(Lot.class));
+    }
+
+    @Test
+    void updateStatusLot_shouldReturn404WhenNotFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(lotMapper.lotStatusToEntity(any())).thenReturn(new Lot());
+        when(serviceLot.updateStatusLot(any(UUID.class), any(Lot.class))).thenReturn(null);
+
+        mockMvc.perform(put("/api/lots/{id}/status", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.name()));
+    }
+
+    @Test
+    void getOldestLot_shouldReturn200WhenFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        Lot lot = new Lot();
+        lot.setIdLot(id);
+        LotResponseDTO dto = new LotResponseDTO();
+        dto.idLot = id;
+
+        when(serviceLot.getOldestLot()).thenReturn(lot);
+        when(lotMapper.toResponse(lot)).thenReturn(dto);
+
+        mockMvc.perform(get("/api/lots/oldestLot"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idLot").value(id.toString()));
+    }
+
+    @Test
+    void getOldestLot_shouldReturn404WhenNotFound() throws Exception {
+        when(serviceLot.getOldestLot()).thenReturn(null);
+
+        mockMvc.perform(get("/api/lots/oldestLot"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void stockOut_shouldReturn201() throws Exception {
+        UUID lotId = UUID.randomUUID();
+        UUID histId = UUID.randomUUID();
+        Historique historique = new Historique();
+        historique.setIdHistorique(histId);
+        HistoriqueResponseDto dto = new HistoriqueResponseDto();
+        dto.idHistorique = histId;
+
+        when(serviceLot.stockOut(lotId)).thenReturn(historique);
+        when(historiqueMapper.toHistoriqueResponseDto(historique)).thenReturn(dto);
+
+        mockMvc.perform(post("/api/lots/stock-out")
+                        .param("lotId", lotId.toString()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.idHistorique").value(histId.toString()))
+                .andExpect(jsonPath("$.status").value(HttpStatus.CREATED.name()));
+
+        verify(serviceLot).stockOut(lotId);
+    }
+
+    @Test
+    void getAllMesuresByLotId_shouldReturn200WhenFound() throws Exception {
+        UUID lotId = UUID.randomUUID();
+        Mesure mesure = new Mesure();
+        MesureLotResponseDTO dto = new MesureLotResponseDTO();
+
+        when(serviceLot.getAllMesuresByLotId(lotId)).thenReturn(Optional.of(List.of(mesure)));
+        when(mesureMapper.toDtoforLot(mesure)).thenReturn(dto);
+
+        mockMvc.perform(get("/api/lots/getAllMesuresByLotId/{id}", lotId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        verify(serviceLot).getAllMesuresByLotId(lotId);
+    }
+
+    @Test
+    void getAllMesuresByLotId_shouldReturn404WhenEmpty() throws Exception {
+        UUID lotId = UUID.randomUUID();
+        when(serviceLot.getAllMesuresByLotId(lotId)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/lots/getAllMesuresByLotId/{id}", lotId))
+                .andExpect(status().isNotFound());
     }
 }

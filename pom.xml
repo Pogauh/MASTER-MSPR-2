@@ -171,6 +171,51 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
+                <configuration>
+                    <excludes>
+                        <exclude>fr/epsi/mspr2/Main.class</exclude>
+                        <exclude>fr/epsi/mspr2/infrastructure/mapper/*MapperImpl.class</exclude>
+                        <exclude>fr/epsi/mspr2/infrastructure/dto/**</exclude>
+                        <exclude>fr/epsi/mspr2/domain/models/**</exclude>
+                        <exclude>fr/epsi/mspr2/infrastructure/config/**</exclude>
+                        <exclude>fr/epsi/mspr2/domain/simulateur/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals><goal>prepare-agent</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals><goal>report</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals><goal>check</goal></goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

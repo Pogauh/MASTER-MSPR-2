@@ -36,6 +36,9 @@ public class LotUpdateSteps {
     @Autowired
     private HistoriqueService historiqueService;
 
+    @Autowired
+    private ScenarioContext scenarioContext;
+
     private UUID idLot;
     private LotRequestDTO requestDTO;
     private MvcResult result;
@@ -45,6 +48,7 @@ public class LotUpdateSteps {
     @Given("un lot existant avec l'id {string}")
     public void un_lot_existant_avec_l_id(String idLot) {
         this.idLot = UUID.fromString(idLot);
+        scenarioContext.currentLotId = this.idLot;
         existingLot = new Lot();
         existingLot.setIdLot(this.idLot);
         when(jpaLotRepository.findByIdWithHistorique(this.idLot)).thenReturn(Optional.of(existingLot));
@@ -54,6 +58,7 @@ public class LotUpdateSteps {
     @Given("un lot inexistant avec l'id {string}")
     public void un_lot_inexistant_avec_l_id(String idLot) {
         this.idLot = UUID.fromString(idLot);
+        scenarioContext.currentLotId = this.idLot;
         when(jpaLotRepository.findByIdWithHistorique(this.idLot)).thenReturn(Optional.empty());
     }
 
