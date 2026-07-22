@@ -1,18 +1,22 @@
 package fr.epsi.mspr2.api.controller;
 
+import fr.epsi.mspr2.domain.models.Capteur;
+import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.domain.services.CapteurService;
+import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
 import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class CapteurControllerTest {
 
@@ -23,7 +27,8 @@ class CapteurControllerTest {
     @BeforeEach
     void setUp() {
         serviceCapteur = mock(CapteurService.class);
-        CapteurController controller = new CapteurController(serviceCapteur,mesureMapper);
+        mesureMapper = mock(MesureMapper.class);
+        CapteurController controller = new CapteurController(serviceCapteur, mesureMapper);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -34,6 +39,36 @@ class CapteurControllerTest {
 
         mockMvc.perform(get("/api/capteurs/{capteurId}/mesures", capteurId))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getMesuresByCapteurId_shouldReturn200WithList() throws Exception {
+        UUID capteurId = UUID.randomUUID();
+        Capteur capteur = new Capteur();
+        capteur.setIdCapteur(capteurId);
+        Mesure mesure = new Mesure();
+        mesure.setIdMesure(UUID.randomUUID());
+        mesure.setCapteur(capteur);
+
+        MesureResponseDTO dto = new MesureResponseDTO();
+        dto.idCapteur = capteurId;
+
+        when(serviceCapteur.getMesuresByCapteurId(capteurId)).thenReturn(List.of(mesure));
+        when(mesureMapper.toResponse(mesure)).thenReturn(dto);
+
+        mockMvc.perform(get("/api/capteurs/{capteurId}/mesures", capteurId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].idCapteur").value(capteurId.toString()));
+    }
+
+    @Test
+    void getMesuresByCapteurId_shouldReturn400WhenIllegalArgument() throws Exception {
+        UUID capteurId = UUID.randomUUID();
+        when(serviceCapteur.getMesuresByCapteurId(capteurId))
+                .thenThrow(new IllegalArgumentException("capteurId est obligatoire"));
+
+        mockMvc.perform(get("/api/capteurs/{capteurId}/mesures", capteurId))
+                .andExpect(status().isBadRequest());
     }
 
 //    @Test

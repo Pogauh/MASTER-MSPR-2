@@ -3,6 +3,7 @@ package fr.epsi.mspr2.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.epsi.mspr2.domain.models.Mesure;
 import fr.epsi.mspr2.infrastructure.dto.MesureRequestDTO;
+import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
 import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
 import fr.epsi.mspr2.domain.services.MesureService;
 import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
@@ -86,6 +87,29 @@ class MesureControllerTest {
                 .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.name()));
 
         verify(serviceMesure).deleteMesure(id);
+    }
+
+    @Test
+    void getMesureById_shouldReturn200WhenFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        MesureResponseDTO dto = new MesureResponseDTO();
+        dto.idMesure = id;
+        when(serviceMesure.getMesureById(id)).thenReturn(dto);
+
+        mockMvc.perform(get("/api/mesures/getMesure/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.idMesure").value(id.toString()));
+
+        verify(serviceMesure).getMesureById(id);
+    }
+
+    @Test
+    void getMesureById_shouldReturnNullBodyWhenNotFound() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(serviceMesure.getMesureById(id)).thenReturn(null);
+
+        mockMvc.perform(get("/api/mesures/getMesure/{id}", id))
+                .andExpect(status().isOk());
     }
 }
 
