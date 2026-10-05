@@ -1,18 +1,22 @@
 package fr.epsi.mspr2.api.controller;
 
+import fr.epsi.mspr2.api.dto.HistoriqueDto;
+import fr.epsi.mspr2.api.mapper.HistoriqueMapper;
 import fr.epsi.mspr2.domain.models.Historique;
 import fr.epsi.mspr2.domain.models.TypeHistoriqueEnum;
 import fr.epsi.mspr2.domain.services.HistoriqueService;
-import fr.epsi.mspr2.infrastructure.dto.HistoriqueDto;
-import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/historique")
 public class HistoriqueController {
@@ -24,9 +28,7 @@ public class HistoriqueController {
     public ResponseEntity<List<HistoriqueDto>> getAllHistoriquesForLot(@PathVariable("idLot") UUID idLot,
                                                                        @RequestParam(value = "type", required = false) String type) {
         if (type == null || type.isBlank()) {
-            return ResponseEntity.ok(historiqueService.findAllHistoriquesForLot(idLot).stream()
-                    .map(historiqueMapper::toDto)
-                    .toList());
+            return ResponseEntity.ok(toDtos(historiqueService.findAllHistoriquesForLot(idLot)));
         }
 
         String normalized = type.trim().toUpperCase();
@@ -41,9 +43,10 @@ public class HistoriqueController {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(historiqueService.findAllHistoriquesForLotByType(idLot, enumType)
-                .stream()
-                .map(historiqueMapper::toDto)
-                .toList());
+        return ResponseEntity.ok(toDtos(historiqueService.findAllHistoriquesForLotByType(idLot, enumType)));
+    }
+
+    private List<HistoriqueDto> toDtos(List<Historique> historiques) {
+        return historiques.stream().map(historiqueMapper::toDto).toList();
     }
 }

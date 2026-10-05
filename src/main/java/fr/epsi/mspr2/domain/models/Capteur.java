@@ -1,41 +1,23 @@
 package fr.epsi.mspr2.domain.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
 
-@Entity
-@Table(name = "capteur")
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Capteur {
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id_capteur", updatable = false, nullable = false)
     private UUID idCapteur;
-
-    @Column(name = "code_serie", length = 50, nullable = false, unique = true)
     private String codeSerie;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_zone", nullable = false, unique = true )
-    @JsonIgnore
     private Zone zone;
 
-    @Transient
+    /** L'entrepôt d'un capteur est celui de la zone qu'il surveille. */
     public Entrepot getEntrepot() {
         return zone != null ? zone.getEntrepot() : null;
-    }
-
-    public void setEntrepot(Entrepot entrepot) {
-        if (zone == null) {
-            zone = new Zone();
-        }
-        zone.setEntrepot(entrepot);
     }
 }

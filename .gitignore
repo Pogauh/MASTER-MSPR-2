@@ -42,3 +42,7 @@ build/
 # Mosquitto runtime files
 mosquitto/data/
 mosquitto/log/
+
+# SonarQube
+.sonar/
+.scannerwork/

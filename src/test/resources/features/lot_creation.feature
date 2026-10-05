@@ -1,14 +1,18 @@
 # language: fr
-Fonctionnalité: Creation de lot
+Fonctionnalité: Création de lot
 
-  Scénario: Creation d'un lot valide
-    Étant donné un lot a creer avec statut "COMPLIANT", quantite 40, caracteristique 1, id exploitation "aa0e8400-e29b-41d4-a716-446655440022" et id zone "cd2ba9e5-e5df-4970-89ff-3bfa84004c4f"
-    Quand je cree le lot via l'API
-    Alors la reponse est 201 et un id de lot est retourne
-    Et le lot est persiste avec l'exploitation et la zone
+  Contexte:
+    Étant donné une exploitation "Flamenco"
+    Et un entrepôt "Principal" avec une zone "A"
 
-  Scénario: Creation d'un lot sans exploitation
-    Étant donné un lot a creer sans exploitation avec statut "COMPLIANT", quantite 40, caracteristique 1 et id zone "cd2ba9e5-e5df-4970-89ff-3bfa84004c4f"
-    Quand je cree le lot via l'API
-    Alors une erreur est levee avec le message "L'id de l'exploitation est obligatoire pour enregistrer un lot"
-    Et le lot n'est pas persiste
+  Scénario: Création d'un lot valide
+    Étant donné un lot à créer avec statut "COMPLIANT", quantité 40, caractéristique 1 dans la zone "A"
+    Quand je crée le lot via l'API
+    Alors la réponse est 201 et un id de lot est retourné
+    Et le lot est enregistré avec l'exploitation et la zone
+
+  Scénario: Création d'un lot sans exploitation
+    Étant donné un lot à créer sans exploitation avec statut "COMPLIANT", quantité 40, caractéristique 1 dans la zone "A"
+    Quand je crée le lot via l'API
+    Alors une erreur est levée avec le message "L'id de l'exploitation est obligatoire pour enregistrer un lot"
+    Et le lot n'est pas enregistré

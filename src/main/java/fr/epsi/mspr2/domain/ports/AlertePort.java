@@ -1,16 +1,22 @@
 package fr.epsi.mspr2.domain.ports;
 
+import fr.epsi.mspr2.domain.models.Alerte;
 import fr.epsi.mspr2.domain.models.AlerteDetails;
-import fr.epsi.mspr2.domain.models.Mesure;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public interface AlertePort {
-    void sendAlerte(Mesure mesure);
 
-    List<AlerteDetails> findAlerteByEntrepot(UUID idEntrepot, LocalDateTime startDate, LocalDateTime endDate);
+    /** Persiste l'alerte et renvoie son état persistant (identifiant généré compris). */
+    Alerte save(Alerte alerte);
 
-    boolean isCompatible(Mesure mesure);
+    /**
+     * Alertes déclenchées par les capteurs d'un entrepôt, éventuellement bornées dans le temps
+     * (une borne {@code null} n'applique aucune limite).
+     */
+    List<AlerteDetails> findDetailsByEntrepotId(UUID idEntrepot, LocalDateTime start, LocalDateTime end);
+
+    int countByDateEmissionBetween(LocalDateTime start, LocalDateTime end);
 }
