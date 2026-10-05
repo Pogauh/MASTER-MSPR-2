@@ -1,16 +1,24 @@
 # language: fr
-Fonctionnalité: Mise a jour de l'emplacement d'un lot
-  Scénario: Mise a jour reussie de l'emplacement d'un lot
-    Étant donné un lot existant avec l'id "f10e4567-e89b-12d3-a456-426614174000"
-    Et des nouvelles donnees d'emplacement avec id exploitation "aa0e8400-e29b-41d4-a716-446655440022" et id zone "cd2ba9e5-e5df-4970-89ff-3bfa84004c4f"
-    Quand je mets a jour l'emplacement du lot via l'API
-    Alors la reponse de mise a jour est 200
-    Et l'historique de transfert est cree
-    Et l'emplacement du lot est mis a jour
+Fonctionnalité: Mise à jour de l'emplacement d'un lot
 
-  Scénario: Mise a jour d'un lot inexistant
-    Étant donné un lot inexistant avec l'id "f10e4567-e89b-12d3-a456-426614174000"
-    Et des nouvelles donnees d'emplacement avec id exploitation "aa0e8400-e29b-41d4-a716-446655440022" et id zone "cd2ba9e5-e5df-4970-89ff-3bfa84004c4f"
-    Quand je mets a jour l'emplacement du lot via l'API
-    Alors la reponse de mise a jour est 404
+  Contexte:
+    Étant donné une exploitation "Flamenco"
+    Et un entrepôt "Principal" avec une zone "A"
+    Et la zone "B" dans l'entrepôt "Principal"
+    Et un lot "L1" conforme de 100 kg stocké dans la zone "A"
 
+  Scénario: Mise à jour réussie de l'emplacement d'un lot
+    Quand je déplace le lot "L1" vers la zone "B"
+    Alors la réponse est 200
+    Et le lot "L1" est dans la zone "B"
+    Et un transfert de la zone "A" vers la zone "B" est enregistré dans l'historique du lot "L1"
+
+  Scénario: Transfert vers la zone où se trouve déjà le lot
+    Quand je déplace le lot "L1" vers la zone "A"
+    Alors la réponse est 400
+    Et le message d'erreur est "Erreur de transfert : l'emplacement de destination est identique à l'emplacement actuel."
+    Et aucun transfert n'est enregistré
+
+  Scénario: Mise à jour d'un lot inexistant
+    Quand je déplace un lot inexistant vers la zone "B"
+    Alors la réponse est 404

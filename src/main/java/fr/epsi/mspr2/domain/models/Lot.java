@@ -1,10 +1,9 @@
 package fr.epsi.mspr2.domain.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,68 +11,66 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Table(name = "lot")
+/** Lot de café stocké dans une zone d'un entrepôt, issu d'une exploitation. */
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Lot {
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID" , strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id_lot", updatable = false, nullable = false)
+
+    /** Un lot est périmé quand il a été produit il y a plus d'un an. */
+    private static final int DUREE_DE_VIE_EN_ANNEES = 1;
+
     private UUID idLot;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20)
     private StatusEnum status;
-
-    @Column(name = "quantite")
     private Integer quantite;
-
-    @Column(name = "caracteristique")
     private Integer caracteristique;
-
-    @Column(name = "date_sortie")
     private LocalDateTime dateSortie;
-
-    @Column(name = "date_stockage")
     private LocalDateTime dateStockage;
-
-    @Column(name = "date_production")
     private LocalDate dateProduction;
-
-    @ManyToOne
-    @JoinColumn(name = "id_exploitation", nullable = false)
     private Exploitation exploitation;
-
-    @ManyToOne
-    @JoinColumn(name = "id_zone", nullable = false)
-    @JsonIgnore
     private Zone zone;
-
-    @OneToMany(mappedBy = "lot", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @Builder.Default
     private List<Historique> historique = new ArrayList<>();
 
-    @PrePersist
-    public void applyDefaults() {
-        if (status == null ) {
-            status = StatusEnum.COMPLIANT;
-        }
-        if (dateStockage == null) {
-            dateStockage = LocalDateTime.now();
-        }
-    }
-
-    @Transient
+    /** L'entrepôt d'un lot est celui de la zone dans laquelle il est stocké. */
     public Entrepot getEntrepot() {
         return zone != null ? zone.getEntrepot() : null;
     }
 
-    public void setEntrepot(Entrepot entrepot) {
-        if (zone == null) {
-            zone = new Zone();
+    /** Entrée en stock : la date de stockage est celle du jour et un lot sans statut est conforme. */
+    public void enregistrerStockage(LocalDateTime date) {
+        if (status == null) {
+            status = StatusEnum.COMPLIANT;
         }
-        zone.setEntrepot(entrepot);
+        dateStockage = date;
+    }
+
+    /** Les lots produits avant cette date sont périmés. */
+    public static LocalDate dateLimiteDeProduction(LocalDate aujourdhui) {
+        return aujourdhui.minusYears(DUREE_DE_VIE_EN_ANNEES);
+    }
+
+    public boolean estExpire(LocalDate aujourdhui) {
+        return dateProduction != null
+                && dateProduction.isBefore(dateLimiteDeProduction(aujourdhui))
+                && status != StatusEnum.EXPIRED;
+    }
+
+    public void passerEnAlerte() {
+        status = StatusEnum.ALERT;
+    }
+
+    public void expirer() {
+        status = StatusEnum.EXPIRED;
+    }
+
+    public void expedier(LocalDateTime date) {
+        status = StatusEnum.SHIPPED;
+        dateSortie = date;
+    }
+
+    public void deplacerVers(UUID idZone) {
+        zone = Zone.builder().idZone(idZone).build();
     }
 }

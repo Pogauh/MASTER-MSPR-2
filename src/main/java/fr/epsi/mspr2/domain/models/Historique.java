@@ -1,44 +1,60 @@
 package fr.epsi.mspr2.domain.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "historique")
+/** Événement de la vie d'un lot : transfert de zone, alerte ou expédition. */
 @Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Historique {
-    @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(name = "id_historique", updatable = false, nullable = false)
     private UUID idHistorique;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", length = 50)
     private TypeHistoriqueEnum type;
-
-    @Column(name = "date_emission")
     private LocalDateTime dateEmission;
-
-    @Column(name = "zone_precedente")
     private UUID zonePrecedente;
-
-    @Column(name = "zone_actuelle")
     private UUID zoneActuelle;
-
-    @Column(name = "detail", length = 255)
     private String detail;
+    private UUID idLot;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_lot", nullable = false)
-    @JsonIgnore
-    private Lot lot;
+    /** Transfert du lot vers une autre zone. */
+    public static Historique transfert(Lot lot, UUID idZoneDestination, LocalDateTime date) {
+        UUID idZoneOrigine = lot.getZone().getIdZone();
+        return Historique.builder()
+                .type(TypeHistoriqueEnum.TRANSFERT)
+                .dateEmission(date)
+                .zonePrecedente(idZoneOrigine)
+                .zoneActuelle(idZoneDestination)
+                .detail("Transfert du lot " + lot.getIdLot() + " de la zone " + idZoneOrigine + " vers la zone " + idZoneDestination)
+                .idLot(lot.getIdLot())
+                .build();
+    }
+
+    /** Alerte ayant touché le lot : il reste dans sa zone. */
+    public static Historique alerte(Lot lot, String detail, LocalDateTime date) {
+        UUID idZone = lot.getZone().getIdZone();
+        return Historique.builder()
+                .type(TypeHistoriqueEnum.ALERTE)
+                .dateEmission(date)
+                .zonePrecedente(idZone)
+                .zoneActuelle(idZone)
+                .detail(detail)
+                .idLot(lot.getIdLot())
+                .build();
+    }
+
+    /** Sortie de stock (expédition) du lot. */
+    public static Historique expedition(UUID idLot, LocalDateTime date) {
+        return Historique.builder()
+                .type(TypeHistoriqueEnum.SHIPPED)
+                .dateEmission(date)
+                .detail("Le lot a été expédié.")
+                .idLot(idLot)
+                .build();
+    }
 }
-

@@ -20,7 +20,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -29,8 +29,11 @@ spring:
 app:
   mail:
     responsable: ${MAIL_RESPONSABLE:ultrabaga@hotmail.com}
+    from: ${MAIL_FROM:ultrabaga@hotmail.com}
 
   apiName: ${API_NAME:bresil}
+  simulator:
+    enabled: ${SIMULATOR_ENABLED:true}
   alert:
     tolerences:
       temperature-ideale: ${TEMPERATURE_IDEALE:29}
@@ -44,6 +47,7 @@ springdoc:
     description: API documentation for FutureKawa Backend
 
 mqtt:
+  enabled: ${MQTT_ENABLED:true}
   broker-uri: ${MQTT_BROKER_URI:tcp://localhost:1883}
   topic: ${MQTT_TOPIC:futurekawa/bresil/entrepot1/data}
   outbound-default-topic: ${MQTT_OUTBOUND_DEFAULT_TOPIC:futurekawa/default}

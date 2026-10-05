@@ -1,34 +1,32 @@
 package fr.epsi.mspr2.gherkin;
 
-import fr.epsi.mspr2.api.controller.LotControlleur;
-import fr.epsi.mspr2.domain.services.LotService;
-import fr.epsi.mspr2.domain.services.HistoriqueService;
-import fr.epsi.mspr2.infrastructure.adapters.LotAdapter;
-import fr.epsi.mspr2.infrastructure.jpa.JpaHistoriqueRepository;
-import fr.epsi.mspr2.infrastructure.jpa.JpaLotRepository;
-import fr.epsi.mspr2.infrastructure.jpa.JpaMesureRepository;
-import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapper;
-import fr.epsi.mspr2.infrastructure.mapper.HistoriqueMapperImpl;
-import fr.epsi.mspr2.infrastructure.mapper.LotMapperImpl;
-import fr.epsi.mspr2.infrastructure.mapper.MesureMapperImpl;
 import io.cucumber.spring.CucumberContextConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import io.cucumber.spring.ScenarioScope;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ActiveProfiles;
 
+/** Les scénarios s'exécutent sur l'application complète (REST, domaine, JPA/H2), sans broker MQTT ni vrai SMTP. */
 @CucumberContextConfiguration
-@WebMvcTest(controllers = LotControlleur.class)
-@Import({LotService.class, LotAdapter.class, LotMapperImpl.class, MesureMapperImpl.class, HistoriqueMapperImpl.class})
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class CucumberSpringConfiguration {
-    @MockBean
-    private JpaLotRepository jpaLotRepository;
 
     @MockBean
-    private HistoriqueService historiqueService;
+    JavaMailSender mailSender;
 
-    @MockBean
-    private JpaMesureRepository jpaMesureRepository;
+    @TestConfiguration
+    static class ScenarioBeans {
 
-    @MockBean
-    private JpaHistoriqueRepository historiqueJpaRepository;
+        @Bean
+        @ScenarioScope
+        ScenarioContext scenarioContext() {
+            return new ScenarioContext();
+        }
+    }
 }

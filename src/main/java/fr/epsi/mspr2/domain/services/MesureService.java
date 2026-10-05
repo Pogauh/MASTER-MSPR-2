@@ -1,46 +1,55 @@
 package fr.epsi.mspr2.domain.services;
 
-import fr.epsi.mspr2.domain.models.MesureRequest;
-import fr.epsi.mspr2.infrastructure.dto.MesureResponseDTO;
-import fr.epsi.mspr2.infrastructure.dto.MesureStatusResponseDTO;
+import fr.epsi.mspr2.domain.models.Capteur;
 import fr.epsi.mspr2.domain.models.Mesure;
+import fr.epsi.mspr2.domain.models.NouvelleMesure;
 import fr.epsi.mspr2.domain.ports.MesurePort;
+import lombok.RequiredArgsConstructor;
 
-import fr.epsi.mspr2.infrastructure.mapper.MesureMapper;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
-@AllArgsConstructor
-@Service
+@RequiredArgsConstructor
 public class MesureService {
 
     private final MesurePort mesurePort;
     private final AlerteService alerteService;
-    private final MesureMapper mesureMapper;
+    private final Clock clock;
 
-    public MesureStatusResponseDTO createMesure(MesureRequest mesureRequest) {
-        if (mesureRequest.idCapteur == null) {
+    /**
+     * Enregistre la mesure d'un capteur puis vérifie si elle déclenche une alerte.
+     * La mesure reste enregistrée même si l'évaluation de l'alerte échoue.
+     */
+    public Mesure createMesure(NouvelleMesure nouvelleMesure) {
+        if (nouvelleMesure.idCapteur() == null) {
             throw new IllegalArgumentException("idCapteur est obligatoire");
         }
-
-        mesurePort.save(mesureMapper.mesureRequestToMesureEntity(mesureRequest));
-        alerteService.sendAlerte(mesureMapper.mesureRequestToMesureEntity(mesureRequest));
-        return mesureMapper.toStatusResponse(mesureMapper.mesureRequestToMesureEntity(mesureRequest));
-    }
-
-    public MesureResponseDTO getMesureById(UUID idMesure) {
-        Mesure mesure = mesurePort.findById(idMesure);
-        return mesure != null ? mesureMapper.toResponse(mesure) : null;
-    }
-
-    public MesureStatusResponseDTO deleteMesure(UUID idMesure) {
-        Mesure mesure = mesurePort.findById(idMesure);
-        if (mesure != null) {
-            mesurePort.delete(idMesure);
-            return mesureMapper.toStatusResponse(mesure);
+        if (nouvelleMesure.temperature() == null || nouvelleMesure.humidite() == null) {
+            throw new IllegalArgumentException("La mesure doit contenir temperature et humidite");
         }
-        return null;
+
+        Mesure mesure = Mesure.builder()
+                .temperature(nouvelleMesure.temperature())
+                .humidite(nouvelleMesure.humidite())
+                .dateMesure(nouvelleMesure.dateMesure() != null ? nouvelleMesure.dateMesure() : LocalDateTime.now(clock))
+                .capteur(Capteur.builder().idCapteur(nouvelleMesure.idCapteur()).build())
+                .build();
+
+        Mesure enregistree = mesurePort.save(mesure);
+        alerteService.evaluerMesure(enregistree);
+        return enregistree;
+    }
+
+    public Optional<Mesure> getMesureById(UUID idMesure) {
+        return mesurePort.findById(idMesure);
+    }
+
+    /** @return la mesure supprimée, ou vide si elle n'existe pas */
+    public Optional<Mesure> deleteMesure(UUID idMesure) {
+        Optional<Mesure> mesure = mesurePort.findById(idMesure);
+        mesure.ifPresent(m -> mesurePort.deleteById(idMesure));
+        return mesure;
     }
 }

@@ -1,84 +1,78 @@
 package fr.epsi.mspr2.domain.services;
 
-import fr.epsi.mspr2.domain.models.*;
-import fr.epsi.mspr2.domain.ports.EntrepotPort;
+import fr.epsi.mspr2.domain.models.Capteur;
+import fr.epsi.mspr2.domain.models.CapteurSummary;
+import fr.epsi.mspr2.domain.models.Entrepot;
+import fr.epsi.mspr2.domain.models.Mesure;
+import fr.epsi.mspr2.domain.models.Zone;
+import fr.epsi.mspr2.domain.models.ZoneSummary;
 import fr.epsi.mspr2.domain.ports.CapteurPort;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
+import fr.epsi.mspr2.domain.ports.EntrepotPort;
+import fr.epsi.mspr2.domain.ports.MesurePort;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
-@AllArgsConstructor
-@Service
+@RequiredArgsConstructor
 public class EntrepotService {
+
     private final EntrepotPort entrepotPort;
     private final CapteurPort capteurPort;
+    private final MesurePort mesurePort;
+    private final Clock clock;
 
     public List<Entrepot> getAllEntrepots() {
         return entrepotPort.findAll();
     }
 
+    /** Pour chaque capteur de l'entrepôt : dernière mesure et moyennes des dernières 24 heures. */
     public List<CapteurSummary> getCapteurSummaryByEntrepotId(UUID entrepotId) {
         if (entrepotId == null) {
             throw new IllegalArgumentException("Entrepot ID ne peut pas être null");
         }
 
-        List<Capteur> capteurs = capteurPort.findByEntrepotId(entrepotId);
-        LocalDateTime last24h = LocalDateTime.now().minusHours(24);
-
-        return capteurs.stream().map(c -> {
-            List<Mesure> mesures = capteurPort.findMesuresByCapteurId(c.getIdCapteur());
-
-            Mesure last = mesures.stream()
-                .filter(m -> m.getDateMesure() != null)
-                .max(Comparator.comparing(Mesure::getDateMesure))
-                .orElse(null);
-
-            List<Mesure> mesures24 = mesures.stream()
-                .filter(m -> m.getDateMesure() != null && !m.getDateMesure().isBefore(last24h))
+        LocalDateTime depuis24h = LocalDateTime.now(clock).minusHours(24);
+        return capteurPort.findByEntrepotId(entrepotId).stream()
+                .map(capteur -> resumer(capteur, depuis24h))
                 .toList();
-
-            BigDecimal avgTemp = average(mesures24
-                    .stream()
-                    .map(Mesure::getTemperature)
-                    .filter(Objects::nonNull)
-                    .toList()
-            );
-            BigDecimal avgHumi = average(mesures24
-                    .stream()
-                    .map(Mesure::getHumidite)
-                    .filter(Objects::nonNull)
-                    .toList());
-
-            BigDecimal lastTemp = last != null ? last.getTemperature() : null;
-            BigDecimal lastHumi = last != null ? last.getHumidite() : null;
-
-            Zone zone = c.getZone();
-            UUID zoneId = zone != null ? zone.getIdZone() : null;
-            String zoneName = zone != null ? zone.getNom() : null;
-
-            return new CapteurSummary(zoneId, zoneName, lastTemp, lastHumi, avgTemp, avgHumi);
-        }).toList();
     }
 
-    public List<ZoneResponse> findZonesByEntrepotId(UUID idEntrepot) {
+    public List<ZoneSummary> findZonesByEntrepotId(UUID idEntrepot) {
         if (idEntrepot == null) {
             throw new IllegalArgumentException("ID de zone ne peut pas être null");
         }
-        return entrepotPort.findZoneByIdEntrepot(idEntrepot);
+        return entrepotPort.findZoneSummariesByEntrepotId(idEntrepot);
     }
 
-    private BigDecimal average(List<BigDecimal> values) {
-        if (values == null || values.isEmpty()) {
+    private CapteurSummary resumer(Capteur capteur, LocalDateTime depuis24h) {
+        Optional<Mesure> derniere = mesurePort.findLatestByCapteurId(capteur.getIdCapteur(), 1).stream().findFirst();
+        List<Mesure> mesures24h = mesurePort.findByCapteurIdSince(capteur.getIdCapteur(), depuis24h);
+
+        BigDecimal temperatureMoyenne = moyenne(mesures24h.stream().map(Mesure::getTemperature).filter(Objects::nonNull).toList());
+        BigDecimal humiditeMoyenne = moyenne(mesures24h.stream().map(Mesure::getHumidite).filter(Objects::nonNull).toList());
+
+        Zone zone = capteur.getZone();
+        return new CapteurSummary(
+                zone != null ? zone.getIdZone() : null,
+                zone != null ? zone.getNom() : null,
+                derniere.map(Mesure::getTemperature).orElse(null),
+                derniere.map(Mesure::getHumidite).orElse(null),
+                temperatureMoyenne,
+                humiditeMoyenne);
+    }
+
+    private BigDecimal moyenne(List<BigDecimal> valeurs) {
+        if (valeurs.isEmpty()) {
             return null;
         }
-        BigDecimal sum = values.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        return sum.divide(BigDecimal.valueOf(values.size()), 2, RoundingMode.HALF_UP);
+        BigDecimal somme = valeurs.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return somme.divide(BigDecimal.valueOf(valeurs.size()), 2, RoundingMode.HALF_UP);
     }
 }

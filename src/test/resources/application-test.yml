@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    # Base H2 en mémoire propre à chaque contexte Spring de test, en mode de compatibilité PostgreSQL
+    url: jdbc:h2:mem:${random.uuid};MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  mail:
+    host: localhost
+    port: 3025
+    username:
+    password:
+
+app:
+  mail:
+    responsable: responsable@futurekawa.test
+  simulator:
+    enabled: false
+
+# Pas de broker MQTT pendant les tests : les messages sont injectés directement dans le canal d'entrée.
+mqtt:
+  enabled: false
