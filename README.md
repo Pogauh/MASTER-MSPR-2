@@ -241,11 +241,53 @@ mvn verify     # + tests d'intégration (*IT) : API complète sur H2, Cucumber, 
 
 - Les tests `*PostgresIT` et `MqttBrokerIT` sont **ignorés automatiquement si Docker n'est pas disponible**.
 - Les tests unitaires tournent avec Surefire, les `*IT` avec Failsafe (`mvn verify`).
-- Couverture (facultatif) : `mvn org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent verify org.jacoco:jacoco-maven-plugin:0.8.12:report` puis `target/site/jacoco/index.html`.
+- Couverture : `mvn verify` écrit le rapport JaCoCo (tests unitaires + intégration) dans `target/site/jacoco/index.html` — voir la section 10.
 
-CI GitHub Actions : `dev-ci.yml` et `master-ci.yml` exécutent `mvn clean verify` ; `master-ci.yml` publie ensuite l'image Docker.
+CI GitHub Actions : `dev-ci.yml` et `master-ci.yml` exécutent `mvn clean verify` et publient le rapport de couverture (artefact `jacoco-report-<run>`) ; `master-ci.yml` publie ensuite l'image Docker. Un job SonarQube y est prévu mais désactivé (section 10).
 
-## 10) Points de vigilance pour les contributeurs
+## 10) Qualité de code et couverture (SonarQube)
+
+**Couverture JaCoCo.** `mvn verify` mesure la couverture des tests unitaires et d'intégration et écrit le rapport dans
+`target/site/jacoco/index.html` (HTML) et `target/site/jacoco/jacoco.xml` (lu par SonarQube). Le code généré par Lombok
+(`lombok.config`) et les implémentations MapStruct sont ignorés. En CI, le rapport est publié comme artefact `jacoco-report-<run>`.
+
+**SonarQube en local.** Il est défini dans le `docker-compose.yml` sous le profil `sonar` : il n'est **pas** démarré par un simple
+`docker compose up`.
+
+```powershell
+docker compose --profile sonar up -d     # SonarQube + sa base PostgreSQL : http://localhost:9000 (admin / admin, à changer au premier accès)
+```
+
+1. Créer un jeton dans SonarQube : *My Account > Security > Generate Tokens* (type « Global Analysis Token »).
+2. Lancer les tests puis l'analyse. Le projet `futurekawa-backend-pays` est créé à la première analyse :
+
+```powershell
+mvn verify
+mvn sonar:sonar "-Dsonar.token=<jeton>"      # ou : $env:SONAR_TOKEN = "<jeton>"; mvn sonar:sonar
+```
+
+3. Consulter `http://localhost:9000/dashboard?id=futurekawa-backend-pays` : couverture, bugs, vulnérabilités, duplications, Quality Gate.
+
+`docker compose --profile sonar down` arrête SonarQube (`-v` efface aussi ses données). Le profil désactive le contrôle `vm.max_map_count`
+d'Elasticsearch (`SONAR_ES_BOOTSTRAP_CHECKS_DISABLE`) : réservé au développement.
+
+**SonarQube en CI — prévu mais désactivé.** Les jobs `sonar` de `dev-ci.yml` et `master-ci.yml` appellent le workflow réutilisable
+`.github/workflows/sonar.yml`. Ils sont ignorés tant que la variable de dépôt `SONAR_ENABLED` n'est pas à `true`, comme pour le front.
+Pour les activer :
+
+1. démarrer SonarQube (`docker compose --profile sonar up -d`) sur la machine qui héberge le runner ;
+2. enregistrer un runner **self-hosted** (Windows + Docker) sur le dépôt, car SonarQube écoute sur `localhost:9000` ;
+3. créer le secret `SONAR_TOKEN` (*Settings > Secrets and variables > Actions > Secrets*) ;
+4. créer la variable `SONAR_ENABLED` = `true` (*… > Variables*).
+
+L'analyse tourne dans un conteneur `maven:3.9-eclipse-temurin-21` (seul Docker est requis sur le runner), réutilise les classes et le rapport de
+couverture produits par le job de build, attend la Quality Gate (`sonar.qualitygate.wait=true`) et publie `sonar-report.json` /
+`sonar-issues.json` en artefacts.
+
+La configuration de l'analyse (clé du projet, exclusions de couverture : `Main` et les DTO ; exclusion des tests de la détection de
+duplication) est dans les propriétés `sonar.*` du `pom.xml`.
+
+## 11) Points de vigilance pour les contributeurs
 
 - Respecter la séparation hexagonale : une nouvelle règle métier va dans `domain` (modèle ou service), une nouvelle dépendance
   technique derrière un **port** réalisé par un adaptateur de `infrastructure`.
@@ -254,7 +296,7 @@ CI GitHub Actions : `dev-ci.yml` et `master-ci.yml` exécutent `mvn clean verify
 - Toute modification du format JSON MQTT impacte le module IoT.
 - Les listes renvoyées sans tri explicite (zones d'un entrepôt, alertes, historique) n'ont pas d'ordre garanti, comme avant la refactorisation.
 
-## 11) Évolutions recommandées
+## 12) Évolutions recommandées
 
 - Gestion d'erreurs homogène via `@RestControllerAdvice` (aujourd'hui seules les erreurs de transfert sont traduites) — attention, cela
   change des codes HTTP consommés par le siège.

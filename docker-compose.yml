@@ -35,5 +35,53 @@ services:
       - "8081:8080"
     restart: always
 
+  # ------------------------------------------------------------------
+  # Qualité de code et couverture : SonarQube (profil "sonar", non démarré par défaut)
+  #   docker compose --profile sonar up -d     puis http://localhost:9000 (admin / admin au premier démarrage)
+  #   docker compose --profile sonar down      pour l'arrêter (ajouter -v pour effacer ses données)
+  # Voir le README, section « Qualité de code et couverture ».
+  # ------------------------------------------------------------------
+  sonar-db:
+    image: postgres:15-alpine
+    container_name: futurekawa-sonar-db
+    profiles: [ "sonar" ]
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonarqube
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sonar -d sonarqube" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  sonarqube:
+    image: sonarqube:26.9.0.129388-community
+    container_name: futurekawa-sonarqube
+    profiles: [ "sonar" ]
+    depends_on:
+      sonar-db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      # Environnement de développement : évite d'exiger vm.max_map_count=524288 sur l'hôte (Linux)
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_extensions:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  sonar_db_data:
+  sonar_data:
+  sonar_extensions:
+  sonar_logs:
