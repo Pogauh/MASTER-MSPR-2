@@ -34,6 +34,9 @@ app:
   apiName: ${API_NAME:bresil}
   simulator:
     enabled: ${SIMULATOR_ENABLED:true}
+    # Capteurs réels à ne jamais simuler (identifiants séparés par des virgules ; vide = tout simuler).
+    # Par défaut : le capteur du module IoT (ESP32), zone AF de l'entrepôt principal.
+    excluded-capteurs: ${SIMULATOR_EXCLUDED_CAPTEURS:4da39f51-970b-4b9d-9a2a-d092af0d10f2}
   alert:
     tolerences:
       temperature-ideale: ${TEMPERATURE_IDEALE:29}

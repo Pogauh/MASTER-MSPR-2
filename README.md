@@ -118,6 +118,7 @@ Tout se règle par variables d'environnement (valeurs par défaut dans `src/main
 | `MQTT_TOPIC` | `futurekawa/bresil/entrepot1/data` | Topic des mesures |
 | `MQTT_OUTBOUND_DEFAULT_TOPIC` | `futurekawa/default` | Topic d'envoi par défaut |
 | `SIMULATOR_ENABLED` | `true` | `false` : désactive le simulateur de capteurs |
+| `SIMULATOR_EXCLUDED_CAPTEURS` | `4da39f51-970b-4b9d-9a2a-d092af0d10f2` | Capteurs réels à ne jamais simuler (UUID séparés par des virgules, vide = tout simuler). Par défaut : le capteur du module IoT (zone AF de l'entrepôt principal) |
 | `MAIL_HOST` / `MAIL_PORT` / `MAIL_USERNAME` / `MAIL_PASSWORD` | voir `application.yml` | Serveur SMTP |
 | `MAIL_RESPONSABLE` / `MAIL_FROM` | `ultrabaga@hotmail.com` | Destinataire / expéditeur des mails d'alerte |
 
@@ -213,7 +214,7 @@ Sans aucun lot, les rapports renvoient des zéros.
 - `MqttConfig` : canaux et connexion au broker (désactivable avec `MQTT_ENABLED=false`).
 - `MqttMesureListener` : lit les messages du topic `MQTT_TOPIC` et appelle `MesureService` ; un message illisible ou refusé est journalisé et ignoré.
 - `MqttGateway` : envoi de messages sortants.
-- `SensorSimulator` : toutes les 60 s, publie une mesure par capteur dans les plages du pays (`API_NAME`).
+- `SensorSimulator` : toutes les 60 s, publie une mesure par capteur dans les plages du pays (`API_NAME`), sauf pour les capteurs listés dans `SIMULATOR_EXCLUDED_CAPTEURS` (le capteur réel du module IoT : ses mesures ne se mélangent pas aux fausses).
 
 Format du message (identique à `POST /api/mesures`, c'est ce que publie l'ESP32 du module IoT) :
 

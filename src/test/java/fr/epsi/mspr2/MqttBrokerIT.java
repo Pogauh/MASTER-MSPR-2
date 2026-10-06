@@ -50,6 +50,7 @@ import static org.awaitility.Awaitility.await;
 class MqttBrokerIT {
 
     private static final String TOPIC = "futurekawa/test/data";
+    private static final UUID CAPTEUR_REEL = UUID.fromString("4da39f51-970b-4b9d-9a2a-d092af0d10f2");
     private static final LocalDateTime DATE_DU_MESSAGE = LocalDateTime.of(2026, 3, 15, 16, 0);
     private static final LocalDateTime DEBUT_DE_LA_SIMULATION = LocalDateTime.now().minusMinutes(1);
 
@@ -90,6 +91,10 @@ class MqttBrokerIT {
         jdbc.update("insert into entrepot (id_entrepot, localisation, nom) values (?, ?, ?)", entrepot, "Bresil", "Principal");
         jdbc.update("insert into zone (id_zone, nom, id_entrepot) values (?, ?, ?)", zone, "A", entrepot);
         jdbc.update("insert into capteur (id_capteur, code_serie, id_zone) values (?, ?, ?)", capteur, "02:AA:BB:CC:DD:01", zone);
+        // capteur réel du module IoT (zone AF), exclu de la simulation par la configuration par défaut
+        UUID zoneAf = UUID.randomUUID();
+        jdbc.update("insert into zone (id_zone, nom, id_entrepot) values (?, ?, ?)", zoneAf, "AF", entrepot);
+        jdbc.update("insert into capteur (id_capteur, code_serie, id_zone) values (?, ?, ?)", CAPTEUR_REEL, "02:AA:BB:CC:DD:AF", zoneAf);
 
         client = new MqttClient(brokerUri(), "test-client-" + UUID.randomUUID(), new MemoryPersistence());
         client.connect();
@@ -139,6 +144,19 @@ class MqttBrokerIT {
         Map<String, Object> mesure = mesuresDuCapteurDepuis(DEBUT_DE_LA_SIMULATION).get(0);
         assertThat(((BigDecimal) mesure.get("temperature")).doubleValue()).isBetween(25.0, 33.0);
         assertThat(((BigDecimal) mesure.get("humidite")).doubleValue()).isBetween(52.0, 58.0);
+    }
+
+    @Test
+    void leCapteurReelDuModuleIot_n_estJamaisSimule() {
+        // une mesure simulée arrive pour le capteur de test : le simulateur a donc bien publié pour tous les capteurs non exclus
+        await().atMost(Duration.ofSeconds(30)).pollInterval(Duration.ofMillis(500)).untilAsserted(() -> {
+            simulator.simulateSensorData();
+            assertThat(mesuresDuCapteurDepuis(DEBUT_DE_LA_SIMULATION)).isNotEmpty();
+        });
+
+        // ... mais rien n'est arrivé pour le capteur réel, même en laissant le temps aux messages de circuler
+        await().during(Duration.ofSeconds(2)).atMost(Duration.ofSeconds(5)).untilAsserted(() ->
+                assertThat(jdbc.queryForObject("select count(*) from mesure where id_capteur = ?", Integer.class, CAPTEUR_REEL)).isZero());
     }
 
     @Test

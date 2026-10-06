@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -40,7 +41,11 @@ class SensorSimulatorTest {
     CapteurPort capteurPort;
 
     private SensorSimulator simulateur(String pays) {
-        return new SensorSimulator(mqttGateway, capteurPort, objectMapper, TOPIC, pays);
+        return simulateur(pays, "");
+    }
+
+    private SensorSimulator simulateur(String pays, String capteursExclus) {
+        return new SensorSimulator(mqttGateway, capteurPort, objectMapper, TOPIC, pays, capteursExclus);
     }
 
     @ParameterizedTest(name = "{0} : {1}-{2} °C, {3}-{4} %")
@@ -98,6 +103,63 @@ class SensorSimulatorTest {
         ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
         verify(mqttGateway).sendToMqtt(payload.capture(), eq(TOPIC));
         assertThat(objectMapper.readTree(payload.getValue()).fieldNames()).toIterable().containsExactly("idCapteur", "dateMesure");
+    }
+
+    @Test
+    void unCapteurExclu_n_estJamaisSimule_lesAutresLeSont() throws Exception {
+        UUID capteurReel = UUID.randomUUID();
+        UUID capteurSimule = UUID.randomUUID();
+        when(capteurPort.findAllIds()).thenReturn(List.of(capteurReel, capteurSimule));
+        SensorSimulator simulateur = simulateur("bresil", capteurReel.toString());
+
+        for (int i = 0; i < 20; i++) {
+            simulateur.simulateSensorData();
+        }
+
+        ArgumentCaptor<String> payloads = ArgumentCaptor.forClass(String.class);
+        verify(mqttGateway, times(20)).sendToMqtt(payloads.capture(), eq(TOPIC));
+        for (String payload : payloads.getAllValues()) {
+            assertThat(objectMapper.readTree(payload).get("idCapteur").asText()).isEqualTo(capteurSimule.toString());
+        }
+    }
+
+    @Test
+    void siLeSeulCapteurEstExclu_rienNEstPublie() {
+        UUID capteurReel = UUID.randomUUID();
+        when(capteurPort.findAllIds()).thenReturn(List.of(capteurReel));
+
+        simulateur("bresil", capteurReel.toString()).simulateSensorData();
+
+        verifyNoInteractions(mqttGateway);
+    }
+
+    @Test
+    void uneExclusionInconnueNeChangeRien() {
+        UUID capteur = UUID.randomUUID();
+        when(capteurPort.findAllIds()).thenReturn(List.of(capteur));
+
+        simulateur("bresil", UUID.randomUUID().toString()).simulateSensorData();
+
+        verify(mqttGateway).sendToMqtt(anyString(), eq(TOPIC));
+    }
+
+    @Test
+    void parseCapteurs_accepteUneListeSeparee_parDesVirgules() {
+        UUID premier = UUID.randomUUID();
+        UUID second = UUID.randomUUID();
+
+        assertThat(SensorSimulator.parseCapteurs(premier + " , " + second + ",,")).containsExactlyInAnyOrder(premier, second);
+        assertThat(SensorSimulator.parseCapteurs(premier.toString())).containsExactly(premier);
+        assertThat(SensorSimulator.parseCapteurs("")).isEmpty();
+        assertThat(SensorSimulator.parseCapteurs("   ")).isEmpty();
+        assertThat(SensorSimulator.parseCapteurs(null)).isEmpty();
+    }
+
+    @Test
+    void parseCapteurs_refuseUnIdentifiantInvalide_plutotQueDeSimulerUnCapteurReel() {
+        assertThatThrownBy(() -> SensorSimulator.parseCapteurs(UUID.randomUUID() + ",pas-un-uuid"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("pas-un-uuid");
     }
 
     @Test
