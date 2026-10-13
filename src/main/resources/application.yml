@@ -8,8 +8,8 @@ spring:
   mail:
     host: ${MAIL_HOST:in-v3.mailjet.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:fe087aea0f4425a38b30689d245e5045}
-    password: ${MAIL_PASSWORD:33c15ca39f5cb70fc5be569183e587dc}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:

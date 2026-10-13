@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -33,7 +32,7 @@ public interface JpaLotRepository extends JpaRepository<LotEntity, UUID> {
     List<LotEntity> findByZoneIdZone(UUID idZone);
 
     @EntityGraph(attributePaths = {"zone", "zone.entrepot", "exploitation"})
-    List<LotEntity> findByDateProductionBefore(LocalDate date);
+    List<LotEntity> findByDateStockageBefore(LocalDateTime date);
 
     @EntityGraph(attributePaths = {"zone", "zone.entrepot", "exploitation"})
     Optional<LotEntity> findFirstByStatusOrderByDateStockageAsc(StatusEnum status);

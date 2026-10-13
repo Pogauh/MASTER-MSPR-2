@@ -3,7 +3,6 @@ package fr.epsi.mspr2.domain.ports;
 import fr.epsi.mspr2.domain.models.Lot;
 import fr.epsi.mspr2.domain.models.StatusEnum;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -27,8 +26,8 @@ public interface LotPort {
     /** Les lots de la zone, sans leur historique. */
     List<Lot> findByZoneId(UUID idZone);
 
-    /** Les lots produits avant la date donnée, sans leur historique. */
-    List<Lot> findByDateProductionBefore(LocalDate date);
+    /** Les lots stockés strictement avant la date donnée, sans leur historique. */
+    List<Lot> findByDateStockageBefore(LocalDateTime date);
 
     /** Le lot le plus anciennement stocké ayant ce statut. */
     Optional<Lot> findOldestByStatus(StatusEnum status);

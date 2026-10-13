@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Lot {
 
-    /** Un lot est périmé quand il a été produit il y a plus d'un an. */
+    /** Un lot est périmé quand il est stocké depuis plus d'un an. */
     private static final int DUREE_DE_VIE_EN_ANNEES = 1;
 
     private UUID idLot;
@@ -46,14 +46,15 @@ public class Lot {
         dateStockage = date;
     }
 
-    /** Les lots produits avant cette date sont périmés. */
-    public static LocalDate dateLimiteDeProduction(LocalDate aujourdhui) {
+    /** Les lots stockés avant cette date (jour de stockage strictement antérieur) sont périmés. */
+    public static LocalDate dateLimiteDeStockage(LocalDate aujourdhui) {
         return aujourdhui.minusYears(DUREE_DE_VIE_EN_ANNEES);
     }
 
+    /** Périmé : stocké depuis plus d'un an et pas déjà déclaré expiré. La date de production n'entre pas en compte. */
     public boolean estExpire(LocalDate aujourdhui) {
-        return dateProduction != null
-                && dateProduction.isBefore(dateLimiteDeProduction(aujourdhui))
+        return dateStockage != null
+                && dateStockage.toLocalDate().isBefore(dateLimiteDeStockage(aujourdhui))
                 && status != StatusEnum.EXPIRED;
     }
 

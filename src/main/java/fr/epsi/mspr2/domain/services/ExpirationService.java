@@ -15,7 +15,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/** Détecte les lots périmés : ils passent au statut EXPIRED et une alerte est levée pour chacun. */
+/** Détecte les lots périmés (stockés depuis plus d'un an) : ils passent au statut EXPIRED et une alerte est levée pour chacun. */
 @RequiredArgsConstructor
 public class ExpirationService {
 
@@ -29,7 +29,7 @@ public class ExpirationService {
     /** @return le nombre de lots qui viennent d'expirer */
     public int expirerLotsPerimes() {
         LocalDate aujourdhui = LocalDate.now(clock);
-        var lotsExpires = lotPort.findByDateProductionBefore(Lot.dateLimiteDeProduction(aujourdhui)).stream()
+        var lotsExpires = lotPort.findByDateStockageBefore(Lot.dateLimiteDeStockage(aujourdhui).atStartOfDay()).stream()
                 .filter(lot -> lot.estExpire(aujourdhui))
                 .toList();
         lotsExpires.forEach(this::declarerExpire);

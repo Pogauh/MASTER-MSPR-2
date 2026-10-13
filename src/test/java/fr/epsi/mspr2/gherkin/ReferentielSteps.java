@@ -82,9 +82,9 @@ public class ReferentielSteps {
         insererLot(nomLot, statut, 100, LocalDateTime.now().minusDays(jours), null, nomZone);
     }
 
-    @Given("un lot {string} produit il y a {int} jours stocké dans la zone {string}")
-    public void un_lot_produit_il_y_a_stocke_dans_la_zone(String nomLot, int jours, String nomZone) {
-        insererLot(nomLot, "COMPLIANT", 100, LocalDateTime.now().minusDays(10), LocalDate.now().minusDays(jours), nomZone);
+    @Given("un lot {string} produit il y a {int} jours et stocké depuis {int} jours dans la zone {string}")
+    public void un_lot_produit_il_y_a_et_stocke_depuis_dans_la_zone(String nomLot, int joursDepuisProduction, int joursDepuisStockage, String nomZone) {
+        insererLot(nomLot, "COMPLIANT", 100, LocalDateTime.now().minusDays(joursDepuisStockage), LocalDate.now().minusDays(joursDepuisProduction), nomZone);
     }
 
     @Then("le lot {string} a le statut {string}")

@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.when;
 class ExpirationServiceTest {
 
     private static final LocalDate AUJOURDHUI = LocalDate.of(2026, 3, 15);
-    private static final LocalDate LIMITE = AUJOURDHUI.minusYears(1);
+    private static final LocalDateTime LIMITE = AUJOURDHUI.minusYears(1).atStartOfDay();
 
     @Mock
     LotPort lotPort;
@@ -59,16 +60,16 @@ class ExpirationServiceTest {
         service = new ExpirationService(lotPort, alertePort, historiquePort, notificationPort, transaction, CLOCK);
     }
 
-    private Lot lotProduitLe(LocalDate dateProduction, StatusEnum status) {
+    private Lot lotStockeLe(LocalDateTime dateStockage, StatusEnum status) {
         Lot lot = lot(zone("A"));
-        lot.setDateProduction(dateProduction);
+        lot.setDateStockage(dateStockage);
         lot.setStatus(status);
         return lot;
     }
 
     @Test
     void aucunLotPerime_neFaitRien() {
-        when(lotPort.findByDateProductionBefore(LIMITE)).thenReturn(List.of());
+        when(lotPort.findByDateStockageBefore(LIMITE)).thenReturn(List.of());
 
         assertThat(service.expirerLotsPerimes()).isZero();
 
@@ -79,8 +80,8 @@ class ExpirationServiceTest {
 
     @Test
     void unLotPerime_expireEtDeclencheUneAlerte() {
-        Lot perime = lotProduitLe(LIMITE.minusDays(1), StatusEnum.COMPLIANT);
-        when(lotPort.findByDateProductionBefore(LIMITE)).thenReturn(List.of(perime));
+        Lot perime = lotStockeLe(LIMITE.minusDays(1), StatusEnum.COMPLIANT);
+        when(lotPort.findByDateStockageBefore(LIMITE)).thenReturn(List.of(perime));
         UUID idAlerte = UUID.randomUUID();
         when(alertePort.save(any(Alerte.class))).thenAnswer(invocation -> {
             Alerte alerte = invocation.getArgument(0);
@@ -114,11 +115,11 @@ class ExpirationServiceTest {
     @Test
     void chaqueLotExpireDansSaPropreTransaction() {
         Zone zone = zone("A");
-        Lot premier = lotProduitLe(LIMITE.minusYears(1), StatusEnum.COMPLIANT);
-        Lot second = lotProduitLe(LIMITE.minusDays(10), StatusEnum.BLOCKED);
+        Lot premier = lotStockeLe(LIMITE.minusYears(1), StatusEnum.COMPLIANT);
+        Lot second = lotStockeLe(LIMITE.minusDays(10), StatusEnum.BLOCKED);
         premier.setZone(zone);
         second.setZone(zone);
-        when(lotPort.findByDateProductionBefore(LIMITE)).thenReturn(List.of(premier, second));
+        when(lotPort.findByDateStockageBefore(LIMITE)).thenReturn(List.of(premier, second));
         when(alertePort.save(any(Alerte.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         assertThat(service.expirerLotsPerimes()).isEqualTo(2);
@@ -130,8 +131,8 @@ class ExpirationServiceTest {
 
     @Test
     void unLotDejaExpire_nEstPasTraiteDeNouveau() {
-        Lot dejaExpire = lotProduitLe(LIMITE.minusYears(1), StatusEnum.EXPIRED);
-        when(lotPort.findByDateProductionBefore(LIMITE)).thenReturn(List.of(dejaExpire));
+        Lot dejaExpire = lotStockeLe(LIMITE.minusYears(1), StatusEnum.EXPIRED);
+        when(lotPort.findByDateStockageBefore(LIMITE)).thenReturn(List.of(dejaExpire));
 
         assertThat(service.expirerLotsPerimes()).isZero();
 
@@ -141,9 +142,24 @@ class ExpirationServiceTest {
     }
 
     @Test
-    void unLotSansDateDeProductionNExpirePas() {
-        Lot sansDate = lotProduitLe(null, StatusEnum.COMPLIANT);
-        when(lotPort.findByDateProductionBefore(LIMITE)).thenReturn(List.of(sansDate));
+    void laDateDeProductionNEstPasUtilisee_etLeDomaineReverifieLesLotsRenvoyesParLePort() {
+        Lot stockeLeJourAnniversaire = lotStockeLe(LIMITE.plusHours(8), StatusEnum.COMPLIANT);
+        stockeLeJourAnniversaire.setDateProduction(AUJOURDHUI.minusYears(5));
+        Lot stockeDepuisDeuxAns = lotStockeLe(LIMITE.minusYears(1), StatusEnum.COMPLIANT);
+        stockeDepuisDeuxAns.setDateProduction(AUJOURDHUI.minusDays(2));
+        when(lotPort.findByDateStockageBefore(LIMITE)).thenReturn(List.of(stockeLeJourAnniversaire, stockeDepuisDeuxAns));
+        when(alertePort.save(any(Alerte.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertThat(service.expirerLotsPerimes()).isEqualTo(1);
+
+        assertThat(stockeDepuisDeuxAns.getStatus()).isEqualTo(StatusEnum.EXPIRED);
+        assertThat(stockeLeJourAnniversaire.getStatus()).isEqualTo(StatusEnum.COMPLIANT);
+    }
+
+    @Test
+    void unLotSansDateDeStockageNExpirePas() {
+        Lot sansDate = lotStockeLe(null, StatusEnum.COMPLIANT);
+        when(lotPort.findByDateStockageBefore(LIMITE)).thenReturn(List.of(sansDate));
 
         assertThat(service.expirerLotsPerimes()).isZero();
 
@@ -152,8 +168,8 @@ class ExpirationServiceTest {
 
     @Test
     void uneErreurDEnregistrementInterrompLeTraitement() {
-        Lot perime = lotProduitLe(LIMITE.minusDays(1), StatusEnum.COMPLIANT);
-        when(lotPort.findByDateProductionBefore(LIMITE)).thenReturn(List.of(perime));
+        Lot perime = lotStockeLe(LIMITE.minusDays(1), StatusEnum.COMPLIANT);
+        when(lotPort.findByDateStockageBefore(LIMITE)).thenReturn(List.of(perime));
         when(alertePort.save(any(Alerte.class))).thenThrow(new IllegalStateException("base indisponible"));
 
         assertThatThrownBy(() -> service.expirerLotsPerimes()).isInstanceOf(IllegalStateException.class);

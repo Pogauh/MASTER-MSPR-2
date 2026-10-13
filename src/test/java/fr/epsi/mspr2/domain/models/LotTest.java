@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 import static fr.epsi.mspr2.domain.support.Fixtures.zone;
@@ -41,29 +42,48 @@ class LotTest {
         assertThat(lot.getDateStockage()).isEqualTo(date);
     }
 
+    private static Lot lotStockeLe(LocalDateTime dateStockage, StatusEnum status) {
+        return Lot.builder().status(status).dateStockage(dateStockage).build();
+    }
+
     @Test
-    void estExpire_unLotProduitIlYAPlusDUnAnEstPerime() {
-        Lot lot = Lot.builder().status(StatusEnum.COMPLIANT).dateProduction(AUJOURDHUI.minusYears(1).minusDays(1)).build();
+    void estExpire_unLotStockeDepuisPlusDUnAnEstPerime() {
+        Lot lot = lotStockeLe(AUJOURDHUI.minusYears(1).minusDays(1).atTime(12, 0), StatusEnum.COMPLIANT);
 
         assertThat(lot.estExpire(AUJOURDHUI)).isTrue();
     }
 
     @Test
-    void estExpire_unLotProduitIlYAExactementUnAnNEstPasEncorePerime() {
-        Lot lot = Lot.builder().status(StatusEnum.COMPLIANT).dateProduction(AUJOURDHUI.minusYears(1)).build();
-
-        assertThat(lot.estExpire(AUJOURDHUI)).isFalse();
+    void estExpire_lePremierAnniversaireLeLotNEstPasEncorePerime_quelleQueSoitLHeure() {
+        for (LocalTime heure : new LocalTime[]{LocalTime.MIDNIGHT, LocalTime.NOON, LocalTime.of(23, 59, 59)}) {
+            Lot lot = lotStockeLe(AUJOURDHUI.minusYears(1).atTime(heure), StatusEnum.COMPLIANT);
+            assertThat(lot.estExpire(AUJOURDHUI)).as(heure.toString()).isFalse();
+        }
     }
 
     @Test
-    void estExpire_unLotRecentOuSansDateDeProductionNEstPasPerime() {
-        assertThat(Lot.builder().dateProduction(AUJOURDHUI.minusMonths(3)).build().estExpire(AUJOURDHUI)).isFalse();
-        assertThat(Lot.builder().dateProduction(null).build().estExpire(AUJOURDHUI)).isFalse();
+    void estExpire_unLotRecentOuSansDateDeStockageNEstPasPerime() {
+        assertThat(lotStockeLe(AUJOURDHUI.minusMonths(3).atTime(9, 0), StatusEnum.COMPLIANT).estExpire(AUJOURDHUI)).isFalse();
+        assertThat(lotStockeLe(null, StatusEnum.COMPLIANT).estExpire(AUJOURDHUI)).isFalse();
+    }
+
+    @Test
+    void estExpire_laDateDeProductionNEntrePasEnCompte() {
+        Lot produitIlYATroisAnsMaisStockeRecemment = lotStockeLe(AUJOURDHUI.minusDays(10).atTime(9, 0), StatusEnum.COMPLIANT);
+        produitIlYATroisAnsMaisStockeRecemment.setDateProduction(AUJOURDHUI.minusYears(3));
+        Lot produitHierMaisStockeDepuisDeuxAns = lotStockeLe(AUJOURDHUI.minusYears(2).atTime(9, 0), StatusEnum.COMPLIANT);
+        produitHierMaisStockeDepuisDeuxAns.setDateProduction(AUJOURDHUI.minusDays(1));
+        Lot sansDateDeProduction = lotStockeLe(AUJOURDHUI.minusYears(2).atTime(9, 0), StatusEnum.COMPLIANT);
+        sansDateDeProduction.setDateProduction(null);
+
+        assertThat(produitIlYATroisAnsMaisStockeRecemment.estExpire(AUJOURDHUI)).isFalse();
+        assertThat(produitHierMaisStockeDepuisDeuxAns.estExpire(AUJOURDHUI)).isTrue();
+        assertThat(sansDateDeProduction.estExpire(AUJOURDHUI)).isTrue();
     }
 
     @Test
     void estExpire_unLotDejaExpireNeLEstPasDeNouveau() {
-        Lot lot = Lot.builder().status(StatusEnum.EXPIRED).dateProduction(AUJOURDHUI.minusYears(3)).build();
+        Lot lot = lotStockeLe(AUJOURDHUI.minusYears(3).atTime(9, 0), StatusEnum.EXPIRED);
 
         assertThat(lot.estExpire(AUJOURDHUI)).isFalse();
     }
@@ -71,14 +91,14 @@ class LotTest {
     @Test
     void estExpire_quelqueSoitLeStatutDuLot() {
         for (StatusEnum status : new StatusEnum[]{StatusEnum.COMPLIANT, StatusEnum.ALERT, StatusEnum.BLOCKED, StatusEnum.SHIPPED}) {
-            Lot lot = Lot.builder().status(status).dateProduction(AUJOURDHUI.minusYears(2)).build();
+            Lot lot = lotStockeLe(AUJOURDHUI.minusYears(2).atTime(9, 0), status);
             assertThat(lot.estExpire(AUJOURDHUI)).as(status.name()).isTrue();
         }
     }
 
     @Test
-    void dateLimiteDeProduction_estIlYAUnAn() {
-        assertThat(Lot.dateLimiteDeProduction(AUJOURDHUI)).isEqualTo(LocalDate.of(2025, 3, 15));
+    void dateLimiteDeStockage_estIlYAUnAn() {
+        assertThat(Lot.dateLimiteDeStockage(AUJOURDHUI)).isEqualTo(LocalDate.of(2025, 3, 15));
     }
 
     @Test

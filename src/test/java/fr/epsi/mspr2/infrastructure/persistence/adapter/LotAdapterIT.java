@@ -186,15 +186,30 @@ class LotAdapterIT {
     }
 
     @Test
-    void findByDateProductionBefore_exclutLaDateLimiteEtLesLotsSansDate() {
-        LotEntity vieux = lot(zoneA, StatusEnum.COMPLIANT, 1, LocalDateTime.of(2025, 1, 1, 0, 0), LocalDate.of(2025, 3, 14));
-        lot(zoneA, StatusEnum.COMPLIANT, 1, LocalDateTime.of(2025, 1, 1, 0, 0), LocalDate.of(2025, 3, 15));
-        lot(zoneA, StatusEnum.COMPLIANT, 1, LocalDateTime.of(2025, 1, 1, 0, 0), LocalDate.of(2026, 1, 1));
-        lot(zoneA, StatusEnum.COMPLIANT, 1, LocalDateTime.of(2025, 1, 1, 0, 0), null);
+    void findByDateStockageBefore_exclutLaDateLimiteEtLesLotsSansDateDeStockage() {
+        LocalDateTime limite = LocalDateTime.of(2025, 3, 15, 0, 0);
+        LotEntity vieux = lot(zoneA, StatusEnum.COMPLIANT, 1, limite.minusSeconds(1), null);
+        lot(zoneA, StatusEnum.COMPLIANT, 1, limite, null);
+        lot(zoneA, StatusEnum.COMPLIANT, 1, limite.plusYears(1), null);
+        lot(zoneA, StatusEnum.COMPLIANT, 1, null, null);
         fixtures.flushAndClear();
 
-        assertThat(adapter.findByDateProductionBefore(LocalDate.of(2025, 3, 15)))
+        assertThat(adapter.findByDateStockageBefore(limite))
                 .extracting(Lot::getIdLot).containsExactly(vieux.getIdLot());
+    }
+
+    @Test
+    void findByDateStockageBefore_neTientPasCompteDeLaDateDeProduction() {
+        LocalDateTime limite = LocalDateTime.of(2025, 3, 15, 0, 0);
+        LotEntity stockeDepuisLongtempsProduitRecemment = lot(zoneA, StatusEnum.COMPLIANT, 1, limite.minusYears(1), LocalDate.of(2026, 1, 1));
+        lot(zoneA, StatusEnum.COMPLIANT, 1, limite.plusDays(1), LocalDate.of(2020, 1, 1));
+        fixtures.flushAndClear();
+
+        assertThat(adapter.findByDateStockageBefore(limite)).singleElement().satisfies(lot -> {
+            assertThat(lot.getIdLot()).isEqualTo(stockeDepuisLongtempsProduitRecemment.getIdLot());
+            assertThat(lot.getHistorique()).isEmpty();
+            assertThat(lot.getZone().getNom()).isEqualTo("A");
+        });
     }
 
     @Test

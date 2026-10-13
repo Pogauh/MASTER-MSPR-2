@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -64,8 +63,8 @@ public class LotAdapter implements LotPort {
     }
 
     @Override
-    public List<Lot> findByDateProductionBefore(LocalDate date) {
-        return lotRepository.findByDateProductionBefore(date).stream().map(mapper::toDomainWithoutHistorique).toList();
+    public List<Lot> findByDateStockageBefore(LocalDateTime date) {
+        return lotRepository.findByDateStockageBefore(date).stream().map(mapper::toDomainWithoutHistorique).toList();
     }
 
     @Override

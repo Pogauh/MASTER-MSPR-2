@@ -21,7 +21,7 @@ ESP32 (module IoT) ──MQTT──▶ Mosquitto ──▶ backend pays ◀─�
 | Mesure | Un capteur envoie `temperature`, `humidite`, `dateMesure` (REST ou MQTT). La date du jour est utilisée si elle est absente. |
 | Plage idéale | Température et humidité idéales ± tolérance, configurées par pays (par défaut 29 ± 3 °C et 55 ± 2 %). |
 | Alerte | Quand **5 mesures consécutives** d'un capteur sont hors plage : une alerte est créée (`HAUTETEMPERATURE`, `BASSETEMPERATURE`, `HAUTEHUMIDITE` ou `BASSEHUMIDITE`, la température étant examinée avant l'humidité), **tous les lots de la zone** passent au statut `ALERT` avec une trace dans leur historique, et le responsable est prévenu par e-mail. |
-| Expiration | Un lot produit il y a **plus d'un an** passe au statut `EXPIRED` (contrôle chaque nuit à 1 h) : alerte `EXPIRED` + e-mail + trace dans l'historique. |
+| Expiration | Un lot **stocké depuis plus d'un an** (date de stockage, et non date de production) passe au statut `EXPIRED` (contrôle chaque nuit à 1 h) : alerte `EXPIRED` + e-mail + trace dans l'historique. Le jour anniversaire, le lot n'est pas encore périmé. |
 | FIFO | Le prochain lot à expédier est le **lot `COMPLIANT` stocké depuis le plus longtemps** (`GET /api/lots/oldestLot`). Sont à écouler en priorité (rapport de stock) les lots stockés depuis 9 à 12 mois. |
 | Cycle de vie d'un lot | Création (statut `COMPLIANT` par défaut, date de stockage = date du jour) → transferts entre zones → `ALERT` / `BLOCKED` / `EXPIRED` → sortie de stock `SHIPPED`. Chaque transfert, alerte et expédition est tracé dans l'historique (`TRANSFERT`, `ALERTE`, `SHIPPED`). |
 
