@@ -244,7 +244,7 @@ mvn verify     # + tests d'intégration (*IT) : API complète sur H2, Cucumber, 
 - Les tests unitaires tournent avec Surefire, les `*IT` avec Failsafe (`mvn verify`).
 - Couverture : `mvn verify` écrit le rapport JaCoCo (tests unitaires + intégration) dans `target/site/jacoco/index.html` — voir la section 10.
 
-CI GitHub Actions : `dev-ci.yml` et `master-ci.yml` exécutent `mvn clean verify` et publient le rapport de couverture (artefact `jacoco-report-<run>`) ; `master-ci.yml` publie ensuite l'image Docker. Un job SonarQube y est prévu mais désactivé (section 10).
+CI GitHub Actions : `dev-ci.yml` et `master-ci.yml` exécutent `mvn clean verify` et publient le rapport de couverture (artefact `jacoco-report-<run>`) ; `master-ci.yml` publie ensuite l'image Docker. Un job SonarQube y est prévu mais désactivé ; activé, il conditionne cette publication (section 10).
 
 ## 10) Qualité de code et couverture (SonarQube)
 
@@ -284,6 +284,12 @@ Pour les activer :
 L'analyse tourne dans un conteneur `maven:3.9-eclipse-temurin-21` (seul Docker est requis sur le runner), réutilise les classes et le rapport de
 couverture produits par le job de build, attend la Quality Gate (`sonar.qualitygate.wait=true`) et publie `sonar-report.json` /
 `sonar-issues.json` en artefacts.
+
+**Seuil de couverture et publication de l'image.** Quand `SONAR_ENABLED` est à `true`, l'étape « Checking minimum coverage » de `sonar.yml`
+lit la couverture globale dans SonarQube après l'analyse et fait échouer le job sous **80 %** (entrée `coverage_min`, 80 par défaut) ou si aucune
+couverture n'est remontée. Le job `docker` dépend du job `sonar` : dans `master-ci.yml`, l'image n'est construite et publiée que si l'analyse réussit (couverture ≥ 80 % et Quality Gate validée). `dev-ci.yml` ne publie pas d'image : un échec de l'analyse y rend seulement le run rouge.
+Quand `SONAR_ENABLED` n'est pas à `true`, le job `sonar` est ignoré et la publication ne dépend pas de lui. Si le runner est éteint alors que la
+variable est à `true`, le job `sonar` reste en attente et **rien n'est publié** : repasser `SONAR_ENABLED` à `false` dans ce cas.
 
 La configuration de l'analyse (clé du projet, exclusions de couverture : `Main` et les DTO ; exclusion des tests de la détection de
 duplication) est dans les propriétés `sonar.*` du `pom.xml`.
